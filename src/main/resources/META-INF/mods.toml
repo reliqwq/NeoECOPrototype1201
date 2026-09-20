@@ -1,0 +1,39 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "GPL-3.0-only"
+issueTrackerURL = "https://github.com/reliqwq/NeoECOPrototype"
+
+[[mods]]
+modId = "neoecoprototype1201"
+version = "0.1.0"
+displayName = "Neo ECO Prototype (1.20.1)"
+authors = "reliqwq"
+description = "1.20.1 port line of the L1 storage addon. Skeleton build: compile probe only, no content yet."
+
+[[dependencies.neoecoprototype1201]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[47.4.0,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.neoecoprototype1201]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.20.1,1.20.2)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.neoecoprototype1201]]
+    modId = "ae2"
+    mandatory = true
+    versionRange = "[15.4.10,)"
+    ordering = "AFTER"
+    side = "BOTH"
+
+[[dependencies.neoecoprototype1201]]
+    modId = "neoecoae"
+    mandatory = true
+    versionRange = "[20.5.0,)"
+    ordering = "AFTER"
+    side = "BOTH"

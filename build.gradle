@@ -1,0 +1,63 @@
+plugins {
+    id 'java-library'
+    id 'net.minecraftforge.gradle' version '6.0.54'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = 'neoecoprototype1201'
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven {
+        name = 'ModMaven'
+        url = 'https://modmaven.dev'
+    }
+    maven { url = 'https://maven.shedaniel.me/' }
+}
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+        }
+        client {}
+        server {
+            args '--nogui'
+        }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Our own build of eco's 1.20.1 branch, in official names (not the reobfuscated release jar),
+    // so it lines up with the 'official' mappings channel used above.
+    implementation files('libs/neoecoae-20.5.0.jar')
+
+    compileOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
+    runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
+
+    compileOnly("org.appliedenergistics:guideme:${guideme_version}:api")
+    runtimeOnly fg.deobf("org.appliedenergistics:guideme:${guideme_version}")
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_id,
+                'Implementation-Title'  : mod_name,
+                'Implementation-Version': mod_version
+        ])
+    }
+}

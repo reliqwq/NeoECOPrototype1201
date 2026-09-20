@@ -1,0 +1,16 @@
+.gradle/
+build/
+run/
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+__pycache__/
+*.pyc
+
+# Third-party binaries never enter the repository; see the 1.21.1 project's README policy.
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
