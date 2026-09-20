@@ -20,6 +20,27 @@ repositories {
         url = 'https://modmaven.dev'
     }
     maven { url = 'https://maven.shedaniel.me/' }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        name = 'Tterrag'
+        url = 'https://maven.tterrag.com/'
+        content { includeGroup 'com.tterrag.registrate' }
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+        // Modrinth publishes bare jars with no POM; without artifact() the original never
+        // resolves, and ForgeGradle then cannot produce the _mapped_official_ variant.
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
 }
 
 minecraft {
@@ -30,6 +51,10 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
+            // Published mods carry SRG-named refmaps; the dev environment runs on official names.
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile',
+                    layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
         }
         client {}
         server {
@@ -50,6 +75,16 @@ dependencies {
 
     compileOnly("org.appliedenergistics:guideme:${guideme_version}:api")
     runtimeOnly fg.deobf("org.appliedenergistics:guideme:${guideme_version}")
+
+    // eco's mods.toml makes LDLib v1 mandatory; Registrate is normally embedded by upstream's
+    // jarJar step, which our plain 'jar' build skips.
+    runtimeOnly fg.deobf("curse.maven:ldlib-626676:7809449")
+    runtimeOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.3")
+    runtimeOnly fg.deobf("me.shedaniel.cloth:cloth-config-forge:11.1.106")
+
+    // Jade: the same coordinate and version eco's optional integration compiles against.
+    compileOnly fg.deobf("maven.modrinth:jade:${jade_version}")
+    runtimeOnly fg.deobf("maven.modrinth:jade:${jade_version}")
 }
 
 jar {
