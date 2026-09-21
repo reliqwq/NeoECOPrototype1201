@@ -1,5 +1,9 @@
 {
   "itemGroup.neoecoprototype1201.main": "Neo ECO Prototype (1.20.1)",
-  "item.neoecoprototype1201.probe_cell": "Prototype Item Cell",
-  "cell_type.neoecoprototype1201.probe": "Prototype"
+  "cell_type.neoecoprototype1201.prototype": "Prototype",
+  "item.neoecoprototype1201.prototype_item_cell_1k": "Prototype Item Cell (1K)",
+  "item.neoecoprototype1201.prototype_item_cell_16k": "Prototype Item Cell (16K)",
+  "item.neoecoprototype1201.prototype_item_cell_64k": "Prototype Item Cell (64K)",
+  "item.neoecoprototype1201.prototype_item_cell_1m": "Prototype Item Cell (1M)",
+  "item.neoecoprototype1201.prototype_item_cell_4m": "Prototype Item Cell (4M)"
 }

@@ -14,7 +14,7 @@ public final class Prototype1201Client {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ECOCellModels.register(Registration.PROBE_CELL.get(),
-                ECOCellModels.STORAGE_CELL_L4_ITEM));
+        event.enqueueWork(() -> Registration.CELLS.forEach(cell ->
+                ECOCellModels.register(cell.get(), ECOCellModels.STORAGE_CELL_L4_ITEM)));
     }
 }

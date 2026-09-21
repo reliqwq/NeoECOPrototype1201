@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ggg",
+    "grg",
+    "ggg"
+  ],
+  "key": {
+    "g": { "item": "minecraft:glass" },
+    "r": { "item": "minecraft:redstone" }
+  },
+  "result": {
+    "item": "neoecoprototype1201:prototype_item_cell_1k",
+    "count": 1
+  }
+}

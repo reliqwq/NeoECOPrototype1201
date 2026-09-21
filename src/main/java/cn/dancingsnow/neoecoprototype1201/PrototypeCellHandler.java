@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  */
 public final class PrototypeCellHandler extends ECOKeyTypeCellHandler {
     public static final PrototypeCellHandler INSTANCE =
-            new PrototypeCellHandler(Registration.PROBE::get, AEKeyType::items);
+            new PrototypeCellHandler(Registration.ROW::get, AEKeyType::items);
 
     private PrototypeCellHandler(Supplier<ECOCellType> cellType, Supplier<AEKeyType> keyType) {
         super(cellType, keyType);
