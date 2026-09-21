@@ -1,7 +1,9 @@
 package cn.dancingsnow.neoecoprototype1201;
 
+import cn.dancingsnow.neoecoae.api.storage.ECOStorageCells;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /** 1.20.1 line of the L1 storage addon. See README for what is deliberately not ported. */
@@ -15,5 +17,10 @@ public final class Prototype1201 {
         Registration.ITEMS.register(modBus);
         Registration.CELL_TYPES.register(modBus);
         Registration.TABS.register(modBus);
+        modBus.addListener(this::onCommonSetup);
+    }
+
+    private void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> ECOStorageCells.register(PrototypeCellHandler.INSTANCE));
     }
 }
