@@ -6,6 +6,12 @@ plugins {
 version = mod_version
 group = mod_group_id
 
+// Porting aid: javac's default 100-error ceiling hides the rest of the gap list, so progress
+// between compile runs cannot be measured.
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << '-Xmaxerrs' << '2000'
+}
+
 base {
     archivesName = 'neoecoprototype1201'
 }
@@ -79,6 +85,9 @@ dependencies {
     // eco's mods.toml makes LDLib v1 mandatory; Registrate is normally embedded by upstream's
     // jarJar step, which our plain 'jar' build skips.
     runtimeOnly fg.deobf("curse.maven:ldlib-626676:7809449")
+    // eco's NEClusterCalculator exposes Registrate types in its public signatures, so compiling
+    // against it needs that jar on the compile classpath as well.
+    compileOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.3")
     runtimeOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.3")
     runtimeOnly fg.deobf("me.shedaniel.cloth:cloth-config-forge:11.1.106")
 

@@ -1,6 +1,8 @@
 package cn.dancingsnow.neoecoprototype1201;
 
 import cn.dancingsnow.neoecoae.api.storage.ECOStorageCells;
+import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
+import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -14,6 +16,9 @@ public final class Prototype1201 {
     /** Forge 47 only ever calls a no-argument constructor; the injected bus is NeoForge-only. */
     public Prototype1201() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModRegistration.BLOCKS.register(modBus);
+        ModRegistration.BLOCK_ITEMS.register(modBus);
+        ModBlockEntities.BLOCK_ENTITIES.register(modBus);
         Registration.ITEMS.register(modBus);
         Registration.CELL_TYPES.register(modBus);
         Registration.TABS.register(modBus);

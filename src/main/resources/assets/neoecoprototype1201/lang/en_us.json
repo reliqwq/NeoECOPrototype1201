@@ -1,9 +1,16 @@
 {
-  "itemGroup.neoecoprototype1201.main": "Neo ECO Prototype (1.20.1)",
+  "block.neoecoprototype1201.simplify_drive": "ECO - L1 Storage Matrix Drive",
+  "block.neoecoprototype1201.simplify_energy_cell": "ECO - LT1 Density Energy Cell",
+  "block.neoecoprototype1201.simplify_storage_casing": "ECO - L1 Storage Subsystem Structural Casing",
+  "block.neoecoprototype1201.simplify_storage_controller": "ECO - L1 Extensible Storage Subsystem Controller",
+  "block.neoecoprototype1201.simplify_storage_interface": "L1 Storage Subsystem Communication Interface",
+  "block.neoecoprototype1201.simplify_storage_network_interface": "L1 Storage Subsystem Interface",
+  "block.neoecoprototype1201.simplify_storage_vent": "L1 Storage Subsystem Structural Radiator",
   "cell_type.neoecoprototype1201.prototype": "Prototype",
-  "item.neoecoprototype1201.prototype_item_cell_1k": "Prototype Item Cell (1K)",
   "item.neoecoprototype1201.prototype_item_cell_16k": "Prototype Item Cell (16K)",
-  "item.neoecoprototype1201.prototype_item_cell_64k": "Prototype Item Cell (64K)",
+  "item.neoecoprototype1201.prototype_item_cell_1k": "Prototype Item Cell (1K)",
   "item.neoecoprototype1201.prototype_item_cell_1m": "Prototype Item Cell (1M)",
-  "item.neoecoprototype1201.prototype_item_cell_4m": "Prototype Item Cell (4M)"
+  "item.neoecoprototype1201.prototype_item_cell_4m": "Prototype Item Cell (4M)",
+  "item.neoecoprototype1201.prototype_item_cell_64k": "Prototype Item Cell (64K)",
+  "itemGroup.neoecoprototype1201.main": "Neo ECO Prototype (1.20.1)"
 }

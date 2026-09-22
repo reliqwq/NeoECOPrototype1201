@@ -1,9 +1,16 @@
 {
-  "itemGroup.neoecoprototype1201.main": "Neo ECO 原型（1.20.1）",
+  "block.neoecoprototype1201.simplify_drive": "ECO - L1 存储矩阵驱动器",
+  "block.neoecoprototype1201.simplify_energy_cell": "ECO - LT1 密度能量元件",
+  "block.neoecoprototype1201.simplify_storage_casing": "ECO - L1 存储子系统结构外壳",
+  "block.neoecoprototype1201.simplify_storage_controller": "ECO - L1 可拓展存储子系统主机",
+  "block.neoecoprototype1201.simplify_storage_interface": "L1 存储子系统通讯接口",
+  "block.neoecoprototype1201.simplify_storage_network_interface": "L1 存储子系统接口",
+  "block.neoecoprototype1201.simplify_storage_vent": "L1 存储子系统结构散热器",
   "cell_type.neoecoprototype1201.prototype": "原型",
-  "item.neoecoprototype1201.prototype_item_cell_1k": "原型物品存储矩阵（1K）",
   "item.neoecoprototype1201.prototype_item_cell_16k": "原型物品存储矩阵（16K）",
-  "item.neoecoprototype1201.prototype_item_cell_64k": "原型物品存储矩阵（64K）",
+  "item.neoecoprototype1201.prototype_item_cell_1k": "原型物品存储矩阵（1K）",
   "item.neoecoprototype1201.prototype_item_cell_1m": "原型物品存储矩阵（1M）",
-  "item.neoecoprototype1201.prototype_item_cell_4m": "原型物品存储矩阵（4M）"
+  "item.neoecoprototype1201.prototype_item_cell_4m": "原型物品存储矩阵（4M）",
+  "item.neoecoprototype1201.prototype_item_cell_64k": "原型物品存储矩阵（64K）",
+  "itemGroup.neoecoprototype1201.main": "Neo ECO 原型（1.20.1）"
 }

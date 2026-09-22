@@ -2,6 +2,7 @@ package cn.dancingsnow.neoecoprototype1201;
 
 import cn.dancingsnow.neoecoae.all.NERegistries;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
+import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -55,7 +56,11 @@ public final class Registration {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup." + Prototype1201.MOD_ID + ".main"))
                     .icon(() -> CELLS.get(0).get().getDefaultInstance())
-                    .displayItems((params, output) -> CELLS.forEach(cell -> output.accept(cell.get())))
+                    .displayItems((params, output) -> {
+                        ModRegistration.TAB_BLOCK_ITEMS
+                                .forEach(item -> output.accept(item.get()));
+                        CELLS.forEach(cell -> output.accept(cell.get()));
+                    })
                     .build());
 
     private Registration() {
