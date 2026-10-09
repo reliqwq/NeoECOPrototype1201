@@ -74,7 +74,7 @@ dependencies {
 
     // Our own build of eco's 1.20.1 branch, in official names (not the reobfuscated release jar),
     // so it lines up with the 'official' mappings channel used above.
-    implementation files('libs/neoecoae-20.5.0.jar')
+    implementation files('libs/neoecoae-20.5.0-beta1.jar')
 
     compileOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
     runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")

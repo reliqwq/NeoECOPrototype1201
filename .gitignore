@@ -14,3 +14,9 @@ __pycache__/
 # Third-party binaries never enter the repository; see the 1.21.1 project's README policy.
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+# Byte-for-byte backups taken before the 1.21 formed-render port (local only).
+备份_*/
+
+# The previous eco jar, kept locally as the byte-for-byte copy of what we replaced.
+旧jar/
