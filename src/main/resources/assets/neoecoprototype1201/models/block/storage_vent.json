@@ -3,23 +3,86 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"0": "neoecoprototype1201:block/storage_recolor/casing",
-		"1": "neoecoprototype1201:block/storage_recolor/casing_back",
+		"1": "neoecoprototype1201:block/storage_recolor/vents_south",
 		"2": "neoecoprototype1201:block/storage_recolor/vents_north",
 		"3": "neoecoprototype1201:block/storage_recolor/casing_side",
 		"particle": "neoecoprototype1201:block/storage_recolor/casing"
 	},
 	"elements": [
 		{
-			"from": [0, 0, 0],
-			"to": [16, 16, 16],
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				16,
+				16
+			],
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#2", "cullface": "north"},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "east"},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#1", "cullface": "south"},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#3", "cullface": "west"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "up"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#0", "cullface": "down"}
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#2",
+					"cullface": "north"
+				},
+				"east": {
+					"uv": [
+						16,
+						0,
+						0,
+						16
+					],
+					"texture": "#3",
+					"cullface": "east"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#1",
+					"cullface": "south"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#3",
+					"cullface": "west"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"rotation": 90,
+					"texture": "#3",
+					"cullface": "up"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"rotation": 270,
+					"texture": "#3",
+					"cullface": "down"
+				}
 			}
 		}
 	]

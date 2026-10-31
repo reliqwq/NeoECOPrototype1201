@@ -1,7 +1,0 @@
-{
-  "parent": "neoecoae:block/cell/storage_cell_l4_item",
-  "credit": "eco cell geometry with this addon's recoloured level band",
-  "textures": {
-    "level": "neoecoprototype1201:block/cell/prototype_cell_level"
-  }
-}

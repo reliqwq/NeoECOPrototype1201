@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "neoecoprototype1201:block/superconductive_interface"
+  }
+}

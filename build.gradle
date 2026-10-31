@@ -25,16 +25,10 @@ repositories {
         name = 'ModMaven'
         url = 'https://modmaven.dev'
     }
-    maven { url = 'https://maven.shedaniel.me/' }
     maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
         content { includeGroup 'curse.maven' }
-    }
-    maven {
-        name = 'Tterrag'
-        url = 'https://maven.tterrag.com/'
-        content { includeGroup 'com.tterrag.registrate' }
     }
     maven {
         name = 'Modrinth'
@@ -61,6 +55,11 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile',
                     layout.buildDirectory.file('createSrgToMcp/output.srg').get().asFile.absolutePath
+            // Dev runs put our classes on the classpath instead of loading this project's jar, so the
+            // MixinConfigs manifest attribute above is never read here. Mixin's own command line option
+            // reaches the same registration - MixinPlatformManager.prepare() calls Mixins.addConfiguration()
+            // for every --mixin.config value it finds on sun.java.command.
+            args '--mixin.config', 'neoecoprototype1201.mixins.json'
         }
         client {}
         server {
@@ -72,9 +71,9 @@ minecraft {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Our own build of eco's 1.20.1 branch, in official names (not the reobfuscated release jar),
-    // so it lines up with the 'official' mappings channel used above.
-    implementation files('libs/neoecoae-20.5.0-beta1.jar')
+    // eco's published 1.20.1 build. It is reobfuscated for production, so it needs the same
+    // fg.deobf trip as every other mod here to line up with the 'official' mappings channel above.
+    implementation fg.deobf("maven.modrinth:neoecoae:${eco_version}")
 
     compileOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
     runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
@@ -82,14 +81,13 @@ dependencies {
     compileOnly("org.appliedenergistics:guideme:${guideme_version}:api")
     runtimeOnly fg.deobf("org.appliedenergistics:guideme:${guideme_version}")
 
-    // eco's mods.toml makes LDLib v1 mandatory; Registrate is normally embedded by upstream's
-    // jarJar step, which our plain 'jar' build skips.
+    // eco's mods.toml makes LDLib v1 mandatory. Registrate does not belong here: the published eco
+    // jar already carries its own copy via jarJar (MC1.20-1.3.11), and a second one on the module
+    // path is a duplicate-package ResolutionException at boot.
+    // compileOnly as well: eco's computation block entities declare LDLib's sync-data interfaces in
+    // their supertype list, so extending one (our computation drive) cannot compile without it.
+    compileOnly fg.deobf("curse.maven:ldlib-626676:7809449")
     runtimeOnly fg.deobf("curse.maven:ldlib-626676:7809449")
-    // eco's NEClusterCalculator exposes Registrate types in its public signatures, so compiling
-    // against it needs that jar on the compile classpath as well.
-    compileOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.3")
-    runtimeOnly fg.deobf("com.tterrag.registrate:Registrate:MC1.20-1.3.3")
-    runtimeOnly fg.deobf("me.shedaniel.cloth:cloth-config-forge:11.1.106")
 
     // Jade: the same coordinate and version eco's optional integration compiles against.
     compileOnly fg.deobf("maven.modrinth:jade:${jade_version}")
@@ -101,7 +99,13 @@ jar {
         attributes([
                 'Specification-Title'   : mod_id,
                 'Implementation-Title'  : mod_name,
-                'Implementation-Version': mod_version
+                'Implementation-Version': mod_version,
+                // Forge 1.20.1 has no mods.toml key for mixin configs (IModInfo exposes no accessor for
+                // one and fmlloader contains no "mixin" string at all). The loader path is the jar manifest
+                // attribute, read by mixin's own MixinPlatformAgentDefault - which is how eco 20.5.3 ships
+                // its nine configs. Dev runs load classes, not this jar, so runs below pass --mixin.config
+                // instead; both are needed or the same code behaves differently in dev and in a release.
+                'MixinConfigs'          : 'neoecoprototype1201.mixins.json'
         ])
     }
 }

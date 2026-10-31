@@ -34,9 +34,8 @@ description = "1.20.1 port line of the L1 storage addon. Skeleton build: compile
 [[dependencies.neoecoprototype1201]]
     modId = "neoecoae"
     mandatory = true
-    # The floor names a prerelease on purpose. eco's 1.20.1 branch moved its own mod_version from
-    # 20.5.0 back to 20.5.0-beta1, and a prerelease compares *below* the release, so [20.5.0,) would
-    # refuse the very jar we build against. This range still accepts 20.5.0 and everything later.
-    versionRange = "[20.5.0-beta1,)"
+    # The floor is the compile baseline, on purpose: this line is compiled against the published
+    # 20.5.3 jar, and earlier 20.5.x builds do not carry the storage API it uses.
+    versionRange = "[20.5.3,)"
     ordering = "AFTER"
     side = "BOTH"

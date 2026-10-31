@@ -19,7 +19,19 @@ import net.minecraft.resources.ResourceLocation;
  * the intended upgrade path.
  */
 public enum SimplifyTier implements IECOTier {
-    L1(0, 1L << 20, 100_000L, 1L << 20, 1, 1, 16, 1);
+    L1(0, 1L << 20, 100_000L, 1L << 20, 1, 1, 16, 1),
+    /** The energized computation cell: same tier index, four times the CPU bytes. */
+    L1_REINFORCED(0, 1L << 20, 100_000L, 5_242_880L, 1, 1, 128, 4),
+    /**
+     * The energized threading core: sixteen real threads, because eco allocates one
+     * {@code ECOCraftingCPU} per thread in the core's constructor.
+     */
+    L1_ENERGIZED_THREADING(0, 1L << 20, 100_000L, 1L << 20, 1, 1, 16, 16),
+    /**
+     * The shell-mounted parallel member; only {@link #getCPUAccelerators()} is read for it, since eco
+     * sums that over the parallel cores it finds in the bounding box.
+     */
+    L1_PARALLEL_SWITCH(0, 1L << 20, 100_000L, 1L << 20, 1, 1, 1024, 1);
 
     private final int tier;
     private final long storageTotalBytes;
@@ -86,6 +98,16 @@ public enum SimplifyTier implements IECOTier {
 
     @Override
     public ResourceLocation getCPUOverlayTexture() {
-        return ResourceLocation.fromNamespaceAndPath("neoecoprototype", "textures/gui/tier/l1.png");
+        return ResourceLocation.fromNamespaceAndPath(
+                cn.dancingsnow.neoecoprototype1201.Prototype1201.MOD_ID, "textures/gui/tier/l1.png");
+    }
+
+    /**
+     * eco's default spells the tier number, and our tier index is 0, so without this the computation
+     * panel labels every L1 cell "L0" - a tier that does not exist.
+     */
+    @Override
+    public net.minecraft.network.chat.Component getPanelTierName() {
+        return net.minecraft.network.chat.Component.literal("L1");
     }
 }

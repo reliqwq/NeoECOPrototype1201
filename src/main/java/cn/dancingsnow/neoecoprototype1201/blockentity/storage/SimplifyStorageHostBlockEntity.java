@@ -1,82 +1,83 @@
 package cn.dancingsnow.neoecoprototype1201.blockentity.storage;
 
 import cn.dancingsnow.neoecoae.api.IECOTier;
-import cn.dancingsnow.neoecoae.blocks.entity.NEBlockEntity;
-import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
-import cn.dancingsnow.neoecoprototype1201.multiblock.calculator.SimplifyStorageClusterCalculator;
-import cn.dancingsnow.neoecoprototype1201.multiblock.cluster.SimplifyStorageCluster;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECOStorageSystemBlockEntity;
+import cn.dancingsnow.neoecoae.multiblock.definition.MultiBlockDefinition;
+import cn.dancingsnow.neoecoprototype1201.api.SimplifyPowerProfile;
+import cn.dancingsnow.neoecoprototype1201.block.storage.SimplifyStorageControllerBlock;
+import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyStorageDefinition;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Controller of the L1 storage matrix.
+ * Controller of the L1 storage matrix: eco's own storage host with our tier handed in.
  *
- * <p>eco's own host carries the LDLib panel, the interface transfer mode and the infinite-storage
- * engine; none of those have a counterpart we ported yet, so this controller keeps only what the
- * cluster, the drives and the structure validator actually ask for. The drives read the tier and the
- * AE2 storage priority from here, which is the whole contract of a controller in this structure.</p>
+ * <p>Everything the machine does is eco's - the panel (its {@code StorageHostUI} plus the priority strip and
+ * the build controls, assembled by eco from a 20-field config), the storage priority, the cell mounting,
+ * the interface transfer mode, and the power buffer of the energy cells beside it. What eco cannot answer
+ * for an addon is the shape: its {@code getBuildDefinition()} is a {@code tableswitch} over its own tier
+ * indexes (1..3 = L4/L6/L9) whose default is {@code aconst_null}, and every caller null-checks that answer,
+ * which is what leaves the build controls inert on a tier-0 host. So this class exists for the override.
+ *
+ * <p>Subclassing is affordable here and that is measured: on eco 20.5.3 the machine is reached through
+ * {@code grid.NEMachineLookup}, which enumerates {@code IGrid.getMachineClasses()} and matches with
+ * {@code isAssignableFrom}, so a subclass stays visible to every consumer.
  */
-public class SimplifyStorageHostBlockEntity
-        extends NEBlockEntity<SimplifyStorageCluster, SimplifyStorageHostBlockEntity> {
-
-    private static final String TAG_STORAGE_PRIORITY = "storagePriority";
-
-    private int storagePriority = 0;
-    private boolean mirrored;
-
-    public SimplifyStorageHostBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState, SimplifyStorageClusterCalculator::new);
+public class SimplifyStorageHostBlockEntity extends ECOStorageSystemBlockEntity {
+    public SimplifyStorageHostBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+                                          IECOTier tier) {
+        super(type, pos, state, tier);
     }
 
-    public IECOTier getTier() {
-        return SimplifyTier.L1;
+    @Override
+    public void onReady() {
+        super.onReady();
+        // After eco's own number, which is what this member's 64.0 AE/t is written as: an L1 frame of the
+        // same size is meant to idle lower than an L4 one.
+        getMainNode().setIdlePowerUsage(SimplifyPowerProfile.L1.storageControllerIdlePower());
     }
 
-    public int getStoragePriority() {
-        return storagePriority;
+    /** L1 is a shell of addon blocks, so its geometry is our own definition, not eco's L4 layout. */
+    @Override
+    public MultiBlockDefinition getBuildDefinition() {
+        return SimplifyStorageDefinition.L1;
     }
 
-    public void setStoragePriority(int priority) {
-        if (this.storagePriority != priority) {
-            this.storagePriority = priority;
-            setChanged();
-            markForUpdate();
+    /**
+     * Derived from the geometry on every validation, like eco's own {@code mirrored}: never written to NBT,
+     * because the interface block that answers for it is itself in the world.
+     */
+    private boolean communicationInterface;
+
+    public void setCommunicationInterface(boolean communicationInterface) {
+        if (this.communicationInterface != communicationInterface) {
+            this.communicationInterface = communicationInterface;
+            updateState(false);
         }
     }
 
-    public void setMirrored(boolean mirrored) {
-        this.mirrored = mirrored;
-    }
-
-    public boolean isMirrored() {
-        return mirrored;
-    }
-
+    /**
+     * eco 20.5.3 already writes the formed state through this member - its own host sets
+     * {@code MIRRORED = formed && mirrored} and {@code STORAGE_MODE} from the interface here, and
+     * {@code NECluster} calls it virtually, so a subclass is part of the contract rather than a workaround.
+     * We add the one property eco has no concept of, after super has done its pass.
+     */
     @Override
-    protected void writeUiSyncTag(CompoundTag tag) {
-        super.writeUiSyncTag(tag);
-        tag.putInt(TAG_STORAGE_PRIORITY, storagePriority);
-        tag.putBoolean("mirrored", mirrored);
-    }
-
-    @Override
-    protected void readUiSyncTag(CompoundTag tag) {
-        super.readUiSyncTag(tag);
-        storagePriority = tag.getInt(TAG_STORAGE_PRIORITY);
-        mirrored = tag.getBoolean("mirrored");
-    }
-
-    @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.putInt(TAG_STORAGE_PRIORITY, storagePriority);
-    }
-
-    @Override
-    public void loadTag(CompoundTag tag) {
-        super.loadTag(tag);
-        storagePriority = tag.getInt(TAG_STORAGE_PRIORITY);
+    public void updateState(boolean gridSidesChanged) {
+        super.updateState(gridSidesChanged);
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        BlockState state = level.getBlockState(worldPosition);
+        if (!state.hasProperty(SimplifyStorageControllerBlock.COMMUNICATION_INTERFACE)) {
+            return;
+        }
+        boolean wanted = isFormed() && communicationInterface;
+        if (state.getValue(SimplifyStorageControllerBlock.COMMUNICATION_INTERFACE) != wanted) {
+            level.setBlock(worldPosition, state.setValue(
+                    SimplifyStorageControllerBlock.COMMUNICATION_INTERFACE, wanted), Block.UPDATE_CLIENTS);
+        }
     }
 }

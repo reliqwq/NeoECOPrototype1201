@@ -1,0 +1,71 @@
+{
+	"loader": "forge:composite",
+	"parent": "block/block",
+	"textures": {
+		"particle": "neoecoprototype1201:block/computation_recolor/transmitter/transmitter_side"
+	},
+	"children": {
+		"base": {
+			"parent": "neoecoprototype1201:block/computation_transmitter_base"
+		},
+		"glass": {
+			"render_type": "translucent",
+			"textures": {
+				"glass": "neoecoprototype1201:block/computation_recolor/transmitter/transmitter_north_glass"
+			},
+			"elements": [
+				{
+					"name": "glass",
+					"from": [
+						1,
+						6,
+						1
+					],
+					"to": [
+						15,
+						10,
+						2
+					],
+					"rotation": {
+						"angle": 0,
+						"axis": "y",
+						"origin": [
+							1,
+							6,
+							1
+						]
+					},
+					"faces": {
+						"north": {
+							"uv": [
+								1,
+								6,
+								15,
+								10
+							],
+							"texture": "#glass"
+						},
+						"up": {
+							"uv": [
+								1,
+								10,
+								15,
+								11
+							],
+							"texture": "#glass"
+						},
+						"down": {
+							"uv": [
+								1,
+								11,
+								15,
+								12
+							],
+							"texture": "#glass"
+						}
+					}
+				}
+			]
+		}
+	}
+}

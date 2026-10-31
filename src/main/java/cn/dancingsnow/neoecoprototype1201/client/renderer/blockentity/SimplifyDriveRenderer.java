@@ -3,8 +3,8 @@ package cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity;
 import appeng.api.storage.cells.CellState;
 import appeng.client.render.tesr.CellLedRenderer;
 import cn.dancingsnow.neoecoae.api.ECOCellModels;
-import cn.dancingsnow.neoecoae.api.rendering.IFixedBlockEntityRenderer;
-import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyDriveBlockEntity;
+import cn.dancingsnow.neoecoae.client.rendering.IFixedBlockEntityRenderer;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECODriveBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -25,8 +25,8 @@ import org.joml.Matrix4f;
  * the same way for its own drives. Shape copied from eco 1.20.1's {@code ECODriveRenderer}; the
  * infinite-member branch is left out because that cell family does not exist on this line.
  */
-public class SimplifyDriveRenderer implements BlockEntityRenderer<SimplifyDriveBlockEntity>,
-        IFixedBlockEntityRenderer<SimplifyDriveBlockEntity> {
+public class SimplifyDriveRenderer implements BlockEntityRenderer<ECODriveBlockEntity>,
+        IFixedBlockEntityRenderer<ECODriveBlockEntity> {
 
     public SimplifyDriveRenderer() {
     }
@@ -35,7 +35,7 @@ public class SimplifyDriveRenderer implements BlockEntityRenderer<SimplifyDriveB
     }
 
     @Override
-    public void render(SimplifyDriveBlockEntity blockEntity, float partialTick, PoseStack poseStack,
+    public void render(ECODriveBlockEntity blockEntity, float partialTick, PoseStack poseStack,
                        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         renderFixed(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
         if (!blockEntity.isMounted() || !blockEntity.isOnline()) {
@@ -48,7 +48,7 @@ public class SimplifyDriveRenderer implements BlockEntityRenderer<SimplifyDriveB
     }
 
     @Override
-    public void renderFixed(SimplifyDriveBlockEntity blockEntity, float partialTick, PoseStack poseStack,
+    public void renderFixed(ECODriveBlockEntity blockEntity, float partialTick, PoseStack poseStack,
                             MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         ItemStack cellStack = blockEntity.getCellStack();
         if (cellStack == null || cellStack.isEmpty()) {
@@ -61,11 +61,11 @@ public class SimplifyDriveRenderer implements BlockEntityRenderer<SimplifyDriveB
         poseStack.translate(-0.5, -0.5, -0.5);
         poseStack.translate(2 / 16f, 2 / 16f, 0 / 16f);
         ResourceLocation modelLocation = ECOCellModels.getModelLocation(cellStack.getItem());
-        tessellateModel(blockEntity, poseStack, bufferSource, modelLocation, packedLight, packedOverlay);
+        tessellateModel(poseStack, bufferSource, modelLocation, packedLight, packedOverlay);
         poseStack.popPose();
     }
 
-    private static void renderLed(SimplifyDriveBlockEntity blockEntity, PoseStack poseStack,
+    private static void renderLed(ECODriveBlockEntity blockEntity, PoseStack poseStack,
                                   MultiBufferSource bufferSource, int stateColor) {
         int red = stateColor >> 16 & 255;
         int green = stateColor >> 8 & 255;

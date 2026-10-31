@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "formed=false,invisible=false": {
+      "model": "neoecoprototype1201:block/crafting_casing"
+    },
+    "formed=false,invisible=true": {
+      "model": "neoecoprototype1201:block/crafting_casing"
+    },
+    "formed=true,invisible=false": {
+      "model": "neoecoprototype1201:block/crafting_casing_formed"
+    },
+    "formed=true,invisible=true": {
+      "model": "neoecoprototype1201:block/crafting_casing_formed"
+    }
+  }
+}

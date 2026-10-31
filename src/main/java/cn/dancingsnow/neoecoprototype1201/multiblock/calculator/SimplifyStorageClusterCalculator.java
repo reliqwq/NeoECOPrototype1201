@@ -4,11 +4,18 @@ import appeng.api.orientation.IOrientationStrategy;
 import appeng.api.orientation.OrientationStrategies;
 import appeng.api.orientation.RelativeSide;
 import cn.dancingsnow.neoecoae.blocks.entity.NEBlockEntity;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECODriveBlockEntity;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECOEnergyCellBlockEntity;
+import cn.dancingsnow.neoecoae.blocks.storage.ECOEnergyCellBlock;
+import cn.dancingsnow.neoecoae.blocks.storage.ECOEnergyCellBlock;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECOStorageSystemBlockEntity;
+import cn.dancingsnow.neoecoae.blocks.entity.storage.ECOStorageVentBlockEntity;
 import cn.dancingsnow.neoecoae.multiblock.calculator.NEClusterCalculator;
+import cn.dancingsnow.neoecoae.multiblock.calculator.NEStorageClusterCalculator;
+import cn.dancingsnow.neoecoae.multiblock.calculator.NEStorageClusterCalculator;
+import cn.dancingsnow.neoecoae.multiblock.cluster.NEStorageCluster;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyMultiblockConfig;
-import cn.dancingsnow.neoecoprototype1201.block.storage.SimplifyEnergyCellBlock;
 import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyStorageHostBlockEntity;
-import cn.dancingsnow.neoecoprototype1201.multiblock.cluster.SimplifyStorageCluster;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,32 +30,34 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Structure validator of the L1 storage subsystem. Same geometry rules as eco's
- * {@code NEStorageClusterCalculator}, but validated against this addon's own
+ * {@code SimplifyStorageClusterCalculator}, but validated against this addon's own
  * block set. Only the L1 controller tier (index 0) energy cells are accepted,
  * matching the {@code tier.supportsComponentTier(...)} semantics eco uses.
  */
-public class SimplifyStorageClusterCalculator extends NEClusterCalculator<SimplifyStorageCluster> {
+public class SimplifyStorageClusterCalculator extends NEStorageClusterCalculator {
 
     /** Side-effect-free result of the storage geometry check. */
-    public record StructureValidation(boolean valid, boolean mirrored, BlockPos controllerPos) {
+    public record StructureValidation(boolean valid, boolean mirrored, boolean communicationInterface,
+                                      BlockPos controllerPos) {
         public static StructureValidation invalid(BlockPos controllerPos) {
-            return new StructureValidation(false, false, controllerPos);
+            return new StructureValidation(false, false, false, controllerPos);
         }
     }
 
     /** Max expandable length along the drive axis (measured in blocks). */
     private static final int MAX_LENGTH = SimplifyMultiblockConfig.L1_MAX_LENGTH;
 
-    public SimplifyStorageClusterCalculator(NEBlockEntity<SimplifyStorageCluster, ?> t) {
+    public SimplifyStorageClusterCalculator(NEBlockEntity<NEStorageCluster, ?> t) {
         super(t);
     }
 
     @Override
-    public SimplifyStorageCluster createCluster(ServerLevel level, BlockPos min, BlockPos max) {
-        return new SimplifyStorageCluster(min, max);
+    public NEStorageCluster createCluster(ServerLevel level, BlockPos min, BlockPos max) {
+        return new NEStorageCluster(min, max);
     }
 
     @Override
@@ -57,9 +66,14 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
     }
 
     @Override
+    protected Supplier<? extends Block> casing() {
+        return ModRegistration.SIMPLIFY_STORAGE_CASING_BLOCK;
+    }
+
+    @Override
     public boolean isValidBlockEntity(BlockEntity te) {
         return te instanceof NEBlockEntity<?, ?> neBlockEntity
-                && neBlockEntity.getCalculator() instanceof SimplifyStorageClusterCalculator;
+                && neBlockEntity.getCalculator() instanceof NEStorageClusterCalculator;
     }
 
     @Override
@@ -73,7 +87,7 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
     public StructureValidation validateStructure(ServerLevel level, BlockPos min, BlockPos max) {
         BlockPos controllerPos = null;
         for (BlockPos pos : allPossibleController(min, max)) {
-            if (level.getBlockEntity(pos) instanceof SimplifyStorageHostBlockEntity) {
+            if (level.getBlockEntity(pos) instanceof ECOStorageSystemBlockEntity) {
                 controllerPos = pos;
                 break;
             }
@@ -92,18 +106,32 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
         Direction right = left.getOpposite();
 
         if (verifyStructure(level, controllerPos, front, back, top, down, left, right)) {
-            return new StructureValidation(true, false, controllerPos);
+            return new StructureValidation(true, false,
+                    interfaceSlotHoldsNetworkInterface(level, controllerPos, back, left), controllerPos);
         }
         if (verifyStructure(level, controllerPos, front, back, top, down, right, left)) {
-            return new StructureValidation(true, true, controllerPos);
+            return new StructureValidation(true, true,
+                    interfaceSlotHoldsNetworkInterface(level, controllerPos, back, right), controllerPos);
         }
         return StructureValidation.invalid(controllerPos);
     }
 
+    /**
+     * The interface slot accepts either of our two interface blocks (they share one block entity type, so
+     * either forms), and the host's face is the only thing that tells a 通讯接口 apart from a plain one from
+     * outside. This is where that difference is read; eco 20.5.3 has no notion of it anywhere.
+     */
+    private boolean interfaceSlotHoldsNetworkInterface(ServerLevel level, BlockPos controllerPos,
+                                                       Direction back, Direction staticSide) {
+        return level.getBlockState(controllerPos.relative(staticSide).relative(back))
+                .is(ModRegistration.SIMPLIFY_STORAGE_NETWORK_INTERFACE_BLOCK.get());
+    }
+
     private void applyMirroredState(ServerLevel level, StructureValidation result) {
         if (result.controllerPos() != null
-                && level.getBlockEntity(result.controllerPos()) instanceof SimplifyStorageHostBlockEntity controller) {
-            controller.setMirrored(result.mirrored());
+                && level.getBlockEntity(result.controllerPos()) instanceof SimplifyStorageHostBlockEntity host) {
+            host.setMirrored(result.mirrored());
+            host.setCommunicationInterface(result.communicationInterface());
         }
     }
 
@@ -176,7 +204,7 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
                 ventStart,
                 (state, pos) -> state.is(ModRegistration.SIMPLIFY_STORAGE_VENT_BLOCK.get())
                         && state.getValue(BlockStateProperties.HORIZONTAL_FACING) == back
-        ).result();
+        );
         if (ventEndResult.isEmpty()) {
             return false;
         }
@@ -233,10 +261,10 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
     }
 
     private boolean isSupportedEnergyCell(BlockState state, Direction back) {
-        if (!(state.getBlock() instanceof SimplifyEnergyCellBlock cell)) {
+        if (!(state.getBlock() instanceof ECOEnergyCellBlock cell)) {
             return false;
         }
-        if (state.getValue(SimplifyEnergyCellBlock.FACING) != back) {
+        if (state.getValue(ECOEnergyCellBlock.FACING) != back) {
             return false;
         }
         // structure is only validated for the L1 host, whose tier is index 0;
@@ -255,7 +283,7 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
     // ------------------------------------------------------------------
 
     /** Empty when the structure is valid; otherwise a list of concrete issues. */
-    public static List<String> diagnose(ServerLevel level, SimplifyStorageHostBlockEntity controller) {
+    public static List<String> diagnose(ServerLevel level, ECOStorageSystemBlockEntity controller) {
         BlockPos controllerPos = controller.getBlockPos();
         BlockState cs = controller.getBlockState();
         IOrientationStrategy strategy = OrientationStrategies.horizontalFacing();
@@ -371,17 +399,17 @@ public class SimplifyStorageClusterCalculator extends NEClusterCalculator<Simpli
                 }
                 BlockPos energyTop = ventPos.relative(top);
                 BlockPos energyDown = ventPos.relative(down);
-                if (!(level.getBlockState(energyTop).getBlock() instanceof SimplifyEnergyCellBlock)) {
+                if (!(level.getBlockState(energyTop).getBlock() instanceof ECOEnergyCellBlock)) {
                     ok[0] = false;
                     addIssue(issues, controllerPos, energyTop, ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get(), level);
-                } else if (level.getBlockState(energyTop).getValue(SimplifyEnergyCellBlock.FACING) != back) {
+                } else if (level.getBlockState(energyTop).getValue(ECOEnergyCellBlock.FACING) != back) {
                     ok[0] = false;
                     issues.add(rel(controllerPos, energyTop) + " 储能元件 facing 应为 " + back.getName());
                 }
-                if (!(level.getBlockState(energyDown).getBlock() instanceof SimplifyEnergyCellBlock)) {
+                if (!(level.getBlockState(energyDown).getBlock() instanceof ECOEnergyCellBlock)) {
                     ok[0] = false;
                     addIssue(issues, controllerPos, energyDown, ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get(), level);
-                } else if (level.getBlockState(energyDown).getValue(SimplifyEnergyCellBlock.FACING) != back) {
+                } else if (level.getBlockState(energyDown).getValue(ECOEnergyCellBlock.FACING) != back) {
                     ok[0] = false;
                     issues.add(rel(controllerPos, energyDown) + " 储能元件 facing 应为 " + back.getName());
                 }

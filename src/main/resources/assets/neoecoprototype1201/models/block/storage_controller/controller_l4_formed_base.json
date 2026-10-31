@@ -1,8 +1,0 @@
-{
-	"parent": "neoecoprototype1201:block/storage_controller/controller_formed_base",
-	"textures":
-	{
-		"light": "neoecoprototype1201:block/storage_recolor/controller_formed/controller_formed_light_a",
-		"screen_light": "neoecoprototype1201:block/storage_recolor/controller_formed/screen_a_light"
-	}
-}

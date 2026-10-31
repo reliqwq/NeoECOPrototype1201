@@ -20,3 +20,6 @@ __pycache__/
 
 # The previous eco jar, kept locally as the byte-for-byte copy of what we replaced.
 旧jar/
+
+# Byte-for-byte backups of source files we removed, kept locally the same way.
+_removed_sources/

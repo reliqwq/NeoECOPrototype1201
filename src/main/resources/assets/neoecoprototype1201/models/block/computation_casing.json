@@ -1,0 +1,8 @@
+{
+	"format_version": "1.9.0",
+	"parent": "block/cube_all",
+	"textures": {
+		"all": "neoecoprototype1201:block/computation_recolor/casing",
+		"particle": "neoecoprototype1201:block/computation_recolor/casing"
+	}
+}

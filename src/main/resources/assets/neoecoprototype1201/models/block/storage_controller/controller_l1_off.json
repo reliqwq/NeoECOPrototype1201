@@ -1,0 +1,7 @@
+{
+	"parent": "neoecoprototype1201:block/storage_controller/controller_off_base",
+	"textures": {
+		"north": "neoecoprototype1201:block/storage_recolor/controller/controller_north_a",
+		"screen_light": "neoecoprototype1201:block/storage_recolor/controller/screen_a_off"
+	}
+}

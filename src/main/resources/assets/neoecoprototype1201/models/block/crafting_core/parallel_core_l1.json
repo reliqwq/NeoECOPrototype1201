@@ -1,0 +1,6 @@
+{
+	"parent": "neoecoprototype1201:block/crafting_core/parallel_core_base",
+	"textures": {
+		"light": "neoecoprototype1201:block/crafting_recolor/core/parallel_core_light_a"
+	}
+}

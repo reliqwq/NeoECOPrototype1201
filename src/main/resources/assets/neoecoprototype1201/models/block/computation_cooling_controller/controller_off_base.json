@@ -1,0 +1,115 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "cutout_mipped",
+	"textures": {
+		"north": "neoecoprototype1201:block/computation_recolor/cooling_controller/controller_north",
+		"back": "neoecoprototype1201:block/computation_recolor/casing_back",
+		"particle": "neoecoprototype1201:block/computation_recolor/casing",
+		"top": "neoecoprototype1201:block/computation_recolor/casing",
+		"side": "neoecoprototype1201:block/computation_recolor/cooling_controller/controller_east_a"
+	},
+	"elements": [
+		{
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				16,
+				16
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#north",
+					"cullface": "north"
+				},
+				"east": {
+					"uv": [
+						16,
+						0,
+						0,
+						16
+					],
+					"texture": "#side",
+					"cullface": "east"
+				},
+				"south": {
+					"uv": [
+						16,
+						0,
+						0,
+						16
+					],
+					"texture": "#back",
+					"cullface": "south"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#side",
+					"cullface": "west"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#top",
+					"cullface": "up"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#top",
+					"cullface": "down"
+				}
+			}
+		},
+		{
+			"name": "screen_light",
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				16,
+				0
+			],
+			"shade": false,
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#screen_light",
+					"cullface": "north"
+				}
+			}
+		}
+	]
+}

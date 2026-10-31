@@ -1,0 +1,6 @@
+{
+	"parent": "neoecoprototype1201:block/computation_controller/controller_off_base",
+	"textures": {
+		"level": "neoecoprototype1201:block/computation_recolor/controller/controller_side_layer_a"
+	}
+}

@@ -1,0 +1,7 @@
+{
+	"parent": "block/cube_all",
+	"textures": {
+		"particle": "neoecoprototype1201:block/computation_recolor/me_bus",
+		"all": "neoecoprototype1201:block/computation_recolor/me_bus"
+	}
+}

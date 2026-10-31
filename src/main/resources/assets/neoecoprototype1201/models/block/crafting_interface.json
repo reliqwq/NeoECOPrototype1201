@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/cube_all",
+	"textures": {
+		"all": "neoecoprototype1201:block/crafting_recolor/me_bus"
+	}
+}

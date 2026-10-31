@@ -1,0 +1,6 @@
+{
+	"parent": "neoecoprototype1201:block/computation_cooling_controller/controller_off_base",
+	"textures": {
+		"screen_light": "neoecoprototype1201:block/computation_recolor/cooling_controller/screen_light_a_off"
+	}
+}

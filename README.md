@@ -10,50 +10,68 @@ A separate project for Minecraft **1.20.1 / MinecraftForge 47.4.20**. It is a tr
 | Loader | MinecraftForge 47.4.20 | NeoForge 21.1.251 |
 | Minecraft / Java | 1.20.1 / 17 | 1.21.1 / 21 |
 | AE2 | 15.4.10 | 19.2.17 |
-| eco (Neo ECO AE Extension) | 20.5.0-beta1, our build of its `1.20.1` branch | 21.2.13 (compile baseline = runtime floor) |
+| eco (Neo ECO AE Extension) | 20.5.3, the published 1.20.1 build (Modrinth) | 21.2.13 (compile baseline = runtime floor) |
 | GuideME | 20.1.14 | 21.1.1 |
 
 Gradle 8.12.1 + ForgeGradle 6.0.54, `mappings channel: 'official'`. The JDK 17 lives outside the
 checkout (`gradle.properties` points at it by absolute path), and no jar is tracked: `.gitignore`
 drops every `*.jar` except the Gradle wrapper.
 
-**`libs/neoecoae-20.5.0-beta1.jar` is the build this checkout compiles against**, produced from
-upstream's `1.20.1` branch (`DancingSnow0517/NeoECOAEExtension`) with the toolchain set to 17. It is
-compiled against official mappings and is *not* reobfuscated, which is what makes it usable here. It
-is not an upstream artifact - do not publish it as one. Earlier builds are kept locally as
-byte-for-byte copies under `旧jar/`; no jar is tracked, so a fresh clone has to rebuild this one from
-the same branch before the first `./gradlew build`.
+**This line compiles against eco's published 1.20.1 build**, `maven.modrinth:neoecoae:20.5.3`,
+resolved by Gradle and passed through `fg.deobf` because the published jar is reobfuscated for
+production. `mods.toml` floors eco at `[20.5.3,)`: the compile baseline is also what players must
+have. A fresh clone needs no manual jar step.
 
-## What is deliberately not ported
+Two details of that baseline: eco's own `mods.toml` makes LDLib v1 mandatory, so LDLib is a
+runtime-only dependency here; and Registrate must **not** be added - the published eco jar already
+embeds `Registrate-MC1.20-1.3.11` through jarJar, and a second copy on the module path is a
+duplicate-package `ResolutionException` at boot.
 
-Measured when this line was scoped (2026-09, against the 20.5.0 branch), 71 of the 86 eco types the
-1.21.1 addon then referenced resolve. The 15 that do not are the scope boundary of this project:
+Jars from before this switch are kept locally, byte-for-byte, under `旧jar/`; nothing in the build
+reads them. That includes the old `20.5.0-beta1`, produced from upstream's `1.20.1` branch - it is
+not an upstream artifact, so do not publish it as one.
 
-- **Cut.** One-click builder (`MultiBlockBuildController`), the host panel's action layer
-  (`StorageHostActionUI`), `CraftingUIHelper`, `ClientUIBridge`, `ServerTaskUtil`,
-  `MultiBlockInfoWrapper`, and the whole small-bulk family (`IECOBulkMarkableCellItem` - MegaCells has
-  no 1.20.1 build, and neither does ae2omnicells, so the universal/quantum families go too).
-- **Rewrite.** The three multiblock interface screens: 1.20.1 has `gui/ldlib/state/NE*InterfaceUiState`
-  (LDLib v1 state objects) where 1.21.1 has `*InterfaceUI` classes, and the drive's cell rendering hook
-  moved to `api.rendering.IFixedBlockEntityRenderer`.
-- **Re-hook.** Fast path: 1.20.1 exposes `crafting/execution/fastpath/*` instead of
-  `api.me.ECOFastPathFacade`.
-- **Rename only.** `gui.theme.NEStyleSheets` to `gui.NEStyleSheets`.
+## Scope
 
-## Confirmed API differences (measured, not guessed)
+This checkout carries the L1 storage family only: controller, interface, network interface, energy
+cell, casing, vent, drive, and the prototype cell item that exercises eco's storage API. Computation,
+crafting, the one-click builder, the host panel's action layer, the small-bulk family and the fast
+path are not ported yet.
 
-`Prototype1201.java` is the evidence: it fails to compile against anything else.
+That is a scoping decision, not an API wall. The 2026-09 survey that scoped this line was taken
+against the 20.5.0 branch; the published 20.5.3 build has since grown most of those surfaces -
+`MultiBlockBuildController`, `StorageHostActionUI`, `ClientUIBridge`, `ServerTaskUtil`,
+`MultiBlockInfoWrapper`, `IECOBulkMarkableCellItem`, `ECOFastPathFacade` and 44
+`crafting/execution/fastpath` classes are all in the jar, and the interface screens now use the
+`gui/computation/ComputationInterfaceUI` / `gui/crafting/CraftingInterfaceUI` shape instead of the
+old `gui/ldlib/state/NE*InterfaceUiState` objects. What is still absent is `CraftingUIHelper`.
 
-- **`ECOCellType`**: 20.5.0 is `record(ResourceLocation id, Component desc, int typeCount)` with a
-  builder of `id / desc / typeCount`. The 1.21.1 line is `record(desc, typeCount, visible)` with
-  `desc / typeCount / visible`. So on 1.20.1 the row carries its own id and **there is no way to
-  register a hidden cell type** - every registration shows up in the host panel.
-- **`ECOStorageCellItem`**: 20.5.0 only has the eager `AEKeyType` constructors, and capacity is
-  `(long bytes, int bytesPerType, int totalTypes, double idleDrain)`. 1.21.1 additionally has a
-  `Supplier<AEKeyType>` overload and `(bytes, bytesPerType, idleDrain)` with `totalTypes` overridden by
-  a getter. Consequence for third-party key types (Mekanism gas, Data Energistics): on 1.20.1 the key
-  type must be resolvable **before** item registration, or the cell subclass must override
-  `getKeyType()` - the lazy-supplier trick the 1.21.1 addon uses is not available.
+The line references 18 eco types today, and every one of them resolves in 20.5.3 - a green
+`compileJava` is the evidence.
+
+## Confirmed API differences (measured on the 20.5.3 jar)
+
+The ported source is the evidence: it only compiles against this shape.
+
+- **`ECOCellType`**: `record(Component desc, int typeCount, boolean visible)` with a
+  `desc / typeCount / visible` builder. The registry key is the row's id, and `visible` exists, so a
+  hidden cell type is possible; this line keeps the default.
+- **`ECOStorageCellItem`**: capacity is
+  `(Properties, IECOTier, AEKeyType, Supplier<ECOCellType>, long bytes, int bytesPerType, double idleDrain)`,
+  with `Supplier<AEKeyType>` overloads and short forms that omit capacity. `totalTypes` is not a
+  constructor argument any more - it travels in the cell type. The lazy key-type overloads also mean
+  a third-party key type (Mekanism gas, Data Energistics) can be resolved when the item is created.
+- **`ECOStorageCellItem.Handler.INSTANCE`** handles every `ECOStorageCellItem` subclass and releases
+  through `ECOStorageRepository`. An addon must not register a handler of its own: the interface's
+  `releaseCellInventory` default is a no-op, so the second registration shadows repository release.
+- **`NEBlockEntity`** no longer has `writeUiSyncTag` / `readUiSyncTag`; client state rides on
+  `getUpdateTag()` / `handleUpdateTag(CompoundTag)`.
+- **`NEClusterCalculator`** requires `casing()`, and `validateBlockLine` returns `Optional<BlockPos>`.
+- **`NEItemColors`** exposes `getCellColor(ItemStack, int)`; register it against
+  `RegisterColorHandlersEvent.Item`.
+- **`IFixedBlockEntityRenderer`** lives in `client.rendering`; `tessellateModel` is the
+  `(PoseStack, MultiBufferSource, ResourceLocation, packedLight, packedOverlay)` overload - the
+  variant that took the block entity is gone.
 
 ## Art asset policy
 
@@ -76,5 +94,6 @@ and is fine, so a straight copy from 1.21 will reintroduce the black top.
 ./gradlew build
 ```
 
-`src/main/java/.../Prototype1201.java` is a compile probe, not content: it only builds if eco's
-`ECOCellType.builder()` chain and AE2's `AEKeyType` surface still match what the 1.21.1 addon calls.
+`./gradlew build` produces `build/libs/neoecoprototype1201-0.1.0.jar`. The entry point
+`Prototype1201.java` wires registration only - blocks, block entities, the cell item and its creative
+tab - so a broken eco API shows up at compile time, not at runtime in a world.
