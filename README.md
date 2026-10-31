@@ -7,24 +7,27 @@ A separate project for Minecraft **1.20.1 / MinecraftForge 47.4.20**. It is a tr
 
 | | this line | the 1.21.1 line |
 |---|---|---|
-| Loader | MinecraftForge 47.4.20 | NeoForge 21.1.233 |
+| Loader | MinecraftForge 47.4.20 | NeoForge 21.1.251 |
 | Minecraft / Java | 1.20.1 / 17 | 1.21.1 / 21 |
 | AE2 | 15.4.10 | 19.2.17 |
-| eco (Neo ECO AE Extension) | 20.5.0, built from its `1.20.1` branch | 21.2.0-beta4 (published) |
-| GuideME | 20.1.14 | 21.1.x |
+| eco (Neo ECO AE Extension) | 20.5.0-beta1, our build of its `1.20.1` branch | 21.2.13 (compile baseline = runtime floor) |
+| GuideME | 20.1.14 | 21.1.1 |
 
-Gradle 8.12.1 + ForgeGradle 6.0.54, `mappings channel: 'official'`. The JDK 17 and the eco jar live
-outside the repository; `gradle.properties` points at the JDK by absolute path.
+Gradle 8.12.1 + ForgeGradle 6.0.54, `mappings channel: 'official'`. The JDK 17 lives outside the
+checkout (`gradle.properties` points at it by absolute path), and no jar is tracked: `.gitignore`
+drops every `*.jar` except the Gradle wrapper.
 
-**`libs/neoecoae-20.5.0.jar` is our own build**, produced from upstream's `1.20.1` branch
-(`DancingSnow0517/NeoECOAEExtension`) with the toolchain set to 17. It is compiled against official
-mappings and is *not* reobfuscated, which is what makes it usable here. It is not an upstream
-artifact - do not publish it as one.
+**`libs/neoecoae-20.5.0-beta1.jar` is the build this checkout compiles against**, produced from
+upstream's `1.20.1` branch (`DancingSnow0517/NeoECOAEExtension`) with the toolchain set to 17. It is
+compiled against official mappings and is *not* reobfuscated, which is what makes it usable here. It
+is not an upstream artifact - do not publish it as one. Earlier builds are kept locally as
+byte-for-byte copies under `旧jar/`; no jar is tracked, so a fresh clone has to rebuild this one from
+the same branch before the first `./gradlew build`.
 
 ## What is deliberately not ported
 
-Measured against this jar, 71 of the 86 eco types the 1.21.1 addon references resolve. The 15 that do
-not are the scope boundary of this project:
+Measured when this line was scoped (2026-09, against the 20.5.0 branch), 71 of the 86 eco types the
+1.21.1 addon then referenced resolve. The 15 that do not are the scope boundary of this project:
 
 - **Cut.** One-click builder (`MultiBlockBuildController`), the host panel's action layer
   (`StorageHostActionUI`), `CraftingUIHelper`, `ClientUIBridge`, `ServerTaskUtil`,
@@ -57,6 +60,15 @@ not are the scope boundary of this project:
 Textures, models, blockstates, lang and GuideME pages are copied **one way, from the 1.21.1 project to
 this one**. Do not edit art here and expect it back; divergent art is the one thing that cannot be
 merged afterwards.
+
+**One deliberate exception, and it must survive every art sync:** in
+`models/block/storage_controller/controller_formed_base.json` (and its `_mirrored` twin) four `#body`
+faces carry `forge_data{block_light:15, sky_light:15}` that the 1.21.1 model does not have - the `up`
+and `down` of `back`, the `down` of the lower `front_a`, the `up` of the upper `front_a`. Forge 1.20.1
+asks the neighbour above whether a face may be culled before it picks a light, and eco's formed
+casing answers yes while it is `INVISIBLE`; those faces then fell back to the neighbour's (zero)
+light and the top of the machine rendered black. 1.21 draws the same model without the four overrides
+and is fine, so a straight copy from 1.21 will reintroduce the black top.
 
 ## Build
 
