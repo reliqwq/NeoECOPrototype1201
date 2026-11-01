@@ -1,0 +1,66 @@
+name: Repository checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Check whitespace errors
+        run: git diff --check
+
+      - name: Check repository boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Nothing here may be tracked: dev jars, run directories, and the byte-for-byte backups
+          # the removals go to. The check exists because every one of them is one `git add -A` away.
+          for path in build run libs gradle/build-cache 参考模组 _removed_sources 旧jar; do
+            if [[ -e "$path" ]]; then
+              echo "Forbidden development artifact is tracked: $path" >&2
+              exit 1
+            fi
+          done
+          if find . -maxdepth 1 -type d -name '备份_*' | grep -q .; then
+            echo "Forbidden backup directory is tracked: 备份_*" >&2
+            exit 1
+          fi
+          # AGENTS.md §11 of the 1.21.1 line, and CI-enforced here: addon-owned assets must not
+          # reference the upstream namespace. Borrowing eco's geometry means copying it into our
+          # own namespace and crediting it, because a rename upstream would otherwise turn our
+          # models into missing-texture blocks with no warning.
+          if grep -RIn --include='*.json' --include='*.mcmeta' 'neoecoae:' src/main/resources/assets; then
+            echo 'Addon-owned assets must not reference the neoecoae resource namespace.' >&2
+            exit 1
+          fi
+          # Layer rule: api/ holds records and interfaces, not runtime classes.
+          for source in $(git ls-files 'src/main/java/cn/dancingsnow/neoecoprototype1201/api/*.java'); do
+            if grep -qE '^import cn\.dancingsnow\.neoecoprototype1201\.(blockentity|items|block|integration|recipe|menu|client)\.' "$source"; then
+              echo "api/ must not depend on the runtime layers: $source" >&2
+              exit 1
+            fi
+          done
+          # An empty scan is not a pass: a renamed package makes the loop above silently do nothing.
+          api_count=$(git ls-files 'src/main/java/cn/dancingsnow/neoecoprototype1201/api/*.java' | wc -l)
+          if [[ "$api_count" -eq 0 ]]; then
+            echo 'Layer gate scanned zero api/ sources - the package moved or the filter is wrong.' >&2
+            exit 1
+          fi
+          echo "Layer gate checked $api_count api/ sources."
+
+      - name: Check data references resolve
+        shell: bash
+        run: python3 tools/check_data_sync.py
+
+      # Not a gate, and deliberately so: a superclass chain that reaches an optional mod crashes the
+      # boot on Forge 1.20.1 because the event table force-loads every class in our jar, but that is
+      # invisible to a grep (the reference lives in an `extends`, and `extends` to eco's own classes
+      # is legitimate). It is caught by launching the dev client, which CI cannot do - see AGENTS.md §2.
