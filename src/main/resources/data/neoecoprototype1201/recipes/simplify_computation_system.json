@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_computation_casing"
+    },
+    "B": {
+      "item": "neoecoprototype1201:simplify_computation_threading_core"
+    },
+    "C": {
+      "item": "neoecoprototype1201:simplify_computation_parallel_core"
+    },
+    "D": {
+      "item": "ae2:calculation_processor"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_computation_system",
+    "count": 1
+  }
+}

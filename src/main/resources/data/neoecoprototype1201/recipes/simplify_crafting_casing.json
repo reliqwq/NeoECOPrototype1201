@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_green_aluminum_casing"
+    },
+    "B": {
+      "item": "ae2:sky_stone_block"
+    },
+    "C": {
+      "item": "ae2:engineering_processor"
+    },
+    "D": {
+      "item": "ae2:fluix_block"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "CDC",
+    "ABA"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_crafting_casing",
+    "count": 4
+  }
+}

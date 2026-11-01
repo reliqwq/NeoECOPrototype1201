@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_computation_casing"
+    },
+    "B": {
+      "tag": "ae2:smart_dense_cable"
+    },
+    "C": {
+      "item": "ae2:drive"
+    },
+    "D": {
+      "item": "ae2:calculation_processor"
+    },
+    "E": {
+      "item": "minecraft:copper_block"
+    }
+  },
+  "pattern": [
+    "ADA",
+    "BCB",
+    "AEA"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_computation_drive",
+    "count": 2
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_chemical_storage_matrix_housing"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_storage_component_1m"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "neoecoprototype1201:simplify_chemical_storage_cell_1m"
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "appmek"
+    }
+  ]
+}

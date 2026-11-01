@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "neoecoprototype1201:energized_energy_cell_512g"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "neoecoprototype1201:blocks/energized_energy_cell_512g"
+}

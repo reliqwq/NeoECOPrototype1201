@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "fullness=0": {
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_16g"
+    },
+    "fullness=1": {
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_16g"
+    },
+    "fullness=2": {
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_16g"
+    },
+    "fullness=3": {
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_16g"
+    },
+    "fullness=4": {
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_16g"
+    }
+  }
+}

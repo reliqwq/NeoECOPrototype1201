@@ -1,0 +1,33 @@
+{
+  "parent": "neoecoprototype1201:storage_controller",
+  "display": {
+    "icon": {
+      "item": "neoecoprototype1201:simplify_powered_me_interface"
+    },
+    "title": {
+      "translate": "advancement.neoecoprototype1201.powered_interface.title"
+    },
+    "description": {
+      "translate": "advancement.neoecoprototype1201.powered_interface.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "neoecoprototype1201:simplify_powered_me_interface",
+              "neoecoprototype1201:superconductive_interface"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

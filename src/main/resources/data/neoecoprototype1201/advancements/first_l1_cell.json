@@ -1,0 +1,30 @@
+{
+  "parent": "neoecoprototype1201:drive_mounted",
+  "display": {
+    "icon": {
+      "item": "neoecoprototype1201:prototype_item_cell_1k"
+    },
+    "title": {
+      "translate": "advancement.neoecoprototype1201.first_l1_cell.title"
+    },
+    "description": {
+      "translate": "advancement.neoecoprototype1201.first_l1_cell.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "neoecoprototype1201:storage_matrices"
+          }
+        ]
+      }
+    }
+  }
+}

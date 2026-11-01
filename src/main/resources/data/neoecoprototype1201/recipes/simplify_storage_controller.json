@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_storage_casing"
+    },
+    "B": {
+      "item": "neoecoprototype1201:simplify_energy_cell"
+    },
+    "C": {
+      "item": "ae2:logic_processor"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ABA"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_storage_controller",
+    "count": 1
+  }
+}

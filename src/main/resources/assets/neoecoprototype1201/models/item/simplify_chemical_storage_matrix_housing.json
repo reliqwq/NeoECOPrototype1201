@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "neoecoprototype1201:item/storage_recolor/eco_lower_chemical_cell_housing"
+  }
+}

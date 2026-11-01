@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_crafting_interface"
+    },
+    {
+      "item": "ae2:terminal"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_crafting_network_interface",
+    "count": 1
+  }
+}

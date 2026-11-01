@@ -1,17 +1,16 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "equipment",
-  "pattern": [
-    "ggg",
-    "grg",
-    "ggg"
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_item_storage_matrix_housing"
+    },
+    {
+      "item": "ae2:cell_component_1k"
+    }
   ],
-  "key": {
-    "g": { "item": "minecraft:glass" },
-    "r": { "item": "minecraft:redstone" }
-  },
   "result": {
-    "item": "neoecoprototype1201:prototype_item_cell_1k",
-    "count": 1
+    "count": 1,
+    "item": "neoecoprototype1201:prototype_item_cell_1k"
   }
 }

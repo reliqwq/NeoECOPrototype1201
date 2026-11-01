@@ -1,0 +1,18 @@
+{
+  "type": "neoecoae:integrated_working_station",
+  "energy": 100000,
+  "inputItems": [
+    {
+      "count": 8,
+      "item": "neoecoprototype1201:energized_energy_cell_16g"
+    },
+    {
+      "count": 1,
+      "item": "neoecoae:energized_superconductive_block"
+    }
+  ],
+  "itemOutput": {
+    "count": 1,
+    "item": "neoecoprototype1201:energized_energy_cell_512g"
+  }
+}

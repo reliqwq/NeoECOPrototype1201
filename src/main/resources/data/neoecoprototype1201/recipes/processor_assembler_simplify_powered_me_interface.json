@@ -1,0 +1,21 @@
+{
+  "type": "neoecoprototype1201:processor_assembler",
+  "ingredients": [
+    {
+      "item": "ae2:crystal_resonance_generator"
+    },
+    {
+      "item": "ae2:crystal_resonance_generator"
+    },
+    {
+      "item": "ae2:interface"
+    },
+    {
+      "item": "neoecoae:superconducting_processor"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_powered_me_interface",
+    "count": 1
+  }
+}

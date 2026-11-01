@@ -1,0 +1,22 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "appflux"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_fe_cell_housing"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_storage_component_4m"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "item": "neoecoprototype1201:simplify_fe_storage_cell_4m"
+  }
+}
