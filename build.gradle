@@ -41,6 +41,20 @@ repositories {
             artifact()
         }
     }
+
+    // Pinned-file fallback. Modrinth's maven layout resolves <slug>/<version> to one
+    // arbitrary file of that version, and byte counts show it is not always the 1.20.1 forge
+    // build: jei 15.59.0.212 is 1 849 781 B through the maven but 1 826 038 B as the forge
+    // file, and mezzconfig 0.6.10's maven copy declares minecraft [1.19.2,1.19.2] - Forge then
+    // refuses to launch. This pattern walks the CDN path and names the file, so what we resolve
+    // is what we checked.
+    ivy {
+        name = 'ModrinthFiles'
+        url = 'https://cdn.modrinth.com/data'
+        patternLayout { artifact '[organisation]/versions/[revision]/[module].[ext]' }
+        metadataSources { artifact() }
+        content { includeGroup 'u6dRKJwZ' }
+    }
 }
 
 minecraft {
@@ -89,9 +103,41 @@ dependencies {
     compileOnly fg.deobf("curse.maven:ldlib-626676:7809449")
     runtimeOnly fg.deobf("curse.maven:ldlib-626676:7809449")
 
+    // Applied Mekanistics, plus the Mekanism it hard-requires, so the chemical matrix family can be
+    // developed and actually seen working. Both coordinates were already resolved on this machine by
+    // eco's own pom. Read from their mods.toml before being added: appmek needs forge [47.0.0,48.0.0)
+    // (we are on 47.4.20), mekanism [10.4.0,11.0.0) (this is 10.4.16.80) and ae2 as an optional
+    // [15.0.0,16.0.0) (15.4.10); Mekanism itself requires only minecraft 1.20.1 and forge [47.1.1,).
+    // Nothing in our jar may load these unless the mod is present - see Prototype1201's gate.
+    compileOnly fg.deobf("mekanism:Mekanism:1.20.1-10.4.16.80")
+    runtimeOnly fg.deobf("mekanism:Mekanism:1.20.1-10.4.16.80")
+    compileOnly fg.deobf("curse.maven:applied-mekanistics-574300:7244744")
+    runtimeOnly fg.deobf("curse.maven:applied-mekanistics-574300:7244744")
+
+    // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
+    // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's
+    // EventSubclassTransformer force-loads every class in our jar while building event handlers - so a
+    // parent-chain reference crashes the boot on any pack without the mod, no gate being close enough
+    // (measured: FATAL ClassNotFoundException com/wintercogs/ae2omnicells/common/items/AEUniversalCellItem
+    // before our own code ran). Eco 20.5.3 also declares the optional dependency as [1.1.6,), while the
+    // 1.20.1 build of OmniCells is 1.0.7, so even installing it makes FML refuse to start. The family is
+    // therefore not shipped here; the deleted sources are kept byte-identical under _removed_sources/.
+
     // Jade: the same coordinate and version eco's optional integration compiles against.
     compileOnly fg.deobf("maven.modrinth:jade:${jade_version}")
     runtimeOnly fg.deobf("maven.modrinth:jade:${jade_version}")
+
+    // JEI for the dev runs, so a ported recipe can actually be looked up.
+    // fg.deobf is not optional: the dev client runs on the 'official' name channel while the
+    // published jar calls SRG names, so dropping it into run/mods booted NoSuchMethodError on
+    // Component.m_237110_. 15.59.0.212 is the newest 1.20.1 forge file that declares no
+    // dependency at all - 15.74 needs MezzConfig, whose only maven-channel copy is the 1.19.2
+    // build. runtimeOnly only: nothing compiles against JEI and none of this enters our jar,
+    // so players are never asked to install it.
+    // compileOnly as well now that the JEI plugin under integration/jei compiles against it.
+    compileOnly fg.deobf("u6dRKJwZ:jei-1.20.1-forge-15.59.0.212:IrfJO7PN")
+    runtimeOnly fg.deobf("u6dRKJwZ:jei-1.20.1-forge-15.59.0.212:IrfJO7PN")
+
 }
 
 jar {
