@@ -79,6 +79,19 @@ public final class ModRegistration {
         return registered;
     }
 
+    /**
+     * Same as {@link #registerBlock}, but the item is AE2's {@code EnergyCellBlockItem}: a battery that
+     * carries its charge has to show it in the tooltip and let a charger read it, and both hang off
+     * {@code IAEItemPowerStorage}, which a plain BlockItem does not implement.
+     */
+    private static RegistryObject<Block> registerCell(String name, Supplier<Block> block) {
+        RegistryObject<Block> registered = BLOCKS.register(name, block);
+        RegistryObject<Item> item = BLOCK_ITEMS.register(name,
+                () -> new appeng.block.networking.EnergyCellBlockItem(registered.get(), new Item.Properties()));
+        TAB_BLOCK_ITEMS.add(item);
+        return registered;
+    }
+
     public static final RegistryObject<Block> SIMPLIFY_STORAGE_CONTROLLER_BLOCK =
             registerBlock("simplify_storage_controller",
                     () -> new SimplifyStorageControllerBlock(
@@ -120,6 +133,49 @@ public final class ModRegistration {
             registerBlock("simplify_powered_me_interface", appeng.block.misc.InterfaceBlock::new);
     public static final RegistryObject<Block> SUPERCONDUCTIVE_INTERFACE_BLOCK =
             registerBlock("superconductive_interface", appeng.block.misc.InterfaceBlock::new);
+
+    /** AE, not FE. The second id says 512g on both lines while its buffer is 256G - the guide page says so. */
+    private static final double ENERGIZED_CELL_CAPACITY_16G = 16_000_000_000.0;
+    private static final double ENERGIZED_CELL_CAPACITY_256G = 256_000_000_000.0;
+
+    /**
+     * The two standalone batteries. AE2's own {@code EnergyCellBlock} is the base because on this engine it
+     * already carries the whole contract: it publishes an {@code IAEPowerStorage} node, persists its charge,
+     * hands that charge to the dropped item, shows it in the tooltip, and takes the buffer size in its
+     * constructor. Charge rate follows AE2's dense cell (one thousandth of the buffer per tick); the two
+     * priorities are ours, set above AE2's dense 1600 so the bigger battery is filled first.
+     * The price of reusing it is the one the two interfaces above already pay: that constructor chooses its
+     * own properties ({@code glassProps()}), so {@link #metal()} cannot be applied from here.
+     */
+    public static final RegistryObject<Block> ENERGIZED_ENERGY_CELL_16G_BLOCK =
+            registerCell("energized_energy_cell_16g",
+                    () -> new appeng.block.networking.EnergyCellBlock(
+                            ENERGIZED_CELL_CAPACITY_16G, ENERGIZED_CELL_CAPACITY_16G / 1000.0, 3200));
+    public static final RegistryObject<Block> ENERGIZED_ENERGY_CELL_512G_BLOCK =
+            registerCell("energized_energy_cell_512g",
+                    () -> new appeng.block.networking.EnergyCellBlock(
+                            ENERGIZED_CELL_CAPACITY_256G, ENERGIZED_CELL_CAPACITY_256G / 1000.0, 6400));
+    /**
+     * The assembler is our own subclass of AE2's, unlike the two interfaces above: it carries a block
+     * identity of its own because the machine has to name itself to terminals (see
+     * {@code SimplifyStonecuttingAssemblerBlockEntity#getCraftingMachineInfo}).
+     */
+    public static final RegistryObject<Block> SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK =
+            registerBlock("simplify_stonecutting_assembler",
+                    () -> new cn.dancingsnow.neoecoprototype1201.block.crafting
+                            // noOcclusion, not plain metal(): this model is 13 elements with 32 cullfaces, so
+                            // every face that touches a full block is skipped unless the block says it does
+                            // not occlude. Same rule the computation and crafting helpers already follow.
+                            .SimplifyStonecuttingAssemblerBlock(metal().noOcclusion()));
+
+    /**
+     * The L1 shell material, and the thing the assembler is built from. Plain block on purpose: eco's own
+     * {@code ECOMachineCasing} is a multiblock member, and a crafting material that can complete a machine
+     * would be a trap. Properties follow this line's other casings rather than the 1.21.1 numbers.
+     */
+    public static final RegistryObject<Block> SIMPLIFY_GREEN_ALUMINUM_CASING_BLOCK =
+            registerBlock("simplify_green_aluminum_casing",
+                    () -> new cn.dancingsnow.neoecoprototype1201.block.SimplifyCasingBlock(metal().noOcclusion()));
 
     // ============================ L1 computation blocks ============================
 

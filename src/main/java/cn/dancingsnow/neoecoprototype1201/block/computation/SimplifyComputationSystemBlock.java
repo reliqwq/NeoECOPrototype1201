@@ -1,20 +1,28 @@
 package cn.dancingsnow.neoecoprototype1201.block.computation;
 
+import appeng.api.networking.crafting.ICraftingService;
 import cn.dancingsnow.neoecoae.api.IHostPanelTextureProvider;
 import cn.dancingsnow.neoecoae.blocks.NEBlock;
 import cn.dancingsnow.neoecoae.blocks.computation.ECOComputationSystem;
+import cn.dancingsnow.neoecoae.blocks.entity.computation.ECOComputationSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -32,6 +40,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SimplifyComputationSystemBlock extends ECOComputationSystem
         implements IHostPanelTextureProvider {
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger(Prototype1201.MOD_ID + "-computation-diagnose");
+
     /** True when the interface cell holds {@code simplify_computation_network_interface}. */
     public static final BooleanProperty COMMUNICATION_INTERFACE =
             BooleanProperty.create("communication_interface");
@@ -113,6 +124,89 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
 
     private static BlockState pinned(BlockState state, Property<Boolean> bit) {
         return state.hasProperty(bit) && state.getValue(bit) ? state.setValue(bit, false) : state;
+    }
+
+    /**
+     * Sneak + right-click prints what the crafting-submission filters read. AE2's
+     * {@code CraftingCpuLogic} rejects a CPU in three steps - busy, then {@code isActive()}, then
+     * {@code getAvailableStorage()} below the plan's bytes - and the client only ever shows the single
+     * sentence "被排除：N 个" without saying which step fired. The CPU bytes are not the host tier's:
+     * {@code NEComputationCluster.getTotalStorage()} sums {@code getCPUTotalBytes()} over the cell stack
+     * of every drive in both rows, so this prints each drive's stack and each CPU's own three answers.
+     */
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+                && serverLevel.getBlockEntity(pos) instanceof ECOComputationSystemBlockEntity host) {
+            var cluster = host.getCluster();
+            var sb = new StringBuilder();
+            var drives = new StringBuilder();
+            if (cluster != null) {
+                for (var drive : cluster.getUpperDrives()) {
+                    describeDrive(drives, "upper", drive);
+                }
+                for (var drive : cluster.getLowerDrives()) {
+                    describeDrive(drives, "lower", drive);
+                }
+                var cpus = new StringBuilder();
+                for (var cpu : cluster.getActiveCPUs()) {
+                    cpus.append(' ').append(cpu.getName().getString())
+                            .append(" active=").append(cpu.isActive())
+                            .append(" busy=").append(cpu.isBusy())
+                            .append(" avail=").append(cpu.getAvailableStorage())
+                            .append(" status=").append(cpu.getJobStatus());
+                }
+                // The list the submit filter actually walks is AE2's grid service, not the cluster's job
+                // map: getActiveCPUs() only holds CPUs that already carry a plan, so an idle machine reads
+                // empty no matter how many threads it has.
+                var gridCpus = new StringBuilder();
+                var grid = host.getMainNode().getGrid();
+                var service = grid == null ? null : grid.getService(ICraftingService.class);
+                if (service != null) {
+                    for (var cpu : service.getCpus()) {
+                        gridCpus.append(' ').append(cpu.getName().getString())
+                                .append(" busy=").append(cpu.isBusy())
+                                .append(" avail=").append(cpu.getAvailableStorage())
+                                .append(" co=").append(cpu.getCoProcessors())
+                                .append(" status=").append(cpu.getJobStatus());
+                    }
+                    gridCpus.append(" count=").append(service.getCpus().size());
+                } else {
+                    gridCpus.append("no-grid-or-service");
+                }
+                sb.append(" total=").append(cluster.getTotalStorage())
+                        .append(" avail=").append(cluster.getAvailableStorage())
+                        .append(" threads=").append(cluster.getMaxThreads())
+                        .append(" parallel=").append(cluster.getPooledParallelism())
+                        .append(" cpus=").append(cluster.getActiveCPUs().size())
+                        .append(" blockers=").append(cluster.getEndgameBlockers())
+                        .append(" cpuList=").append(cpus)
+                        .append(" gridCpus=").append(gridCpus);
+            }
+            LOGGER.info("L1 computation diagnose at {} formed={} tier={} cluster={} drives={}{}",
+                    pos, host.isFormed(), host.getTier(), cluster, drives, sb);
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.displayClientMessage(Component.literal("L1 计算矩阵诊断 formed=" + host.isFormed()
+                        + (cluster == null ? " 无集群" : " 合成存储=" + cluster.getTotalStorage()
+                        + " 可用=" + cluster.getAvailableStorage() + " CPU数=" + cluster.getActiveCPUs().size())), false);
+                serverPlayer.displayClientMessage(Component.literal("  驱动与闪存:" + drives), false);
+                serverPlayer.displayClientMessage(Component.literal("  集群:" + sb), false);
+            }
+            return InteractionResult.CONSUME;
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+
+    private static void describeDrive(StringBuilder into, String row,
+                                      cn.dancingsnow.neoecoae.blocks.entity.computation
+                                              .ECOComputationDriveBlockEntity drive) {
+        var stack = drive.getCellStack();
+        into.append(' ').append(row).append('=').append(drive.getBlockPos())
+                .append(" cell=").append(stack == null ? "null" : stack.getCount() + "x" + stack.getItem());
+        if (stack != null && stack.getItem() instanceof cn.dancingsnow.neoecoae.items.ECOComputationCellItem cell) {
+            into.append(" cpuBytes=").append(cell.getTier().getCPUTotalBytes());
+        }
     }
 
     private static final ResourceLocation PANEL_TIER = panel("computation_tier.png");

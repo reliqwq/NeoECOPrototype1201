@@ -341,7 +341,15 @@ public class SimplifyStorageClusterCalculator extends NEStorageClusterCalculator
         expectCasingColumn.apply(controllerPos.relative(back));
         // interface at back of static side (+ casing above/below)
         BlockPos interfacePos = controllerPos.relative(staticSide).relative(back);
-        expect.apply(interfacePos, ModRegistration.SIMPLIFY_STORAGE_INTERFACE_BLOCK.get());
+        // The real validator accepts either interface here, so the report must not name only one: a
+        // formed host built with the communication interface printed a wrong-block issue for years.
+        Block wantedInterface = ModRegistration.SIMPLIFY_STORAGE_INTERFACE_BLOCK.get();
+        if (!level.getBlockState(interfacePos).is(wantedInterface)
+                && !level.getBlockState(interfacePos)
+                .is(ModRegistration.SIMPLIFY_STORAGE_NETWORK_INTERFACE_BLOCK.get())) {
+            ok[0] = false;
+            addIssue(issues, controllerPos, interfacePos, wantedInterface, level);
+        }
         expect.apply(interfacePos.relative(top), ModRegistration.SIMPLIFY_STORAGE_CASING_BLOCK.get());
         expect.apply(interfacePos.relative(down), ModRegistration.SIMPLIFY_STORAGE_CASING_BLOCK.get());
         expect.apply(controllerPos.relative(top), ModRegistration.SIMPLIFY_STORAGE_CASING_BLOCK.get());

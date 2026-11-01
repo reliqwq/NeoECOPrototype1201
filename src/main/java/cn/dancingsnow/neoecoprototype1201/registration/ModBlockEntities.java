@@ -31,6 +31,7 @@ import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingS
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingVentBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingWorkerBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyPoweredMEInterfaceBlockEntity;
+import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyStonecuttingAssemblerBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifySuperconductiveInterfaceBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyDriveBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.multiblock.calculator.SimplifyStorageClusterCalculator;
@@ -189,6 +190,17 @@ public final class ModBlockEntities {
             registerType("energy_cell", ECOEnergyCellBlockEntity.class,
                     (type, pos, state) -> new ECOEnergyCellBlockEntity(type, pos, state, SimplifyTier.L1),
                     () -> ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get());
+    /**
+     * One type for both batteries, which is why the capacity lives on the block and not here: AE2's
+     * {@code EnergyCellBlockEntity} reads its buffer from the block it sits in, so the two tiers differ only
+     * by which block placed them.
+     */
+    public static final RegistryObject<BlockEntityType<appeng.blockentity.networking.EnergyCellBlockEntity>>
+            ENERGIZED_ENERGY_CELL = registerType("energized_energy_cell",
+            appeng.blockentity.networking.EnergyCellBlockEntity.class,
+            appeng.blockentity.networking.EnergyCellBlockEntity::new,
+            () -> ModRegistration.ENERGIZED_ENERGY_CELL_16G_BLOCK.get(),
+            () -> ModRegistration.ENERGIZED_ENERGY_CELL_512G_BLOCK.get());
 
     // ============================ standalone AE2-side devices ============================
 
@@ -205,6 +217,11 @@ public final class ModBlockEntities {
             SUPERCONDUCTIVE_INTERFACE = registerType("superconductive_interface",
             SimplifySuperconductiveInterfaceBlockEntity.class, SimplifySuperconductiveInterfaceBlockEntity::new,
             () -> ModRegistration.SUPERCONDUCTIVE_INTERFACE_BLOCK.get());
+    /** AE2 drives an assembler from the grid's tickable service, so no block-tick ticker here. */
+    public static final RegistryObject<BlockEntityType<SimplifyStonecuttingAssemblerBlockEntity>>
+            STONECUTTING_ASSEMBLER = registerType("simplify_stonecutting_assembler",
+            SimplifyStonecuttingAssemblerBlockEntity.class, SimplifyStonecuttingAssemblerBlockEntity::new,
+            () -> ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get());
 
     // ============================ L1 computation ============================
 

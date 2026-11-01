@@ -19,9 +19,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.RecipeMatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,19 +62,51 @@ public final class ProcessorAssemblerRecipe implements Recipe<Container> {
         return result.copy();
     }
 
+    /**
+     * True when the grid content can be assigned to the ingredients one-to-one, in any order. A grid slot
+     * is one unit; {@link #matchesUnits} is the shared implementation and the pattern path feeds it units
+     * that a single slot may stand for.
+     */
     @Override
     public boolean matches(Container grid, Level level) {
-        List<ItemStack> present = new ArrayList<>();
+        List<ItemStack[]> units = new ArrayList<>();
         for (int slot = 0; slot < grid.getContainerSize(); slot++) {
             ItemStack stack = grid.getItem(slot);
             if (!stack.isEmpty()) {
-                present.add(stack);
+                units.add(new ItemStack[] { stack });
             }
         }
-        // Every slot the player filled has to be one of ours: a fifth item in the grid is not "ignored",
-        // it is a different recipe, and answering yes here would let the assembler eat it for nothing.
-        return present.size() == ingredients.size()
-                && RecipeMatcher.findMatches(present, ingredients) != null;
+        return matchesUnits(units);
+    }
+
+    /**
+     * True when the ingredients can take the pattern's units one-to-one, in any order.
+     *
+     * <p>A unit is one item the pattern demands, not one pattern slot: AE2 merges repeated ingredients
+     * into a single slot carrying an amount, and one slot may offer alternative items. Matching on slot
+     * count therefore rejected perfectly good patterns, which the assembler then silently refused.</p>
+     */
+    public boolean matchesUnits(List<ItemStack[]> units) {
+        return units.size() == ingredients.size() && assign(0, units, new boolean[units.size()]);
+    }
+
+    /** A unit satisfies an ingredient when any of its alternative items does; which one is chosen later. */
+    private boolean assign(int index, List<ItemStack[]> units, boolean[] taken) {
+        if (index == ingredients.size()) {
+            return true;
+        }
+        Ingredient ingredient = ingredients.get(index);
+        for (int unit = 0; unit < units.size(); unit++) {
+            if (taken[unit] || Arrays.stream(units.get(unit)).noneMatch(ingredient::test)) {
+                continue;
+            }
+            taken[unit] = true;
+            if (assign(index + 1, units, taken)) {
+                return true;
+            }
+            taken[unit] = false;
+        }
+        return false;
     }
 
     @Override

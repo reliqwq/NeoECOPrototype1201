@@ -90,4 +90,13 @@ public enum SimplifyCraftingTier implements IECOTier {
     public net.minecraft.network.chat.Component getPanelTierName() {
         return net.minecraft.network.chat.Component.literal("L1");
     }
+
+    /**
+     * Same six sheets as {@link SimplifyTier#getPanelAtlas(String)}: the crafting panel asks its own tier,
+     * so answering only the storage/computation one left the worker brackets in eco's blue.
+     */
+    @Override
+    public ResourceLocation getPanelAtlas(String atlas) {
+        return PanelAtlas.resolve(atlas);
+    }
 }

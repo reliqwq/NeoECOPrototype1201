@@ -1,13 +1,26 @@
 package cn.dancingsnow.neoecoprototype1201.block.crafting;
 
+import appeng.helpers.patternprovider.PatternContainer;
 import cn.dancingsnow.neoecoae.api.IHostPanelTextureProvider;
+import cn.dancingsnow.neoecoae.api.IECOPatternStorageService;
+import cn.dancingsnow.neoecoae.api.PatternStorageHost;
 import cn.dancingsnow.neoecoae.blocks.crafting.ECOCraftingSystem;
+import cn.dancingsnow.neoecoae.blocks.entity.crafting.ECOCraftingSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -68,5 +81,101 @@ public class SimplifyCraftingSystemBlock extends ECOCraftingSystem implements IH
             return null;
         }
         return hover ? MODE_ON_HOVER : MODE_ON;
+    }
+
+    /**
+     * Sneak + right-click dumps eco's external pattern index - the thing behind "正在建立索引 0%".
+     *
+     * <p>The progress a player sees is read out of {@code PatternCatalog}'s own counters, and every path
+     * that moves them is private: {@code ensureExternalPatternIndex} starts a build when the index is dirty
+     * and not already building, {@code onServerEndTick} steps it only while {@code externalPatternIndexBuilding}
+     * is set, and the source list it steps over is built from {@code IGrid.getActiveMachines} minus every
+     * {@code PatternStorageHost}. So a machine that hangs at zero can be in one of three different states
+     * and the screen says the same sentence for all three. Reading the fields is the only way to tell them
+     * apart, and nothing here writes them.
+     */
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+                && serverLevel.getBlockEntity(pos) instanceof ECOCraftingSystemBlockEntity host) {
+            var report = describeIndex(host);
+            LOGGER.info("L1 pattern index diagnose at {} {}", pos, report);
+            if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.displayClientMessage(Component.literal("L1 样板索引诊断 " + report), false);
+            }
+            return InteractionResult.CONSUME;
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger(Prototype1201.MOD_ID + "-pattern-index");
+
+    private static String describeIndex(ECOCraftingSystemBlockEntity host) {
+        var grid = host.getMainNode().getGrid();
+        if (grid == null) {
+            return "no-grid";
+        }
+        var catalog = grid.getService(IECOPatternStorageService.class);
+        if (catalog == null) {
+            return "no-pattern-catalog-service";
+        }
+        var sb = new StringBuilder();
+        sb.append("catalog=").append(catalog.getClass().getName())
+                .append(" building=").append(read(catalog, "externalPatternIndexBuilding"))
+                .append(" dirty=").append(read(catalog, "externalPatternIndexDirty"))
+                .append(" age=").append(read(catalog, "externalPatternIndexAge"))
+                .append(" scanned=").append(read(catalog, "externalPatternScannedSlots"))
+                .append(" total=").append(read(catalog, "externalPatternTotalSlots"))
+                .append(" sourceIdx=").append(read(catalog, "externalPatternSourceIndex"))
+                .append(" slotIdx=").append(read(catalog, "externalPatternSlotIndex"))
+                .append(" available=").append(size(read(catalog, "externalAvailable")));
+        var sources = read(catalog, "externalPatternSources");
+        sb.append(" sources=").append(size(sources));
+        if (sources instanceof java.util.List<?> list) {
+            for (var source : list) {
+                sb.append(" [").append(source.getClass().getName())
+                        .append(" storageHost=").append(source instanceof PatternStorageHost)
+                        .append(']');
+            }
+        }
+        // What the pool would have been: every pattern container the grid reports, and how many of them
+        // eco drops because they are pattern storages rather than sources.
+        int containers = 0;
+        int hosts = 0;
+        for (Class<?> machineClass : grid.getMachineClasses()) {
+            if (!PatternContainer.class.isAssignableFrom(machineClass)) {
+                continue;
+            }
+            for (var machine : grid.getActiveMachines(machineClass.asSubclass(PatternContainer.class))) {
+                containers++;
+                if (machine instanceof PatternStorageHost) {
+                    hosts++;
+                }
+            }
+        }
+        sb.append(" gridContainers=").append(containers).append(" ofWhichStorageHost=").append(hosts);
+        return sb.toString();
+    }
+
+    private static Object size(Object collection) {
+        return collection instanceof java.util.Collection<?> c ? c.size() : String.valueOf(collection);
+    }
+
+    /** Walks the class hierarchy because every field this report wants is private in eco's class. */
+    private static Object read(Object target, String field) {
+        for (Class<?> c = target.getClass(); c != null; c = c.getSuperclass()) {
+            try {
+                var declared = c.getDeclaredField(field);
+                declared.setAccessible(true);
+                return declared.get(target);
+            } catch (NoSuchFieldException ignored) {
+                // try the superclass
+            } catch (IllegalAccessException e) {
+                return "<" + e.getClass().getSimpleName() + ">";
+            }
+        }
+        return "<absent>";
     }
 }

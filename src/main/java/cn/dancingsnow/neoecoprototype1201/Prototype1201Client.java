@@ -8,6 +8,8 @@ import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
 import cn.dancingsnow.neoecoprototype1201.client.ComputationCableModels;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyComputationDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyDriveRenderer;
+import cn.dancingsnow.neoecoprototype1201.integration.appmek.AppMekIntegration;
+import cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.resources.ResourceLocation;
@@ -25,14 +27,34 @@ import net.minecraftforge.registries.RegistryObject;
 @Mod.EventBusSubscriber(modid = Prototype1201.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class Prototype1201Client {
     /**
-     * One 3D cell model per capacity, in the order {@code Registration.SUFFIXES} registers the items:
+     * One 3D cell model per capacity per medium, in the order the family's own list registers its items:
      * eco's built-in cell models draw its own housing and level band, and the L4 one it used to fall back
      * to paints orange - a tier this addon does not have. The three shared sheets (housing, level band,
      * type glyph) are ours; the 4M cell swaps only the level band, which is why it is a separate model.
      */
-    private static final String[] STORAGE_CELL_MODEL_NAMES = {
-            "storage_cell_l0_item_1k", "storage_cell_l0_item_16k", "storage_cell_l0_item_64k",
-            "storage_cell_l1_item", "storage_cell_l1r_item"};
+    private static String[] rungs(String medium) {
+        return new String[] {"storage_cell_l0_" + medium + "_1k", "storage_cell_l0_" + medium + "_16k",
+                "storage_cell_l0_" + medium + "_64k", "storage_cell_l1_" + medium,
+                "storage_cell_l1r_" + medium};
+    }
+
+    /** appflux's own ladder starts at 1M, so its 1K rung is ours alone and it has no 16k or 64k. */
+    private static final String[] FE_RUNGS = {
+            "storage_cell_l0_fe_1k", "storage_cell_l1_fe", "storage_cell_l1r_fe"};
+    private static final String PIGMEE_RUNG = "storage_cell_l1_pigmee";
+    private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
+
+    /** Everything the drive can be asked to draw, for the bake pass. */
+    private static String[] everyCellModel() {
+        String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS};
+        java.util.List<String> all = new java.util.ArrayList<>();
+        for (String[] group : groups) {
+            all.addAll(java.util.List.of(group));
+        }
+        all.add(PIGMEE_RUNG);
+        all.add(CONCRETE_RUNG);
+        return all.toArray(new String[0]);
+    }
 
     private static ResourceLocation cellModel(String name) {
         return ResourceLocation.fromNamespaceAndPath(Prototype1201.MOD_ID, "block/cell/" + name);
@@ -55,10 +77,17 @@ public final class Prototype1201Client {
     private Prototype1201Client() {
     }
 
+    /** Pair a family's items, taken in its own list order, with the rung models declared above. */
+    private static void registerLadder(java.util.List<RegistryObject<Item>> cells, String[] models) {
+        for (int slot = 0; slot < cells.size() && slot < models.length; slot++) {
+            ECOCellModels.register(cells.get(slot).get(), cellModel(models[slot]));
+        }
+    }
+
     @SubscribeEvent
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         // A cell model the drive draws is not baked unless something asks for it explicitly.
-        for (String name : STORAGE_CELL_MODEL_NAMES) {
+        for (String name : everyCellModel()) {
             event.register(cellModel(name));
         }
         // Same rule for the computation cells and the cables the computation drive tessellates.
@@ -73,10 +102,15 @@ public final class Prototype1201Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            for (int slot = 0; slot < Registration.CELLS.size() && slot < STORAGE_CELL_MODEL_NAMES.length; slot++) {
-                ECOCellModels.register(Registration.CELLS.get(slot).get(),
-                        cellModel(STORAGE_CELL_MODEL_NAMES[slot]));
-            }
+            registerLadder(Registration.CELLS, rungs("item"));
+            registerLadder(Registration.FLUID_CELLS, rungs("fluid"));
+            // Both of these lists stay empty unless the mod constructor took its branch, so a pack
+            // without the medium simply registers nothing.
+            registerLadder(AppMekIntegration.CELLS, rungs("chemical"));
+            registerLadder(FeStorageIntegration.CELLS, FE_RUNGS);
+            ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
+            ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
+                    cellModel(CONCRETE_RUNG));
             // No ItemBlockRenderTypes.setRenderLayer here on purpose. Forge 1.20.1 reads "render_type" from
             // the model itself (NamedRenderTypeManager registers solid/cutout/cutout_mipped/translucent, and
             // BlockModel bakes with a RenderTypeGroup), and its "forge:composite" dispatches each child to
@@ -99,6 +133,12 @@ public final class Prototype1201Client {
             ECOComputationModels.registerCableModel(SimplifyTier.L1_REINFORCED,
                     ComputationCableModels.LOWER_DISCONNECTED, ComputationCableModels.LOWER_CONNECTED);
             ECOComputationModels.runDeferredRegistration();
+            // The assembler's screen. AE2's InitScreens cannot be used for this entry: it resolves the style
+            // path through AppEng.makeId, and the style has to come from our namespace because it is what
+            // carries the dialog title. Registering against vanilla's table is the same call AE2 itself makes.
+            net.minecraft.client.gui.screens.MenuScreens.register(
+                    Registration.PROCESSOR_ASSEMBLER_MENU.get(),
+                    cn.dancingsnow.neoecoprototype1201.client.ProcessorAssemblerScreen::new);
         });
     }
 
@@ -116,9 +156,16 @@ public final class Prototype1201Client {
 
     @SubscribeEvent
     public static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
-        // eco 20.5.3 exposes the tint function itself; the per-item registration helper is gone.
-        event.register(NEItemColors::getCellColor, Registration.CELLS.stream()
-                .map(RegistryObject::get)
-                .toArray(Item[]::new));
+        // eco 20.5.3 exposes the tint function itself; the per-item registration helper is gone, so every
+        // cell we ship has to be handed over. The two gated families' lists are empty without their mod.
+        java.util.List<Item> tinted = new java.util.ArrayList<>();
+        Registration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        Registration.FLUID_CELLS.forEach(cell -> tinted.add(cell.get()));
+        tinted.add(Registration.PIGMEE_STORAGE_CELL.get());
+        AppMekIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        FeStorageIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        // The infinite matrix is not tinted: it reports the same full status forever, so a band that
+        // never moves would only be a second name for the same pixel.
+        event.register(NEItemColors::getCellColor, tinted.toArray(new Item[0]));
     }
 }

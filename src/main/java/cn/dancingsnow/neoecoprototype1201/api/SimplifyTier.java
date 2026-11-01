@@ -110,4 +110,10 @@ public enum SimplifyTier implements IECOTier {
     public net.minecraft.network.chat.Component getPanelTierName() {
         return net.minecraft.network.chat.Component.literal("L1");
     }
+
+    /** The whole panel is re-skinned to L1 green; see {@link PanelAtlas} for the six names. */
+    @Override
+    public ResourceLocation getPanelAtlas(String atlas) {
+        return PanelAtlas.resolve(atlas);
+    }
 }
