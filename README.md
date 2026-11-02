@@ -45,9 +45,9 @@ validate our shell against eco's L4 geometry.
 
 Six storage-matrix families ship: item, fluid, chemical (only with Applied Mekanistics), FE (only
 with Applied Flux), the infinite concrete matrix (vanilla-only, through a stateless cell handler)
-and the Pigmee matrix. Measured from `lang` and the data guard: 34 blocks and 34 items named, 88
-recipe JSONs, 19 disassembly tables, 10 advancement nodes, five guide pages in English and Chinese
-with three scene NBTs.
+and the Pigmee matrix. Measured from `lang` and the data guard: 36 blocks and 34 items named, 88 recipe JSONs (69 crafting
+and machine recipes plus 19 disassembly tables), 14 advancement nodes, seven guide pages in each of
+English and Chinese, and six scene NBTs.
 
 Still not ported - zero references in our own bytecode, checked class by class: the one-click
 builder (`MultiBlockBuildController`), the host panel's action layer (`StorageHostActionUI`,
@@ -64,7 +64,7 @@ old `gui/ldlib/state/NE*InterfaceUiState` objects. What is still absent is `Craf
 `MultiBlockInfoWrapper` is the one of those we already use: our three definitions are handed to
 eco's multiblock JEI page through it.
 
-The line references **77 eco classes** today - every constant-pool `Class` entry across our 89
+The line references **78 eco classes** today - every constant-pool `Class` entry across our 89
 compiled classes that lives under `cn/dancingsnow/neoecoae/` - and all of them resolve in 20.5.3;
 a green `compileJava` is the evidence.
 
