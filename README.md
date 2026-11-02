@@ -45,15 +45,21 @@ validate our shell against eco's L4 geometry.
 
 Six storage-matrix families ship: item, fluid, chemical (only with Applied Mekanistics), FE (only
 with Applied Flux), the infinite concrete matrix (vanilla-only, through a stateless cell handler)
-and the Pigmee matrix. Measured from `lang` and the data guard: 36 blocks and 34 items named, 88 recipe JSONs (69 crafting
-and machine recipes plus 19 disassembly tables), 14 advancement nodes, seven guide pages in each of
-English and Chinese, and four scene NBTs - every one of the 65 named ids is claimed by exactly one page,
+and the Pigmee matrix. Alongside the three subsystems: the L1 pattern provider in two forms (a block
+and a cable part, 27 pattern slots, the two converting one for one), five dolls on one block entity,
+and four migration drives plus the shell they return as - registered, and deliberately with no recipe.
+Measured from `lang` and the data guard: 42 blocks and 40 items named, 96 recipe JSONs (77 crafting
+and machine recipes plus 19 disassembly tables), 18 advancement nodes, nine guide pages in each of
+English and Chinese, and four scene NBTs - every one of the 77 registered ids is claimed by exactly one page,
 so the book's item index opens a page for all of them.
 
-Still not ported - zero references in our own bytecode, checked class by class: the one-click
-builder (`MultiBlockBuildController`), the host panel's action layer (`StorageHostActionUI`,
-`ClientUIBridge`, `ServerTaskUtil`), bulk marking (`IECOBulkMarkableCellItem`) and eco's fast path
-(`ECOFastPathFacade`).
+Still not ported - zero references in our own bytecode, checked class by class: the host panel's
+action layer (`StorageHostActionUI`, `ClientUIBridge`, `ServerTaskUtil`), bulk marking
+(`IECOBulkMarkableCellItem`) and eco's fast path (`ECOFastPathFacade`). eco's one-click builder
+(`MultiBlockBuildController`) is no longer on that list - `SimplifyStructureExpansionCardItem` calls
+its planner to grow a formed machine along its edge and to swap it up a tier in place - but the card
+that does that is not registered on this line, so the only player-reachable half is the four drives'
+tier swap, and those come from the creative tab or `/give`.
 
 That is a scoping decision, not an API wall. The 2026-09 survey that scoped this line was taken
 against the 20.5.0 branch; the published 20.5.3 build has since grown most of those surfaces -
@@ -65,7 +71,7 @@ old `gui/ldlib/state/NE*InterfaceUiState` objects. What is still absent is `Craf
 `MultiBlockInfoWrapper` is the one of those we already use: our three definitions are handed to
 eco's multiblock JEI page through it.
 
-The line references **78 eco classes** today - every constant-pool `Class` entry across our 89
+The line references **78 eco classes** today - every constant-pool `Class` entry across our 115
 compiled classes that lives under `cn/dancingsnow/neoecoae/` - and all of them resolve in 20.5.3;
 a green `compileJava` is the evidence.
 
