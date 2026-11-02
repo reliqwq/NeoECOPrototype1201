@@ -184,6 +184,7 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 | 额外字段落盘走 `loadTag(tag, registries)` | 这条线是**单参** `loadTag(CompoundTag)`（`AEBaseBlockEntity#load` 依旧 final，路由点没变，变的是签名带不带 `HolderLookup.Provider`） | 编不过 |
 | `getAdvancements().get(rl)` 返 `Optional<AdvancementHolder>`，`award(Holder, criterion)` | `ServerAdvancementManager#getAdvancement(rl)` 直接返 **可空的 `Advancement`**，`PlayerAdvancements#award(Advancement, String)` | 编不过；**别把 null 判断写成 orElseThrow**，那是这条路径唯一会说话的地方 |
 | Jade：`@WailaPlugin`（1.21 无参） | `WailaPlugin.value()` 是**必填的 modid**（11.13.2），插件由 Jade 自己扫描 `Class.forName` 装载 | 少传 modid ⇒ 编不过；更关键的是**发现失败没有别的读数**，所以 `register()` 里打了一行 `neoeco1201-jade` 日志：玩家报"提示里没有机魂"时，那行能分开"Jade 没扫到我们"和"扫到了但内容不对" |
+| 方块实体要进网格就得注册 `AECapabilities.IN_WORLD_GRID_NODE_HOST`（NeoForge 21 的 `RegisterCapabilitiesEvent`） | **这条线一行都不用写**：`GridHelper.getNodeHost(Level,BlockPos)` 先做 `blockEntity instanceof IInWorldGridNodeHost`（现量 offset 0-19），Forge capability 只是 offset 25 的兜底；而 AE2 自己的 `AENetworkBlockEntity → IGridConnectedBlockEntity` 已经 implements 那个接口 ⇒ 我们只要把 BE 类型交出去（`ModBlockEntities.wire → setBlockEntity(…, null, serverTicker)`，第 4 参才是服务端 ticker：`setBlockEntity` 的 `putfield` 顺序 + `getTicker` 读 `clientTicker` 只在 `isClientSide`） | 照抄那行会引一个这条线没有的类（`appeng.api.AECapabilities` 在 15.4.10 命中 0，capability 在 `appeng.capabilities.Capabilities`）⇒ 编不过；反过来"以为必须要注册"会把已经免费的通道做成一笔假成本（口算单元那次搬运实测就是零行，见 `b487edf`） |
 
 **同一个方向的另一个坑：文本抄过来了，这条线上没有读者。** `ECOCellType.desc()` 在 20.5.3 全 jar 1847 个类里
 只有一个读者 —— `HostText.storageTypeAccentColor`，而且只取 `desc().getStyle().getColor()`；
