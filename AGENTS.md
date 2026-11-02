@@ -207,6 +207,15 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 
 **装上游件仍然要先量命名通道**（§5 那条 AE2 的坑在这族上重演了一次）：MEGA Cells 这条线用的是 Modrinth release 的 `megacells-forge-2.4.6-1.20.1.jar`（sha1 回读一致），而不是任何 maven 件。
 
+**一族新盘在这条线要接四处，只接物品面 = 插进驱动器什么都不画**（11-02 夜现场：c67acf0 发完，玩家报"没驱动器贴图"；6705e49 补齐）。四处各有各的下场：
+
+1. `ECOCellModels.register(item, 模型id)`（`Prototype1201Client` 客户端装配那段）——`SimplifyDriveRenderer:63` 走 `getModelLocation(cellStack.getItem())`，**答 null 就静默不画，日志 0 条**；
+2. `ModelEvent.RegisterAdditional` 里的 `everyCellModel()`——没有别处点名的盘模型**根本不会被 bake**，所以第 1 处接了、第 2 处漏了同样是空；
+3. `onRegisterItemColors` 的 `tinted` 列表——eco 20.5.3 给的是染色函数本体，这条线**每个盘都得自己交名字**，漏了的那族状态灯带永远是白的（不是崩，是"看起来像没做的"）；
+4. 四张 rung 模型 + 外壳图，按 §4.1 的三处转换从 1.21 抄（`neoforge_data`→`forge_data`、`cutout`→`cutout_mipped`、去 `format_version`）。
+
+**守卫看不见第 1 与第 3 处**：`check_data_sync.py` 的模型扫是"模型文件里的纹理与 parent 解析不解析"＋"java 点名的 4 张缆模型在不在文件里"，方向是 java→文件；**"某个已注册的盘物品没有任何一处 java 认它"这条没有规则**，因为盘模型名与物品 id 不成派生关系（`simplify_small_bulk_storage_cell` ↔ `storage_cell_l1_small_bulk_item`），照 id 猜就是把守卫写成假绿。所以这四处按家族逐条对，别只加物品侧。
+
 **它带进来的上游噪声，别判成我们的**：装上 MEGA 之后 dev 日志固定有 1 条 `Couldn't parse element loot_tables:megacells:blocks/mega_emc_interface`、1 条 `Parsing error loading recipe megacells:cells/standard/radioactive_chemical_cell`（`Unknown item mekanismgenerators:reactor_glass`）和 25 条 `Skipping loading recipe megacells:…`——全是 MEGA 在向这包没装的 mana / source / EMC 模组要东西。**所以 §5 那句"0 条 `Parsing error loading recipe`"的口径从今往后按"0 条我们命名空间里的"判。**
 
 ## 5. 测试与验证
