@@ -116,8 +116,20 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
   dev 靠 `--mixin.config`（两边都得有）；`reobfJar` 会把我们对 MC 成员的引用换成 SRG 名
   （现量：产物 89 个 class 里 **333 处 SRG 形式**，我们那颗 mixin 只碰 AE2 成员且 `remap=false`，
   所以 jar 里**没有 refmap 也不影响它** —— 但以后谁加一条碰 MC 成员的 mixin，就没有 refmap 承载它，
-  mixin AP 在这条线上没接）。**第一版发布前要做一次"把它当 jar 跑"的冒烟**，
-  `F:/1201prod` 是给这件事准备的（2026-11-02 卡在 forge maven 只有 7 KB/s）。
+  mixin AP 在这条线上没接）。
+- **手装 Forge 实例这条冒烟路在这台机器上不通，别再走第二遍（2026-11-02）。** installer 的 server 装能装成
+  （卡住的四个件从本机 Gradle 缓存 / Maven Central 补，sha1 与 installer 期望值逐字符相同），
+  但**拼出来的 server 死在 AE2 自己的 mixin 上**：`ae2.mixins.json:spatial.MinecraftServerMixin` →
+  `@Shadow field levels was not located … Using refmap ae2.mixins.refmap`；**把我们整颗 jar 移出 `mods/`
+  崩溃一模一样** ⇒ 这是拼装环境不代表真实发布环境，它在我们的代码之前就炸，继续分辨只会得到"我的拼装坏了"
+  而不是"模组坏了"的读数。`--installClient` 两次都在 socket 上卡死（7 分钟 0 输出；forge/creeperhost
+  实测 7 KB/s 且反复 Read timed out）。**正确做法：拿一个真启动器里的 Forge 1.20.1 实例**（真素材、真名通道）
+  丢五颗 jar 跑：我们的 `build/libs/*.jar` + AE2 15.4.10 + eco 20.5.3 + GuideME 20.1.14 + LDLib（eco 强制），
+  判据三条 = 进得了主菜单、那颗 mixin 打"8192 可用"而不是 ClassCastException、注册与配方无异常。
+  这次拼装已经验到并且算数的部分：FML 在**生产启动器**下读我们的 `mods.toml` 并按
+  `ae2 [15.4.10,)` / `neoecoae [20.5.3,)` 拒启动（缺依赖屏原文如此）。
+  素材仓库顺带记一笔：`F:/gradle-cache/caches/forge_gradle/assets` 620 MB 里 520 MB 是 `.ogg`、
+  贴图只占 11.3 MB，dev 与 prod 共用一份，所以 prod 客户端不需要重新下几百 MB。
 
 ## 6. 本机工具坑
 
