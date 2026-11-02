@@ -66,10 +66,17 @@ public final class Prototype1201Client {
             "storage_cell_l0_fe_1k", "storage_cell_l1_fe", "storage_cell_l1r_fe"};
     private static final String PIGMEE_RUNG = "storage_cell_l1_pigmee";
     private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
+    /**
+     * The small-bulk rungs in {@code SmallBulkIntegration.CELLS}' order: each medium's base cell on L1's
+     * band and its ten-mark cell on the 4M band. Not a five-rung ladder, so the family keeps its own array.
+     */
+    private static final String[] SMALL_BULK_RUNGS = {"storage_cell_l1_small_bulk_item",
+            "storage_cell_l1r_small_bulk_item", "storage_cell_l1_small_bulk_fluid",
+            "storage_cell_l1r_small_bulk_fluid"};
 
     /** Everything the drive can be asked to draw, for the bake pass. */
     private static String[] everyCellModel() {
-        String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS};
+        String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS, SMALL_BULK_RUNGS};
         java.util.List<String> all = new java.util.ArrayList<>();
         for (String[] group : groups) {
             all.addAll(java.util.List.of(group));
@@ -156,6 +163,11 @@ public final class Prototype1201Client {
             ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
                     cellModel(CONCRETE_RUNG));
+            // Empty unless the mod constructor took its megacells branch, which is what lets this pass skip
+            // the family without testing a gate of its own. An unregistered cell model is not an error
+            // anywhere: the drive simply has nothing to draw for that item.
+            registerLadder(cn.dancingsnow.neoecoprototype1201.integration.megacells
+                    .SmallBulkIntegration.CELLS, SMALL_BULK_RUNGS);
             // No ItemBlockRenderTypes.setRenderLayer here on purpose. Forge 1.20.1 reads "render_type" from
             // the model itself (NamedRenderTypeManager registers solid/cutout/cutout_mipped/translucent, and
             // BlockModel bakes with a RenderTypeGroup), and its "forge:composite" dispatches each child to
@@ -226,6 +238,8 @@ public final class Prototype1201Client {
         tinted.add(Registration.PIGMEE_STORAGE_CELL.get());
         AppMekIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         FeStorageIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        cn.dancingsnow.neoecoprototype1201.integration.megacells
+                .SmallBulkIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         // The infinite matrix is not tinted: it reports the same full status forever, so a band that
         // never moves would only be a second name for the same pixel.
         event.register(NEItemColors::getCellColor, tinted.toArray(new Item[0]));
