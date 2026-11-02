@@ -59,6 +59,26 @@ public final class Prototype1201 {
         // First, because everything below reads types that must already exist: AE2's representative-item
         // table is filled here rather than at registry time (see ModBlockEntities#registerRepresentativeItems).
         ModBlockEntities.registerRepresentativeItems();
+        // AE2's upgrade table is keyed by the machine *item*, and both of our interfaces are our own
+        // BlockItem instances rather than AE2's, so nothing upstream registers an allowance for them and
+        // each would open an empty upgrade panel. Two cards, one each, in AE2's own interface group - the
+        // group is what keeps the card tooltip's "can be installed in" line collapsed onto AE2's entry
+        // instead of growing a second line with our names.
+        var interfaceGroup = appeng.core.localization.GuiText.Interface.getTranslationKey();
+        for (var item : java.util.List.<net.minecraft.world.level.ItemLike>of(
+                ModRegistration.SIMPLIFY_POWERED_ME_INTERFACE_BLOCK.get().asItem(),
+                ModRegistration.SUPERCONDUCTIVE_INTERFACE_BLOCK.get().asItem())) {
+            appeng.api.upgrades.Upgrades.add(
+                    appeng.core.definitions.AEItems.CRAFTING_CARD.asItem(), item, 1, interfaceGroup);
+            appeng.api.upgrades.Upgrades.add(
+                    appeng.core.definitions.AEItems.FUZZY_CARD.asItem(), item, 1, interfaceGroup);
+        }
+        // The fourth line of that same panel is appflux's, and it is the one allowance this line was
+        // missing; see FeStorageIntegration#registerUpgradeCards for why the read has to sit behind a gate.
+        if (ModList.get().isLoaded("appflux")) {
+            cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration
+                    .registerUpgradeCards();
+        }
         // Both hosts are our subclasses, but neither can hand over its calculator any other way: eco's
         // host constructors take (type, pos, state, tier) and install eco's own calculator through that,
         // so the per-type table is the only hand-over point - and it must come after the types exist.
@@ -92,7 +112,6 @@ public final class Prototype1201 {
         // without eco ever knowing the item.
         event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.InfiniteConcreteCellHandler::register);
         registerAssemblerMenu();
-        reportJeiPluginScanData();
         reportInterfaceMixinApplied();
     }
 
@@ -103,33 +122,6 @@ public final class Prototype1201 {
      * type therefore joins the table by hand, writing the same two values AE2's builder writes so its
      * client-side reader finds what it expects.
      */
-    /**
-     * TEMP PROBE (2026-11-01, delete after reading): JEI finds plugins through Forge's annotation
-     * scan data, and our @JeiPlugin class is not being handed to it in a dev run while eco's - which
-     * sits in a jar - is. This says which half is missing: whether our own mod file enumerates the
-     * class at all, and whether the annotation reaches the scan data.
-     */
-    private static void reportJeiPluginScanData() {
-        int annotations = 0;
-        int ours = 0;
-        StringBuilder jei = new StringBuilder();
-        for (var scanData : net.minecraftforge.fml.ModList.get().getAllScanData()) {
-            for (var annotation : scanData.getAnnotations()) {
-                annotations++;
-                String member = annotation.memberName();
-                if (member.startsWith("cn/dancingsnow/neoecoprototype1201/")
-                        || member.startsWith("cn.dancingsnow.neoecoprototype1201.")) {
-                    ours++;
-                }
-                if (member.contains("JeiPlugin")) {
-                    jei.append(" [").append(annotation.annotationType()).append(" on ").append(member).append("]");
-                }
-            }
-        }
-        LOGGER.info("[probe] FML scan annotations={}, ours={}, JeiPlugin hits={}",
-                annotations, ours, jei.length() == 0 ? "none" : jei.toString().trim());
-    }
-
     private static void registerAssemblerMenu() {
         var menuType = Registration.PROCESSOR_ASSEMBLER_MENU.get();
         appeng.menu.MenuOpener.addOpener(menuType, (player, locator, linked) -> {

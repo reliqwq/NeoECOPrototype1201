@@ -53,7 +53,7 @@ repositories {
         url = 'https://cdn.modrinth.com/data'
         patternLayout { artifact '[organisation]/versions/[revision]/[module].[ext]' }
         metadataSources { artifact() }
-        content { includeGroup 'u6dRKJwZ' }
+        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw' }
     }
 }
 
@@ -114,6 +114,23 @@ dependencies {
     compileOnly fg.deobf("curse.maven:applied-mekanistics-574300:7244744")
     runtimeOnly fg.deobf("curse.maven:applied-mekanistics-574300:7244744")
 
+    // AppliedFlux. The FE cell family itself needs nothing here - it extends eco's own
+    // ECOFeStorageCellItem and reads FluxKeyType inside a constructor body - but the induction-card
+    // allowance does: AFItemAndBlock.INDUCTION_CARD is a field read, therefore a must-resolve reference,
+    // so the type has to be compilable even though the branch only runs with the mod loaded.
+    // runtimeOnly as well, with Glodium declared next to it: appflux's own mods.toml makes
+    // glodium [1.0,) mandatory, so listing appflux alone buys a missing-dependency screen instead of a
+    // dev client. Neither line reaches the shipped jar and neither moves the floor - the family stays
+    // optional. Dropping the published jars into run/mods is *not* the same route: they carry SRG names,
+    // the dev client runs the 'official' channel, and fg.deobf is what makes them load (measured here on
+    // JEI, where the raw jar threw NoSuchMethodError on Component.m_237110_).
+    compileOnly fg.deobf("curse.maven:applied-flux-965012:7651647")
+    runtimeOnly fg.deobf("curse.maven:applied-flux-965012:7651647")
+    // Glodium, pinned by file rather than by version: Modrinth's maven layout resolves a version to one
+    // arbitrary file of that name. This is the CDN path data/UhW5uCKw/versions/eoUaDkZf, sha1
+    // c7534db3248adfcf39a6158b423dfc9bfc99a378 - the same 60 550 B jar the shelf copy under 参考模组/ is.
+    runtimeOnly fg.deobf("UhW5uCKw:Glodium-1.20-1.5-forge:eoUaDkZf")
+
     // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
     // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's
     // EventSubclassTransformer force-loads every class in our jar while building event handlers - so a
@@ -153,5 +170,15 @@ jar {
                 // instead; both are needed or the same code behaves differently in dev and in a release.
                 'MixinConfigs'          : 'neoecoprototype1201.mixins.json'
         ])
+    }
+}
+
+processResources {
+    // One place for the version number. mods.toml reads ${mod_version} and this fills it from
+    // gradle.properties, so a bump cannot leave the jar named 0.2.0 while its own metadata still says
+    // 0.1.0 - which is what FML shows in the "mod requires..." screen and in the Mods list. Checked
+    // after every build by reading META-INF/mods.toml back out of the produced jar.
+    filesMatching('META-INF/mods.toml') {
+        expand 'mod_version': project.mod_version
     }
 }
