@@ -33,10 +33,26 @@ not an upstream artifact, so do not publish it as one.
 
 ## Scope
 
-This checkout carries the L1 storage family only: controller, interface, network interface, energy
-cell, casing, vent, drive, and the prototype cell item that exercises eco's storage API. Computation,
-crafting, the one-click builder, the host panel's action layer, the small-bulk family and the fast
-path are not ported yet.
+All three L1 subsystems are ported. **Storage**: controller, interface, network interface, casing,
+vent, drive, energy cell. **Computation**: system, casing, threading and parallel cores, cooling
+controller, transmitter, drive, interface, network interface, and the two energized members.
+**Crafting**: system, casing, vent, worker, parallel core, pattern bus, both fluid hatches, the
+powered and superconductive interfaces, and the processor assembler. Each subsystem carries its own
+cluster, calculator and `MultiBlockDefinition`; the calculators go in through
+`NEBlockEntity.registerCalculatorFactory`, for every storage member and not only the hosts, because
+eco's constructors install eco's own calculator otherwise and a scan starting from a drive would
+validate our shell against eco's L4 geometry.
+
+Six storage-matrix families ship: item, fluid, chemical (only with Applied Mekanistics), FE (only
+with Applied Flux), the infinite concrete matrix (vanilla-only, through a stateless cell handler)
+and the Pigmee matrix. Measured from `lang` and the data guard: 34 blocks and 34 items named, 88
+recipe JSONs, 19 disassembly tables, 10 advancement nodes, five guide pages in English and Chinese
+with three scene NBTs.
+
+Still not ported - zero references in our own bytecode, checked class by class: the one-click
+builder (`MultiBlockBuildController`), the host panel's action layer (`StorageHostActionUI`,
+`ClientUIBridge`, `ServerTaskUtil`), bulk marking (`IECOBulkMarkableCellItem`) and eco's fast path
+(`ECOFastPathFacade`).
 
 That is a scoping decision, not an API wall. The 2026-09 survey that scoped this line was taken
 against the 20.5.0 branch; the published 20.5.3 build has since grown most of those surfaces -
@@ -45,9 +61,12 @@ against the 20.5.0 branch; the published 20.5.3 build has since grown most of th
 `crafting/execution/fastpath` classes are all in the jar, and the interface screens now use the
 `gui/computation/ComputationInterfaceUI` / `gui/crafting/CraftingInterfaceUI` shape instead of the
 old `gui/ldlib/state/NE*InterfaceUiState` objects. What is still absent is `CraftingUIHelper`.
+`MultiBlockInfoWrapper` is the one of those we already use: our three definitions are handed to
+eco's multiblock JEI page through it.
 
-The line references 18 eco types today, and every one of them resolves in 20.5.3 - a green
-`compileJava` is the evidence.
+The line references **77 eco classes** today - every constant-pool `Class` entry across our 89
+compiled classes that lives under `cn/dancingsnow/neoecoae/` - and all of them resolve in 20.5.3;
+a green `compileJava` is the evidence.
 
 ## Confirmed API differences (measured on the 20.5.3 jar)
 
@@ -95,5 +114,19 @@ and is fine, so a straight copy from 1.21 will reintroduce the black top.
 ```
 
 `./gradlew build` produces `build/libs/neoecoprototype1201-0.1.0.jar`. The entry point
-`Prototype1201.java` wires registration only - blocks, block entities, the cell item and its creative
-tab - so a broken eco API shows up at compile time, not at runtime in a world.
+`Prototype1201.java` is registration plus the four hand-overs AE2 and eco offer no slot for: the
+calculator factory per member type, our block entity types in eco's pipe-capability table, our menu
+type in AE2's `MenuOpener` table (`MenuTypeBuilder` can only name entries inside `ae2:` on this
+line), and the infinite matrix's cell handler. Everything else the mod needs is reached through a
+public API, so a broken eco API shows up at compile time rather than in a world.
+
+**One place for the version number**: `gradle.properties`' `mod_version`. `mods.toml` reads
+`${mod_version}` and `processResources` expands it, so the jar name and the mod's own metadata
+cannot drift; after a build, read `META-INF/mods.toml` back out of the jar to prove it. The README's
+jar path above is the only other copy and it is prose, not data.
+
+The code is GPL-3.0-only (`LICENSE`). `THIRD_PARTY_NOTICES.md` records what we build against and
+what we did not write: eco, AE2, GuideME, LDLib v1 and the four optional families, each with the
+license line read from that jar's own metadata, plus the artwork provenance - all 213 PNGs here are
+byte-identical to their 1.21.1 twins, so the artists' ARR terms and AE2's CC BY-NC-SA asset notice
+carry over unchanged.

@@ -33,6 +33,14 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 同类事实：eco 20.5.3 把 `ae2omnicells` 的可选下限写成 `[1.1.6,)`，而 1.20.1 上 OmniCells 最新是
 **1.0.7** → 装上也起不来（FML 直接拒）。这条不是我们的接线问题。
 
+**编译类路径也要过同样的闸**（2026-11-02 落地）：感应卡放行读的是
+`com.glodblock.github.appflux.common.AFItemAndBlock.INDUCTION_CARD`，那是个字段读，方法体里出现没问题，
+但**编译要它**，所以 appflux 在这里是 `compileOnly`。它**故意不配 `runtimeOnly`**：appflux 自己
+`mods.toml` 把 `glodium [1.0,)` 写成 mandatory，只声明 appflux 会让 FML 直接拒起 dev 客户端。
+两条一起加才成立（glodium 按文件钉：Modrinth `UhW5uCKw/eoUaDkZf`，sha1 `c7534db3…99a378`，
+因为 Modrinth 的 maven 布局会把版本号解析成"该版本里随便一个文件"）。1.20.1 的卡片字段名跟 1.21 不同：
+**这条线是 `AFItemAndBlock`，1.21 那边叫 `AFSingletons`**，照抄会编不过。
+
 ## 3. 资源：单向，从 1.21.1 流向这里
 
 贴图/模型/blockstate/lang/guide 页**只从 `F:/neoecoSimplify` 抄过来**，这里改了不要指望回流——美术分叉是唯一事后合不回去的东西。
@@ -49,6 +57,18 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 今天（`e3d8ebf`）读数：20 只细胞 / 19 份拆解表 / 10 个节点、65 已注册 id、126 有来源 id、引用全解析。
 **无限混凝土矩阵故意没有拆解表** —— 那是"压缩艺术，不可拆卸"那句文案，不是漏了。
 
+### 4.1 从 1.21.1 抄过来的 JSON，有四处在这条线上换了形状（全部静默）
+
+| 东西 | 1.21.1 写法 | Forge 1.20.1 现实 | 抄错的后果 |
+|---|---|---|---|
+| 成就的条件 | 顶层 `"neoforge:conditions": [...]` | **只认包装形状** `{"advancements":[{"conditions":[…],"advancement":{…}}]}`（`ConditionalAdvancement.processConditional`） | 顶层键被当未知字段忽略 → 节点**无条件加载**，缺模组时判据点名的物品不存在，树里多一颗永远点不亮的洞，0 条日志抱怨 |
+| 配方的条件 | `"neoforge:conditions"` | 裸键 `"conditions"` + `forge:mod_loaded` | 我们 18 份条件配方本来就是对的；**别把成就那套写法搬过来** |
+| 成就的图标 | `{"id": "ns:item"}` | `{"item": "ns:item"}` | 守卫已拦（`display.icon still uses 1.21's 'id'`） |
+| 模型的面级光照 | `"neoforge_data"` | `"forge_data"` | 发光层不再是全亮烘焙光 → 整张面板像被乘 0.05（见 §3 那条例外） |
+
+守卫 `check_node` 现在两件事都做：认包装形状并递归查内层、见到 `neoforge:` 前缀键直接红。
+**控制组建过**（临时塞一颗带 `neoforge:conditions` 的假节点 → 红的正是那句，摘掉后 14 颗全绿）。
+
 ## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
@@ -57,8 +77,30 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
   它是客户端侧 RecipeManager 的计数，口径未查清。**判"配方加载对不对"要看 0 条
   `Parsing error loading recipe` + 在 JEI 里看到那一页**，不要看 43。
 - 游戏内读数（成型外观、面板、渲染器、状态灯染色）**套件永远看不见**，只能启动客户端点。
-  两颗探针（潜行右键合成主机 / 计算主机）就是为这个插的，**0 读数通常意味着没人点过**，不是功能坏了。
   注意日志会被下次启动覆盖：`run/logs/latest.log` 只保最近一次，要留读数就当时抓走。
+- **探针"0 读数"不等于"没人点"**。三颗潜行右键诊断（存储 / 计算 / 合成主机）里，计算那颗今天
+  在 15:15 / 21:09 / 23:53 抛了 **12 次** `Failed to handle packet`：`ICraftingCPU.getName()` 会返回
+  null，而我们在 `use` 里直接 `.getString()`。存储那颗更早（13:29）抛过 `ItemStack.getDisplayName()`
+  一次，被当天那次重写顺手带走了。**修法已落地**：body 抽成 `diagnose(...)`，外面 `try/catch
+  RuntimeException` 并 `LOGGER.warn("… diagnose at {} failed", pos, e)` —— 诊断工具不许成为故障源，
+  因为它读的全是上游可能给 null 的对象（`getName()`、`getStackInSlot()` 都是实例）。新增诊断照这个形状。
+- **读日志要按签名扫，不要只 grep 你以为的那一条**：我 21:09 那轮只查了 recipe category，
+  就把同一份日志里已经躺着的 8 条 packet NPE 漏了一个小时。口径是：`Failed to handle packet` /
+  `Exception` / `ERROR` 全扫一遍再下结论。
+- **原版食谱书那条 `Unknown recipe category: <type>/<id>` 的机制**（消掉我们 7 条时量的）：
+  `ClientRecipeBook.getCategory` 走完原版类型后调 `RecipeBookManager.findCategories`，null 就打一条
+  WARN、把配方塞进 `RecipeBookCategories.UNKNOWN`；分类在 `setupCollections` 遍历**全部**配方时发生，
+  不看界面不看菜单，所以每次进世界每个未登记类型每颗配方一条。正门是 mod bus 上的
+  `RegisterRecipeBookCategoriesEvent#registerRecipeCategoryFinder`。**坑**：原版按分类分页、
+  **不按 RecipeType 过滤**，所以答 `CRAFTING_MISC` 会把"合成台里做不出来"的配方画进那张页 ——
+  我们这种没有食谱书面板的机器只能答 `UNKNOWN`（`UNKNOWN` 不在任何 `RecipeBookType` 的列表里）。
+  剩下的 5 条（3 条 AE2 + 2 条 appflux 塞进 `ae2:charger` 的）不是我们的账。
+- **发布 jar 走的这条路 dev 永远验不到**：mixin 在发布件里靠 manifest 的 `MixinConfigs`，
+  dev 靠 `--mixin.config`（两边都得有）；`reobfJar` 会把我们对 MC 成员的引用换成 SRG 名
+  （现量：产物 89 个 class 里 **333 处 SRG 形式**，我们那颗 mixin 只碰 AE2 成员且 `remap=false`，
+  所以 jar 里**没有 refmap 也不影响它** —— 但以后谁加一条碰 MC 成员的 mixin，就没有 refmap 承载它，
+  mixin AP 在这条线上没接）。**第一版发布前要做一次"把它当 jar 跑"的冒烟**，
+  `F:/1201prod` 是给这件事准备的（2026-11-02 卡在 forge maven 只有 7 KB/s）。
 
 ## 6. 本机工具坑
 
@@ -68,13 +110,26 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 - PowerShell 脚本块会被 Git Bash 吃掉 `$_` → 写成 `.ps1` 用 `-File`。
 - 像素/贴图结论一律用 Pillow；`javap` 在 `F:/java/bin`（JDK17 那份在 `F:/jdk17/bin`）。
 - 推 GitHub 偶发连不上（本机有代理改 hosts/自签证书），试 `git -c http.version=HTTP/1.1 push`。
+- **curl 在这台机器上默认 TLS 校验会死在吊销检查**：`schannel: CRYPT_E_REVOCATION_OFFLINE` 不是证书错，
+  是吊销服务器连不上。加 `--ssl-no-revoke` 就通（2026-11-02 验 maven.minecraftforge.net 时撞到）。
+  那个源实测只有 **7 KB/s**，长文件要 `-C -` 续传循环，单次 `--max-time` 到点必断。
 
 ## 7. 目录与提交
 
 - 不跟踪任何 jar；`libs/`、`run/`、`_removed_sources/`、`旧jar/`、`备份_*/`、`参考模组/` 都在 `.gitignore`。
   **删除的东西一律逐字节备份进 `_removed_sources/` 并保持相对路径**，但它是**本机副本**，真出处是删除前的那个提交——
-  不许拿"备份里还有一份"当"删了没事"的理由。
+  不许拿"备份里还有一份"当"删了没事"的理由。第三方 jar 放在 `参考模组/` 只给读，不进门禁例外。
 - 提交前缀小写英文（`feat:` / `fix:` / `build:` / `chore:` / `docs:`），一条提交一件事，**边界是"每条都能独立编译且守卫能过"**。
-- **本条线目前没有 tag、没有 CHANGELOG、没有发版流程**（`git tag --list` 为空）。第一次发布前要先决定：
-  是沿用 1.21.1 那套（三处号→现在只有一处、CHANGELOG 中文段、轻量 tag、`gh release` 挂 jar、下载核对 sha256），
-  还是这条线单独定一套。别在没定之前先中门。
+- **版本号现在只有一处**：`gradle.properties` 的 `mod_version`。`mods.toml` 写 `${mod_version}`，
+  由 `processResources` 展开（和 1.21.1 那条线的规矩一致）。**每次出包后要把 jar 里的
+  `META-INF/mods.toml` 读回来核对**（`version = "0.1.0"` 而不是 `${mod_version}`），这是那条注释存在的理由。
+- `LICENSE`（GPL-3.0 全文）与 `THIRD_PARTY_NOTICES.md` 已于 2026-11-02 补齐。后者每个许可证字段都是从
+  **那颗 jar 自己的 `mods.toml` 读出来的**，不是抄 1.21 的表；LDLib **v1**（这条线）自报 `GPL-3.0 license`，
+  和 1.21 那条线的 LDLib**2** 不是一个东西。美术侧：这条线的 **213 张 PNG 全部与 1.21.1 同路径文件逐字节相同**
+  （md5 全量对过），所以美术出处记录在那边，这里不改写。
+- **本条线仍然没有 tag、没有 CHANGELOG、没有发版流程**。第一次发布前要先定四件事：
+  ① 号段（建议从 `0.2.0` / `0.1.0-preview1` 起，**别用 1.0.0** —— 缺一键建造 / 主机动作层 / 大宗标记 /
+  快速路径，还带"接口面闪烁"那条未结缺陷）；② 渠道（私有 GitHub Release 还是 Modrinth/Curse，
+  以及命名要一直带 `(1.20.1)`）；③ 先做一次**生产实例冒烟**（上一条）；④ CHANGELOG 与 release 正文
+  用哪套写法（1.21.1 的 §16 那套形状可以直接沿用：重点 / 升级前必读 / 新增·变更·修复·移除 / 依赖）。
+  **别在没定之前先中门。**
