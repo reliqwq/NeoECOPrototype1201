@@ -26,12 +26,7 @@ item_ids:
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
-同一台机器换个朝向：成员、数量与上图完全一样，只是主机的 `facing` 从 south 变成 west（两张图里 `mirrored` 都是 false）。
-
-<GameScene zoom="4" interactive={true}>
-  <ImportStructure src="../scenes/l1_crafting_other_end.nbt" />
-  <IsometricCamera yaw="45" pitch="30" />
-</GameScene>
+同一台机器换个朝向还是它：成员、数量都不变，只是主机的 `facing` 从 south 变成 west（存出来的结构里 `mirrored` 两种摆法都是 false）。
 
 | 项目 | 数值 |
 |------|------|

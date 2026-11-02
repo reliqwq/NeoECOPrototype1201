@@ -47,7 +47,8 @@ Six storage-matrix families ship: item, fluid, chemical (only with Applied Mekan
 with Applied Flux), the infinite concrete matrix (vanilla-only, through a stateless cell handler)
 and the Pigmee matrix. Measured from `lang` and the data guard: 36 blocks and 34 items named, 88 recipe JSONs (69 crafting
 and machine recipes plus 19 disassembly tables), 14 advancement nodes, seven guide pages in each of
-English and Chinese, and six scene NBTs.
+English and Chinese, and four scene NBTs - every one of the 65 named ids is claimed by exactly one page,
+so the book's item index opens a page for all of them.
 
 Still not ported - zero references in our own bytecode, checked class by class: the one-click
 builder (`MultiBlockBuildController`), the host panel's action layer (`StorageHostActionUI`,

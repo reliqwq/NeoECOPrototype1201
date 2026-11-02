@@ -180,8 +180,15 @@ FOREIGN_NS = re.compile(r"(?<!1201)\bneoecoprototype[:.]")
 
 
 def check_pages():
-    """Every id, page link and scene a guide page names has to exist here, in both languages."""
+    """Every id, page link and scene a guide page names has to exist here, in both languages.
+
+    Also the item -> page index: guideme builds it from each page's item_ids block, so an id that no page
+    claims is an item the reader cannot look up, and an id two pages claim lands on whichever page guideme
+    happened to read last. Both are silent in-game, so they are asserted here.
+    """
     langs = {}
+    claims = {}
+    referenced_scenes = set()
     for sub, folder in (("", os.path.join(GUIDE_DIR, NS + "_intro")),
                         ("_zh_cn", os.path.join(GUIDE_DIR, "_zh_cn", NS + "_intro"))):
         if not os.path.isdir(folder):
@@ -195,6 +202,8 @@ def check_pages():
                 check_id(where, raw)
             for raw in re.findall(r"^\s*-\s+([a-z0-9_.-]+:[a-z0-9_.-]+)\s*$", text, re.M):
                 check_id(where + " item_ids", raw)
+                if raw.startswith(NS + ":"):
+                    claims.setdefault(sub, {}).setdefault(raw, []).append(page)
             icon = re.search(r"^\s*icon:\s*(\S+)\s*$", text, re.M)
             if icon:
                 check_id(where + " icon", icon.group(1))
@@ -205,6 +214,7 @@ def check_pages():
                 # Resolved against the guide root, not the page: eco 20.5.3 ships one ae2guide/scenes/ and
                 # its _zh_cn pages carry the same "../scenes/x.nbt" string, so the folder is shared.
                 path = os.path.join(GUIDE_DIR, "scenes", os.path.basename(src))
+                referenced_scenes.add(os.path.basename(src))
                 if not os.path.isfile(path):
                     problems.append(f"{where}: scene missing: {src}")
             parent = re.search(r"^\s*parent:\s*(\S+)\s*$", text, re.M)
@@ -214,6 +224,25 @@ def check_pages():
                     problems.append(f"{where}: navigation.parent page not shipped: {target}")
             for leak in FOREIGN_NS.findall(text):
                 problems.append(f"{where}: still names the other line's namespace")
+    for sub, per_page in sorted(claims.items()):
+        label = "guide/" + (sub or "en")
+        for raw, pages in sorted(per_page.items()):
+            if len(pages) > 1:
+                problems.append(f"{label}: {raw} is claimed by {len(pages)} pages "
+                                f"({sorted(set(pages))}) - the item index can only point at one")
+        for raw in sorted(OURS - set(per_page)):
+            problems.append(f"{label}: {raw} is registered but claimed by no page - the book's item"
+                            " index has nothing to open for it")
+    if len(claims) == 2 and set(claims[""]) != set(claims["_zh_cn"]):
+        problems.append("guide: the two languages claim different item sets: "
+                        + str(sorted(set(claims[""]) ^ set(claims["_zh_cn"]))[:6]))
+    scenes_dir = os.path.join(GUIDE_DIR, "scenes")
+    if os.path.isdir(scenes_dir):
+        for name in sorted(f for f in os.listdir(scenes_dir)
+                           if f.endswith(".nbt") and f not in referenced_scenes):
+            problems.append(f"guide/scenes/{name}: shipped but no page imports it")
+    print(f"guide: {len(claims.get('', {}))} of {len(OURS)} ids claimed, "
+          f"{len(referenced_scenes)} scenes imported")
     if len(langs) == 2 and langs[""] != langs["_zh_cn"]:
         problems.append("guide: the two languages ship different page sets: "
                         f"{sorted(langs[''] ^ langs['_zh_cn'])}")

@@ -2,6 +2,16 @@
 navigation:
   title: Neo ECO Prototype
   position: 200
+item_ids:
+  - neoecoprototype1201:simplify_storage_controller
+  - neoecoprototype1201:simplify_storage_casing
+  - neoecoprototype1201:simplify_storage_vent
+  - neoecoprototype1201:simplify_drive
+  - neoecoprototype1201:simplify_energy_cell
+  - neoecoprototype1201:simplify_storage_interface
+  - neoecoprototype1201:simplify_storage_network_interface
+  - neoecoprototype1201:simplify_green_crystal_matrix
+  - neoecoprototype1201:simplify_green_aluminum_casing
 ---
 
 # Neo ECO Prototype

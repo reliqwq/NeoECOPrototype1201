@@ -16,6 +16,8 @@ item_ids:
   - neoecoprototype1201:energized_computation_core
   - neoecoprototype1201:energized_computation_threading_core
   - neoecoprototype1201:energized_computation_cell_4m
+  - neoecoprototype1201:simplify_computation_transmitter
+  - neoecoprototype1201:simplify_computation_cell_1m
 ---
 
 # L1 计算系统
@@ -27,12 +29,7 @@ item_ids:
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
-同一格换成**普通计算接口**（上图那一格放的是网络版）：两种都能成型，成员差别见下面"每台贡献多少"那张表。
-
-<GameScene zoom="4" interactive={true}>
-  <ImportStructure src="../scenes/l1_compute_interface.nbt" />
-  <IsometricCamera yaw="45" pitch="30" />
-</GameScene>
+同一格换成**普通计算接口**也能成型（上图那一格放的是网络版），两种成员的差别见下面"每台贡献多少"那张表。
 
 ## 每台贡献多少
 

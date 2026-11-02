@@ -16,6 +16,8 @@ item_ids:
   - neoecoprototype1201:energized_computation_core
   - neoecoprototype1201:energized_computation_threading_core
   - neoecoprototype1201:energized_computation_cell_4m
+  - neoecoprototype1201:simplify_computation_transmitter
+  - neoecoprototype1201:simplify_computation_cell_1m
 ---
 
 # L1 Computation System
@@ -27,13 +29,8 @@ The **L1 Computation System** is the L1 version of eco's <ItemLink id="neoecoae:
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
-The same frame with the **plain computation interface** in the slot the picture above fills with the
-network interface - both shapes form, and the two members are described under "What each member contributes":
-
-<GameScene zoom="4" interactive={true}>
-  <ImportStructure src="../scenes/l1_compute_interface.nbt" />
-  <IsometricCamera yaw="45" pitch="30" />
-</GameScene>
+The same frame also forms with the **plain computation interface** in the slot the picture above fills
+with the network version; both members are described under "What each member contributes".
 
 ## What each member contributes
 

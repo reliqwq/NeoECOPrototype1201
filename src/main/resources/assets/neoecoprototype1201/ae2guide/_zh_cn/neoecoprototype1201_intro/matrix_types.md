@@ -13,6 +13,26 @@ item_ids:
   - neoecoprototype1201:pigmee_storage_matrix_housing
   - neoecoprototype1201:simplify_storage_component_1m
   - neoecoprototype1201:simplify_storage_component_4m
+  - neoecoprototype1201:prototype_item_cell_1k
+  - neoecoprototype1201:prototype_item_cell_16k
+  - neoecoprototype1201:prototype_item_cell_64k
+  - neoecoprototype1201:prototype_item_cell_1m
+  - neoecoprototype1201:prototype_item_cell_4m
+  - neoecoprototype1201:simplify_fluid_storage_cell_1k
+  - neoecoprototype1201:simplify_fluid_storage_cell_16k
+  - neoecoprototype1201:simplify_fluid_storage_cell_64k
+  - neoecoprototype1201:simplify_fluid_storage_cell_1m
+  - neoecoprototype1201:simplify_fluid_storage_cell_4m
+  - neoecoprototype1201:simplify_chemical_storage_cell_1k
+  - neoecoprototype1201:simplify_chemical_storage_cell_16k
+  - neoecoprototype1201:simplify_chemical_storage_cell_64k
+  - neoecoprototype1201:simplify_chemical_storage_cell_1m
+  - neoecoprototype1201:simplify_chemical_storage_cell_4m
+  - neoecoprototype1201:simplify_fe_storage_cell_1k
+  - neoecoprototype1201:simplify_fe_storage_cell_1m
+  - neoecoprototype1201:simplify_fe_storage_cell_4m
+  - neoecoprototype1201:pigmee_storage_cell
+  - neoecoprototype1201:simplify_concrete_storage_cell
 ---
 
 # 支持的存储矩阵

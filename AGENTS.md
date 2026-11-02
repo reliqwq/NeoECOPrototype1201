@@ -63,11 +63,16 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 文件落在 `run/saves/<world>/generated/minecraft/structures/<name>.nbt`（gzip NBT）→ 按内容改名拷进
 `ae2guide/scenes/` → 在**两种语言**的页里各写一次
 `<GameScene zoom="4" interactive={true}><ImportStructure src="../scenes/x.nbt"/><IsometricCamera yaw="45" pitch="30"/></GameScene>`。
-守卫只验"这个 src 指的文件在不在"，不验画面对不对——**朝向、成型与否、成员放对格，只有客户端翻开那页才看得见**。
-两条读数：新存的场景 `DataVersion=3465`（1.20.1 原生），从 1.21.1 抄来的那三颗是 `3955`，
+守卫现在验四件事：`src` 指的文件在不在、**每个注册 id 被恰好一页声明**（`item_ids` 是 guideme 建"物品 → 页"索引的唯一来源，没页声明的物品在书里点不开；今天一次补进 31 个：所有矩阵细胞、整套存储成员、两只材料、计算收发器与 CE1 阵列）、**两种语言声明的集合相同**、以及**没有哪颗场景不被 import**。画面对不对仍然验不了——**朝向、成型与否、成员放对格，只有客户端翻开那页才看得见**。
+两条读数（现量四颗，逐颗解 NBT）：新存的场景 `DataVersion=3465`（1.20.1 原生），从 1.21.1 抄来的那两颗是 `3955`，
 1.20.1 的 `NbtUtils` 遇到本地方块没有的属性会跳过，所以旧捕获仍能显示、只是拿默认状态；
-另外结构方块文件里**不要留 `author`/`pos`/`time`**（现在六颗都干净，顶层只有 DataVersion/size/blocks/palette/entities），
+另外结构方块文件里**不要留 `author`/`pos`/`name`/`time`/`metadata`**（现在四颗都干净，顶层只有 DataVersion/size/blocks/palette/entities，每颗 112 格＝整盒捕获），
 那是会把玩家名和坐标打进 jar 的地方。
+
+**重复摆法不进书。** 同一台机器转个朝向、或只差一个可替换成员的第二张图，**写成一句话而不是第二颗场景**
+（2026-11-02 他点名删掉 `l1_compute_interface` 与 `l1_crafting_other_end` 两颗，字节相同的副本在
+`_removed_sources/`，页里各留一句说明）。`l1_compute_energized` 这一格现在装的是世界里存的 `c1_main_best`
+（1321 B / DataVersion 3465，盈能强化那对成员落在他要展示的那一行）；被它换掉的那颗也留在同一备份目录里。
 
 ## 4. 数据一致性：`tools/check_data_sync.py`
 
