@@ -27,6 +27,13 @@ item_ids:
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
+同一格换成**普通计算接口**（上图那一格放的是网络版）：两种都能成型，成员差别见下面"每台贡献多少"那张表。
+
+<GameScene zoom="4" interactive={true}>
+  <ImportStructure src="../scenes/l1_compute_interface.nbt" />
+  <IsometricCamera yaw="45" pitch="30" />
+</GameScene>
+
 ## 每台贡献多少
 
 | 成员 | 提供 |

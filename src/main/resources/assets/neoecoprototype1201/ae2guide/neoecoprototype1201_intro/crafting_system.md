@@ -26,6 +26,14 @@ The **L1 Crafting System** is the L1 version of eco's <ItemLink id="neoecoae:cra
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
+The same build turned the other way - same members, same counts, only the host faces west instead of
+south (`mirrored` is false in both pictures):
+
+<GameScene zoom="4" interactive={true}>
+  <ImportStructure src="../scenes/l1_crafting_other_end.nbt" />
+  <IsometricCamera yaw="45" pitch="30" />
+</GameScene>
+
 | Aspect | Value |
 |--------|-------|
 | Parallelism | **16** |

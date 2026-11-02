@@ -10,6 +10,13 @@ Neo ECO Prototype 把 Neo ECO AE Extension 的后期内容带到 **L1 前期**�
 
 没玩过 eco 也可以读：这三套东西就是**能建得更长、自带能量与冷却的 AE2 版本**——存储对应<ItemLink id="ae2:drive" />，合成对应合成 CPU 与样板供应器，计算负责给自动合成提供线程与并行。
 
+一台成型的 L1 存储子系统长这样：一头是控制器，同排挂着驱动器、能量单元、散热口与一只接口，其余位置都是外壳。
+
+<GameScene zoom="4" interactive={true}>
+  <ImportStructure src="../scenes/l1_storage_main.nbt" />
+  <IsometricCamera yaw="45" pitch="30" />
+</GameScene>
+
 | 想做什么 | 看哪一页 |
 |----------|----------|
 | 用样板自动化处理器 | [L1 处理器装配室](processor_assembler.md)（前期没有压印器也能做出处理器） |

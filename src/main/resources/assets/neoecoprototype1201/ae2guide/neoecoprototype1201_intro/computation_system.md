@@ -27,6 +27,14 @@ The **L1 Computation System** is the L1 version of eco's <ItemLink id="neoecoae:
   <IsometricCamera yaw="45" pitch="30" />
 </GameScene>
 
+The same frame with the **plain computation interface** in the slot the picture above fills with the
+network interface - both shapes form, and the two members are described under "What each member contributes":
+
+<GameScene zoom="4" interactive={true}>
+  <ImportStructure src="../scenes/l1_compute_interface.nbt" />
+  <IsometricCamera yaw="45" pitch="30" />
+</GameScene>
+
 ## What each member contributes
 
 | Member | Provides |
