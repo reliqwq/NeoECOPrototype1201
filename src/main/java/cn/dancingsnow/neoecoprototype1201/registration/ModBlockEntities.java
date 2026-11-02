@@ -1,6 +1,7 @@
 package cn.dancingsnow.neoecoprototype1201.registration;
 
 import appeng.block.AEBaseEntityBlock;
+import appeng.blockentity.crafting.CraftingBlockEntity;
 import cn.dancingsnow.neoecoae.blocks.entity.ECOMachineCasingBlockEntity;
 import cn.dancingsnow.neoecoae.blocks.entity.ECOMachineInterfaceBlockEntity;
 import cn.dancingsnow.neoecoae.blocks.entity.computation.ECOComputationCoolingControllerBlockEntity;
@@ -24,6 +25,7 @@ import cn.dancingsnow.neoecoae.multiblock.cluster.NECraftingCluster;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyCraftingTier;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
+import cn.dancingsnow.neoecoprototype1201.block.crafting.DollCraftingUnitBlock;
 import cn.dancingsnow.neoecoprototype1201.blockentity.computation.SimplifyComputationDriveBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.computation.SimplifyComputationSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingParallelCoreBlockEntity;
@@ -378,6 +380,19 @@ public final class ModBlockEntities {
                     () -> ModRegistration.FUMO_DOLL_KOOOKI_BLOCK.get(),
                     () -> ModRegistration.FUMO_DOLL_TEDXENON_BLOCK.get(),
                     () -> ModRegistration.FUMO_DOLL_YANG120_GIANT_BLOCK.get());
+
+    /**
+     * The plushie CPU is AE2's own crafting-unit block entity, and it has to be exactly that class: the grid
+     * keys its machine table by the runtime class of the block entity, so a subclass of ours would never be
+     * collected as a CPU. Everything that makes it a plushie rather than a crafting unit lives in the two
+     * mixins over that class and in {@code DollCraftingUnitBlock.tick}, which is handed here as the server
+     * ticker and reaches the block through {@code AEBaseEntityBlock#setBlockEntity}.
+     */
+    public static final RegistryObject<BlockEntityType<CraftingBlockEntity>> FUMO_DOLL_CPU_BE =
+            registerType("fumo_doll_cpu", CraftingBlockEntity.class,
+                    (type, pos, state) -> new CraftingBlockEntity(type, pos, state),
+                    DollCraftingUnitBlock::tick,
+                    () -> ModRegistration.FUMO_DOLL_YANG120_CPU_BLOCK.get());
 
     private ModBlockEntities() {
     }

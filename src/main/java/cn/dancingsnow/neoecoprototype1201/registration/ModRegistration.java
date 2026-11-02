@@ -28,6 +28,8 @@ import cn.dancingsnow.neoecoprototype1201.block.computation.SimplifyComputationT
 import cn.dancingsnow.neoecoprototype1201.block.computation.SimplifyEnergizedComputationCoreBlock;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingInterfaceBlock;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingNetworkInterfaceBlock;
+import cn.dancingsnow.neoecoprototype1201.block.crafting.DollCraftingUnitBlock;
+import cn.dancingsnow.neoecoprototype1201.block.crafting.DollCraftingUnitType;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingSystemBlock;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyPatternProviderBlock;
 import cn.dancingsnow.neoecoprototype1201.block.decoration.GiantDollBlock;
@@ -278,6 +280,13 @@ public final class ModRegistration {
     private static final int NAME_THEME_GREEN = 0xFF94EDAB;
 
     /**
+     * The CPU plushie's own name colour. Deliberately not one of the tier numbers: those mean "starts at
+     * this rung" on the migration ladder, and a plushie CPU is not a tier rung - the letters are the pack's
+     * blue, reused because the shelf needs the working doll to read apart from the plain one.
+     */
+    private static final int NAME_THEME_CPU_DOLL = 0xFF80AEFF;
+
+    /**
      * What the dolls are made of. Their face is in their texture, so nothing resolves a skin - only the
      * shared {@link cn.dancingsnow.neoecoprototype1201.blockentity.decoration.NamedDollBlockEntity}, which
      * exists to sweep for creepers, and one client renderer for the giant plushie.
@@ -334,6 +343,37 @@ public final class ModRegistration {
     public static final RegistryObject<Item> FUMO_DOLL_YANG120_ITEM =
             registerDollItem("fumo_doll_yang120", FUMO_DOLL_YANG120_BLOCK,
                     dollStats(4.0F, 2.0F), NAME_THEME_GREEN, false);
+
+    /**
+     * The same plushie with a crafting CPU inside it. It is a second block rather than the shipped doll
+     * turned into one, because {@code fumo_doll_yang120} has been in every jar since this line's 1.0.0: a
+     * world that already has one set down loads its saved {@code NamedDollBlockEntity} against a
+     * crafting-unit block, and vanilla refuses that. The 1.21.1 line read that failure once per chunk load
+     * as {@code IllegalStateException: Invalid block entity ... got DollCraftingUnitBlock[fumo_doll_yang120]}
+     * thrown out of {@code BlockEntity.create}, which leaves that cell with no block entity of any kind.
+     */
+    public static final RegistryObject<DollCraftingUnitBlock> FUMO_DOLL_YANG120_CPU_BLOCK =
+            BLOCKS.register("fumo_doll_yang120_cpu", ModRegistration::newYang120CpuDoll);
+    public static final RegistryObject<Item> FUMO_DOLL_YANG120_CPU_ITEM =
+            registerDollItem("fumo_doll_yang120_cpu", FUMO_DOLL_YANG120_CPU_BLOCK,
+                    dollStats(4.0F, 2.0F), NAME_THEME_CPU_DOLL, false);
+
+    /**
+     * Built in a method rather than in the field's own initializer, because the unit names the doll's item
+     * and the item names this block: the unit resolves the item when AE2 asks it, which is after both are
+     * registered, but a forward reference in an initializer is illegal to the compiler either way.
+     *
+     * <p>The two numbers are copied from the 1.21.1 line rather than re-derived: twelve of this project's
+     * 1M byte cells and the twelve threads that go with them. They are not read from {@code SimplifyTier},
+     * because a plushie is not a tier rung - and not read from the server config, because the CPU's size is
+     * baked into the block at registration time and AE2 asks it during cluster formation, where a config
+     * change would silently re-form every plushie in the world at a different size.</p>
+     */
+    private static DollCraftingUnitBlock newYang120CpuDoll() {
+        return new DollCraftingUnitBlock(dollProperties(), new DollCraftingUnitType(
+                // The same byte arithmetic as SimplifyFeStorageCellItem.BYTES_1M, twelve of them.
+                12L << 20, 12, () -> FUMO_DOLL_YANG120_CPU_ITEM.get(), "yang咪口算单元"));
+    }
 
     public static final RegistryObject<NamedDollBlock> FUMO_DOLL_KOOOKI_BLOCK =
             BLOCKS.register("fumo_doll_kouooki", () -> new NamedDollBlock(dollProperties()));

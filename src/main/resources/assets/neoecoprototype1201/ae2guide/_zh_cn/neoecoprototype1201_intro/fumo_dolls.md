@@ -7,6 +7,7 @@ navigation:
 item_ids:
   - neoecoprototype1201:fumo_doll_reliqwq
   - neoecoprototype1201:fumo_doll_yang120
+  - neoecoprototype1201:fumo_doll_yang120_cpu
   - neoecoprototype1201:fumo_doll_kouooki
   - neoecoprototype1201:fumo_doll_tedxenon
   - neoecoprototype1201:fumo_doll_yang120_giant
@@ -14,8 +15,9 @@ item_ids:
 
 # Fumo 玩偶
 
-五只玩偶，原型是帮过这个模组的人。它们先是装饰：每一只都会转向放下它的玩家，把自己的那一格照亮，并且让
+六只玩偶，原型是帮过这个模组的人。它们先是装饰：每一只都会转向放下它的玩家，把自己的那一格照亮，并且让
 苦力怕保持在六格之外——用的是原版对付猫的那套答案，代价由玩偶来付，而不是由世界里每一只苦力怕来付。
+其中有一只会算数。
 
 <Row>
   <BlockImage id="neoecoprototype1201:fumo_doll_yang120" scale="3"></BlockImage>
@@ -29,6 +31,7 @@ item_ids:
 |------|-------------|------------|----------|
 | <ItemLink id="neoecoprototype1201:fumo_doll_reliqwq" /> | 4 / 2 | 夜视 | L1 处理器装配室：L1 存储主机 + L1 计算系统 + L1 合成系统 |
 | <ItemLink id="neoecoprototype1201:fumo_doll_yang120" /> | 4 / 2 | 夜视 | L1 处理器装配室：eco 的 L4 存储 + L4 计算 + L4 合成主机 |
+| <ItemLink id="neoecoprototype1201:fumo_doll_yang120_cpu" /> | 4 / 2 | 夜视 | 工作台：一只 yang120 玩偶 + 一只猪咪存储矩阵外壳 |
 | <ItemLink id="neoecoprototype1201:fumo_doll_kouooki" /> | 1 / 5 | 夜视 | L1 处理器装配室：粉色染料 + 干海带 + 棕色蘑菇 |
 | <ItemLink id="neoecoprototype1201:fumo_doll_tedxenon" /> | 6 / 1 | 夜视、再生 II、幸运，并给物品栏里的可充电物品充电（100 AE/t，手上那一格也算） | 暂时没有配方 |
 | <ItemLink id="neoecoprototype1201:fumo_doll_yang120_giant" /> | 4 / 2 | 夜视 | 工作台里 9 只普通 Yang120 玩偶合成；一只大的拆回 9 只普通的 |
@@ -38,5 +41,13 @@ item_ids:
 巨大的玩偶只占一格，按普通玩偶的三倍大画出来，脚踩在她被放下的那一格地板上。她用的是普通玩偶那张贴图，
 而不是另存一份，所以重画之后货架上和她身上同一帧就都变了。
 
-这一条线上的玩偶只是装饰。1.21.1 那条线还有一只当合成 CPU 用的 Yang120 玩偶，它需要往 AE2 的合成单元里
-打两支 mixin；那一只在这里**故意没搬**，这五只方块都不联网、不当机器。
+**yang咪口算单元**：一只玩偶本身就是一台 AE2 合成 CPU，12 并行、12M 合成存储，在 CPU 列表里显示成
+「yang咪口算单元」。那一行是 AE2 的纯文本名字，不是翻译键，所以中英两版都是这几个字；方块自己的名字照旧
+跟着语言走。
+
+它不跟 AE2 的合成存储器拼成同一台机器，也蹭不上别人拼好的墙；频道只从**底面**交出去，所以它得摆在线缆正
+上方，管道贴在别的任何一面都找不到人。它也不叠：两只玩偶并排摆着，两台都不成型，把邻居拆掉才会重新成型。
+
+外观与 yang120 那只玩偶用的是同一张贴图，戴在头上照旧是玩偶的护甲与"吓退苦力怕"。它在物品栏里的名字是
+**蓝色**的，好跟同一张贴图那只普通玩偶分开。它是第二只方块，而不是把已经发出去的那只普通玩偶改成机器——
+已经摆着普通玩偶的存档才不会在加载时报"Invalid block entity"，那一格会连方块实体一起丢掉。
