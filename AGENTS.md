@@ -207,6 +207,13 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
   一次，被当天那次重写顺手带走了。**修法已落地**：body 抽成 `diagnose(...)`，外面 `try/catch
   RuntimeException` 并 `LOGGER.warn("… diagnose at {} failed", pos, e)` —— 诊断工具不许成为故障源，
   因为它读的全是上游可能给 null 的对象（`getName()`、`getStackInSlot()` 都是实例）。新增诊断照这个形状。
+- **这三颗诊断只写日志，屏幕上只留一句**（11-02 夜改）。撤掉的是 8 条 `displayClientMessage(Component.literal(...))`
+  —— 那批文本的键名（`total= avail= busy= status=`）从来没翻译，中文包里就是调试文本刷聊天栏；读数本身照旧走
+  各自的 `LOGGER.info`，屏幕上只发一条 action bar 的 `diagnose.<ns>.log_written`（两份语言都补了键）。闸多一道
+  `MachineDiagnostics.askedByBuilder` = `isCreative() || hasPermissions(2)`：原来那三处命中就无条件 `CONSUME`，
+  等于把"生存玩家空手潜行右键=我要贴着这台机器放方块"吃掉了。**"干脆删掉"不是选项**：这条线 `@GameTest`
+  命中 0 处（`grep -rl GameTest src/main/java` 空），成型、挂载、CPU 列表、样板索引进度这四类数只能从世界里读，
+  而那 12 次包崩与 `count=1 / <unnamed>` 恰恰是这三颗探针给的。
 - **读日志要按签名扫，不要只 grep 你以为的那一条**：我 21:09 那轮只查了 recipe category，
   就把同一份日志里已经躺着的 8 条 packet NPE 漏了一个小时。口径是：`Failed to handle packet` /
   `Exception` / `ERROR` 全扫一遍再下结论。
@@ -261,6 +268,18 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 - **curl 在这台机器上默认 TLS 校验会死在吊销检查**：`schannel: CRYPT_E_REVOCATION_OFFLINE` 不是证书错，
   是吊销服务器连不上。加 `--ssl-no-revoke` 就通（2026-11-02 验 maven.minecraftforge.net 时撞到）。
   那个源实测只有 **7 KB/s**，长文件要 `-C -` 续传循环，单次 `--max-time` 到点必断。
+- **ForgeGradle 的启动自检会挂住整条构建，而且挂在 daemon 里看不出来**：`UserDevPlugin.apply` 调
+  `EnvironmentChecks.testServerConnection`，对 `https://maven.minecraftforge.net/` 与
+  `https://libraries.minecraft.net/` 各发一次 HEAD。2026-11-02 两轮分别白等 13 min 与 10 min，
+  `jstack` 里 `Daemon worker` 是 RUNNABLE 停在 TLS 握手 `SocketDispatcher.read0`、十分钟只吃 2.1 s CPU；
+  同两个 URL 用 `curl --ssl-no-revoke` 1.2 s 就回 200/404 ⇒ 坏的是 JVM 这条路，不是网断了。
+  绕法两件事都要：**`--no-daemon`**（命令行上的 `-D` 进不到执行构建的那颗 daemon JVM，第一次就是这么等的）
+  加 **`-Dnet.minecraftforge.gradle.check.certs=false`**（`EnvironmentFlag` 只认
+  `net.minecraftforge.gradle.<key>` / `fg.<key>`，key 全仓三个：`check.certs`、`check.gradle`、`check.java`）。
+  两条都带上 `build -x test` **9 s** 跑完。顺带：两条会话共用一台机器会攒出五颗 busy daemon
+  （日志原话 `5 busy Daemons could not be reused`），所以 `--no-daemon` 在这里既绕自检也绕排队。
+- `javap` 读产物字节码只认 `-classpath <解出来的目录> + 点号类名`：`path/Foo.class` 和斜杠类名都报
+  "找不到类"。JDK21 那份的报错是 GBK 中文，加 `-J-Duser.language=en` 才看得清。
 
 ## 7. 目录与提交
 
