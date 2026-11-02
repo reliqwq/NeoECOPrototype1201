@@ -21,16 +21,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Nothing here may be tracked: dev jars, run directories, and the byte-for-byte backups
+          # Nothing here may be TRACKED: dev jars, run directories, and the byte-for-byte backups
           # the removals go to. The check exists because every one of them is one `git add -A` away.
-          for path in build run libs gradle/build-cache 参考模组 _removed_sources 旧jar; do
-            if [[ -e "$path" ]]; then
-              echo "Forbidden development artifact is tracked: $path" >&2
-              exit 1
-            fi
-          done
-          if find . -maxdepth 1 -type d -name '备份_*' | grep -q .; then
-            echo "Forbidden backup directory is tracked: 备份_*" >&2
+          # The first shape of this step tested `[[ -e "$path" ]]`, which is wrong twice over: it
+          # fails a developer who runs these steps locally (their own build/ exists), and it passes
+          # a tracked jar that was simply renamed out of these names. Tracked-ness is the only thing
+          # under test, so ask git. The jar rule is the README's: nothing is tracked except the
+          # Gradle wrapper.
+          forbidden=$(git ls-files \
+            | grep -E '^(build|run|libs|gradle/build-cache|参考模组|_removed_sources|旧jar)/|^备份_[^/]*/' \
+            || true)
+          if [[ -n "$forbidden" ]]; then
+            echo "Forbidden development artifact is tracked:" >&2
+            echo "$forbidden" >&2
+            exit 1
+          fi
+          stray_jars=$(git ls-files '*.jar' | grep -v '^gradle/wrapper/gradle-wrapper.jar$' || true)
+          if [[ -n "$stray_jars" ]]; then
+            echo "Only the Gradle wrapper may be a tracked .jar:" >&2
+            echo "$stray_jars" >&2
             exit 1
           fi
           # AGENTS.md §11 of the 1.21.1 line, and CI-enforced here: addon-owned assets must not
