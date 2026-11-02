@@ -12,12 +12,14 @@ import cn.dancingsnow.neoecoprototype1201.integration.appmek.AppMekIntegration;
 import cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
+import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RegisterRecipeBookCategoriesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -97,6 +99,26 @@ public final class Prototype1201Client {
         event.register(COMPUTATION_CELL_L4_FORMED);
         event.register(ComputationCableModels.LOWER_CONNECTED);
         event.register(ComputationCableModels.LOWER_DISCONNECTED);
+    }
+
+    /**
+     * Declare, on purpose, that the assembler's recipes have no place in the vanilla recipe book.
+     * {@code ClientRecipeBook.getCategory} asks {@code RecipeBookManager} for every recipe it is handed and
+     * logs one {@code Unknown recipe category: <type>/<id>} warning per recipe when the answer is null -
+     * once per world join, seven lines for the seven declared assembler recipes. Answering
+     * {@link RecipeBookCategories#UNKNOWN} is what the fallback already does; the difference is that the
+     * log now says nothing. It must not be a crafting category: {@code RecipeBookCategories.getCategories}
+     * buckets recipes by category alone, with no filter on the recipe type, so answering
+     * {@code CRAFTING_MISC} would render recipes nobody can craft in a crafting table inside that book's
+     * Misc tab. UNKNOWN is in no book's tab list, so nothing appears - which is correct here, because the
+     * assembler's own screen has no recipe book and the viewer for these recipes is JEI. A real tab would
+     * need {@code RecipeBookCategories.create} plus a {@code RecipeBookType} that one of our menus
+     * returns; AE2's three {@code ae2:charger} lines are its own type to declare.
+     */
+    @SubscribeEvent
+    public static void onRegisterRecipeBookCategories(RegisterRecipeBookCategoriesEvent event) {
+        event.registerRecipeCategoryFinder(Registration.PROCESSOR_ASSEMBLER_TYPE.get(),
+                recipe -> RecipeBookCategories.UNKNOWN);
     }
 
     @SubscribeEvent
