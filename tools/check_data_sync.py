@@ -113,6 +113,24 @@ def check_texture(where, raw):
 
 
 def check_node(where, node):
+    # Forge 1.20.1 does not read an inline condition key on an advancement: it reads the wrapper shape
+    # {"advancements":[{"conditions":[...],"advancement":{...}}]} (ConditionalAdvancement.processConditional,
+    # the only caller of the "advancements"/"conditions"/"advancement" strings). A file that arrives from
+    # 1.21.1 with "neoforge:conditions" therefore loads unconditionally here, silently: the node appears in
+    # the tree and its criterion names an item that is not registered when the optional mod is absent.
+    for key in list(node):
+        if key.startswith("neoforge:"):
+            problems.append(f"{where}: {key} is 1.21's inline condition key - Forge 1.20.1 ignores it, so "
+                            f"the node loads unconditionally; wrap it in "
+                            f"\"advancements\": [{{\"conditions\": [...], \"advancement\": ...}}]")
+    if "advancements" in node:
+        for i, entry in enumerate(node["advancements"]):
+            for cond in entry.get("conditions", []):
+                cond_type = cond.get("type", "")
+                if cond_type and not cond_type.startswith("forge:"):
+                    problems.append(f"{where}[{i}]: not a Forge 1.20.1 condition type: {cond_type}")
+            check_node(where + "[" + str(i) + "]", entry.get("advancement", {}))
+        return
     for key, value in walk_strings(node):
         if key == "translate":
             for loc in LANG_KEYS:
