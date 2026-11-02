@@ -162,6 +162,7 @@
     0,
     2
    ],
+   "shade": false,
    "faces": {
     "north": {
      "uv": [
@@ -193,6 +194,7 @@
     28,
     2
    ],
+   "shade": false,
    "faces": {
     "north": {
      "uv": [
@@ -233,6 +235,7 @@
      2
     ]
    },
+   "shade": false,
    "faces": {
     "north": {
      "uv": [
@@ -264,6 +267,7 @@
     0,
     30
    ],
+   "shade": false,
    "faces": {
     "south": {
      "uv": [
@@ -295,6 +299,7 @@
     28,
     30
    ],
+   "shade": false,
    "faces": {
     "south": {
      "uv": [
@@ -335,6 +340,7 @@
      2
     ]
    },
+   "shade": false,
    "faces": {
     "south": {
      "uv": [
