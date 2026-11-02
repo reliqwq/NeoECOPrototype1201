@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neoecoprototype1201:block/dolls/kouooki"
+    },
+    "facing=east": {
+      "model": "neoecoprototype1201:block/dolls/kouooki",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neoecoprototype1201:block/dolls/kouooki",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neoecoprototype1201:block/dolls/kouooki",
+      "y": 270
+    }
+  }
+}

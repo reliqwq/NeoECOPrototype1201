@@ -6,6 +6,7 @@ import cn.dancingsnow.neoecoae.client.NEItemColors;
 import cn.dancingsnow.neoecoae.client.rendering.FixedBlockEntityRenderers;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
 import cn.dancingsnow.neoecoprototype1201.client.ComputationCableModels;
+import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.GiantPlushieRenderer;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyComputationDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.integration.appmek.AppMekIntegration;
@@ -28,6 +29,26 @@ import net.minecraftforge.registries.RegistryObject;
 /** Client wiring for the cell family: drive model and renderer, model baking, and the status light tint. */
 @Mod.EventBusSubscriber(modid = Prototype1201.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class Prototype1201Client {
+    /**
+     * AE2's part-model list is write-once, and the deadline is not a lifecycle event we can outrank: the
+     * freeze runs wherever {@code PartModels.freeze()} is called, which is
+     * {@code appeng.init.client.InitAdditionalModels.init(ModelEvent.RegisterAdditional)} - and
+     * {@code appeng.client.render.cablebus.CableBusModel} reaches the same place while a model graph
+     * resolves. {@code registerModels} then throws
+     * {@code IllegalStateException: Cannot register models after the pre-initialization phase!}, and on
+     * Forge 1.20.1 that throw arrives inside the client-setup work queue, so it does not just fail the
+     * part - it crashes the game on launch (measured on 2026-11-02 with exactly that stack).
+     *
+     * <p>Mod construction is the one phase where no mod can have baked anything yet, which is why the
+     * caller lives in {@link Prototype1201}'s constructor behind a dist check rather than in any event
+     * handler here. A missing entry is worse than a late one: {@code CableBusBakedModel} then dies with
+     * "Trying to use an unregistered part model", so there is no try/catch here either.</p>
+     */
+    public static void registerPartModels() {
+        appeng.api.parts.PartModels.registerModels(
+                cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart.MODELS);
+    }
+
     /**
      * One 3D cell model per capacity per medium, in the order the family's own list registers its items:
      * eco's built-in cell models draw its own housing and level band, and the L4 one it used to fall back
@@ -99,6 +120,8 @@ public final class Prototype1201Client {
         event.register(COMPUTATION_CELL_L4_FORMED);
         event.register(ComputationCableModels.LOWER_CONNECTED);
         event.register(ComputationCableModels.LOWER_DISCONNECTED);
+        event.register(ComputationCableModels.UPPER_CONNECTED);
+        event.register(ComputationCableModels.UPPER_DISCONNECTED);
     }
 
     /**
@@ -143,17 +166,18 @@ public final class Prototype1201Client {
             // RenderType.cutout() - the no-mipmap block sheet that moires at grazing angles. Our models say
             // "cutout_mipped" instead.
 
-            // Two slots per computation cell (idle and working). Both of our tiers wear the plain
-            // cable pair: on this line eco keys the cable table by tier alone, so a host-specific
-            // pair cannot be told apart from our own frame's.
+            // Two slots per computation cell (idle and working).
             ECOComputationModels.registerCellModel(Registration.SIMPLIFY_COMPUTATION_CELL_1M,
                     COMPUTATION_CELL_L1, COMPUTATION_CELL_L1_FORMED);
             ECOComputationModels.registerCellModel(Registration.ENERGIZED_COMPUTATION_CELL_4M,
                     COMPUTATION_CELL_L4, COMPUTATION_CELL_L4_FORMED);
+            // The glowing pair goes into eco's table. Reaching that table at all means eco's renderer is
+            // drawing the drive, so this is the host-specific pair the 1.21.1 line registers against
+            // eco's own drive block; our frame never reads it, it hard-codes the plain pair.
             ECOComputationModels.registerCableModel(SimplifyTier.L1,
-                    ComputationCableModels.LOWER_DISCONNECTED, ComputationCableModels.LOWER_CONNECTED);
+                    ComputationCableModels.UPPER_DISCONNECTED, ComputationCableModels.UPPER_CONNECTED);
             ECOComputationModels.registerCableModel(SimplifyTier.L1_REINFORCED,
-                    ComputationCableModels.LOWER_DISCONNECTED, ComputationCableModels.LOWER_CONNECTED);
+                    ComputationCableModels.UPPER_DISCONNECTED, ComputationCableModels.UPPER_CONNECTED);
             ECOComputationModels.runDeferredRegistration();
             // The assembler's screen. AE2's InitScreens cannot be used for this entry: it resolves the style
             // path through AppEng.makeId, and the style has to come from our namespace because it is what
@@ -161,6 +185,18 @@ public final class Prototype1201Client {
             net.minecraft.client.gui.screens.MenuScreens.register(
                     Registration.PROCESSOR_ASSEMBLER_MENU.get(),
                     cn.dancingsnow.neoecoprototype1201.client.ProcessorAssemblerScreen::new);
+            // The provider's screen is AE2's own class, pointed at our style doc. Here the ae2-namespace
+            // resolution the assembler had to work around is exactly what we want: the style has to
+            // "include" AE2's ../pattern_provider.json, so it can only live in AE2's screens folder.
+            // Its BREAK_AFTER_9COLS group is what turns our 27 slots into three rows of nine; AE2's own
+            // provider style lays its nine out in one row, and that is the only reason 27 needs a doc.
+            appeng.init.client.InitScreens.<cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu,
+                    appeng.client.gui.implementations.PatternProviderScreen<
+                            cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu>>register(
+                    Registration.L1_PATTERN_PROVIDER_MENU.get(),
+                    (menu, inventory, title, style) -> new appeng.client.gui.implementations
+                            .PatternProviderScreen<>(menu, inventory, title, style),
+                    "/screens/neoecoprototype/l1_pattern_provider.json");
         });
     }
 
@@ -174,6 +210,10 @@ public final class Prototype1201Client {
                 new SimplifyComputationDriveRenderer());
         event.registerBlockEntityRenderer(ModBlockEntities.COMPUTATION_DRIVE.get(),
                 SimplifyComputationDriveRenderer::new);
+        // The dolls draw themselves from their block models; this renderer exists only for the giant
+        // plushie, which is an INVISIBLE block scaled up over the plain doll's model. One type covers all
+        // five because renderers are registered per block entity type, not per block.
+        event.registerBlockEntityRenderer(ModBlockEntities.FUMO_DOLL_BE.get(), GiantPlushieRenderer::new);
     }
 
     @SubscribeEvent

@@ -51,6 +51,12 @@ public final class Prototype1201 {
         Registration.RECIPE_TYPES.register(modBus);
         Registration.RECIPE_SERIALIZERS.register(modBus);
         Registration.MENUS.register(modBus);
+        // AE2's part-model table is write-once and freezes during model resolution, which happens before
+        // any client-setup handler runs - so this is the one phase that can still write it. See
+        // Prototype1201Client#registerPartModels for the launch crash this prevents.
+        if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
+            Prototype1201Client.registerPartModels();
+        }
         modBus.addListener(Prototype1201::commonSetup);
         MinecraftForge.EVENT_BUS.addListener(Prototype1201::serverStopping);
     }
@@ -112,6 +118,7 @@ public final class Prototype1201 {
         // without eco ever knowing the item.
         event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.InfiniteConcreteCellHandler::register);
         registerAssemblerMenu();
+        registerProviderMenu();
         reportInterfaceMixinApplied();
     }
 
@@ -152,6 +159,50 @@ public final class Prototype1201 {
             return true;
         });
         LOGGER.info("registered the processor assembler menu as {}",
+                net.minecraftforge.registries.ForgeRegistries.MENU_TYPES.getKey(menuType));
+    }
+
+    /**
+     * The same two steps for the provider's menu: Forge owns the type, so {@code MenuOpener} - AE2's own
+     * "how do I ask the server to open this" table - has to be told by hand or {@code MenuOpener.open} logs
+     * "Trying to open menu for unknown menu type" and nothing happens.
+     *
+     * <p>The host is looked up by the interface rather than by a class: this generation's
+     * {@code PatternProviderLogicHost} is what both the block entity and, if it ever ships, the cable part
+     * answer with, so one opener covers both.
+     */
+    private static void registerProviderMenu() {
+        var menuType = Registration.L1_PATTERN_PROVIDER_MENU.get();
+        appeng.menu.MenuOpener.addOpener(menuType, (player, locator, linked) -> {
+            if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
+                return false;
+            }
+            var host = locator.locate(player,
+                    appeng.helpers.patternprovider.PatternProviderLogicHost.class);
+            if (host == null) {
+                return false;
+            }
+            var finalHost = host;
+            net.minecraftforge.network.NetworkHooks.openScreen(serverPlayer,
+                    new net.minecraft.world.SimpleMenuProvider((windowId, inventory, p) -> {
+                        var menu = new cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu(
+                                menuType, windowId, inventory, finalHost);
+                        // Not a formality: AE2's priority tab reaches the server as SwitchGuisPacket, whose
+                        // handler reads the *server-side* menu's locator and returns without a word when it is
+                        // null. Forge hands the locator only to the client's buffer, and AEBaseMenu's constructor
+                        // never stores it, so an opener that forgets this line ships a dead button.
+                        menu.setLocator(locator);
+                        menu.setReturnedFromSubScreen(linked);
+                        return menu;
+                    }, net.minecraft.network.chat.Component.translatable(
+                            "block." + Prototype1201.MOD_ID + ".simplify_pattern_provider")),
+                    buffer -> {
+                        appeng.menu.locator.MenuLocators.writeToPacket(buffer, locator);
+                        buffer.writeBoolean(linked);
+                    });
+            return true;
+        });
+        LOGGER.info("registered the L1 pattern provider menu as {}",
                 net.minecraftforge.registries.ForgeRegistries.MENU_TYPES.getKey(menuType));
     }
 

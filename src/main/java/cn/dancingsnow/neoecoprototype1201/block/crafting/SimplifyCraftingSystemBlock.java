@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,15 +37,33 @@ public class SimplifyCraftingSystemBlock extends ECOCraftingSystem implements IH
     public static final BooleanProperty COMMUNICATION_INTERFACE =
             BooleanProperty.create("communication_interface");
 
+    /**
+     * The easter egg: once per host, the machine rolls a one-in-sixteen chance to grow a face, and the
+     * result is saved on the host so re-forming never re-rolls it. Only meaningful with
+     * {@code formed=true}, which is where the blockstate hands over to the {@code *_face} models.
+     */
+    public static final BooleanProperty HAS_MIND = BooleanProperty.create("has_mind");
+
+    /**
+     * How content the mind currently is, 0..2, published by the host once a second and only when it crosses
+     * a band. It rides the same deferred write as {@link #HAS_MIND} - the value is applied on the next server
+     * tick, never from inside AE2's cluster recalculation - and only the {@code *_face} models read it, so a
+     * machine without a face has exactly one appearance whatever this says.
+     */
+    public static final IntegerProperty MIND_TIER = IntegerProperty.create("mind_tier", 0, 2);
+
     public SimplifyCraftingSystemBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(COMMUNICATION_INTERFACE, false));
+        registerDefaultState(defaultBlockState()
+                .setValue(COMMUNICATION_INTERFACE, false)
+                .setValue(HAS_MIND, false)
+                .setValue(MIND_TIER, 0));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(COMMUNICATION_INTERFACE);
+        builder.add(COMMUNICATION_INTERFACE, HAS_MIND, MIND_TIER);
     }
 
     /** The L1 badge, cut by eco at 13x18, and the host bracket, read as two 13x8 halves. */

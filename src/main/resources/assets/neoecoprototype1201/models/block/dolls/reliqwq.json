@@ -1,0 +1,7 @@
+{
+	"parent": "neoecoprototype1201:block/dolls/doll_slim",
+	"textures": {
+		"0": "neoecoprototype1201:block/dolls/reliqwq",
+		"particle": "neoecoprototype1201:block/dolls/reliqwq"
+	}
+}

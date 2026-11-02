@@ -30,9 +30,11 @@ import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingP
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingVentBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyCraftingWorkerBlockEntity;
+import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyPatternProviderBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyPoweredMEInterfaceBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyStonecuttingAssemblerBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifySuperconductiveInterfaceBlockEntity;
+import cn.dancingsnow.neoecoprototype1201.blockentity.decoration.NamedDollBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyDriveBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.multiblock.calculator.SimplifyStorageClusterCalculator;
 import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyStorageHostBlockEntity;
@@ -304,6 +306,16 @@ public final class ModBlockEntities {
             registerType("simplify_crafting_pattern_bus", ECOCraftingPatternBusBlockEntity.class,
                     ECOCraftingPatternBusBlockEntity::new,
                     () -> ModRegistration.SIMPLIFY_CRAFTING_PATTERN_BUS_BLOCK.get());
+    /**
+     * The standalone provider, not a cluster member: it is AE2's machine with our box on it, so its block
+     * entity class is AE2's and only the slot count is ours. Its own type, because AE2 names a machine in
+     * the network tool by the representative item registered per type.
+     */
+    public static final RegistryObject<BlockEntityType<
+            SimplifyPatternProviderBlockEntity>> PATTERN_PROVIDER =
+            registerType("simplify_pattern_provider", SimplifyPatternProviderBlockEntity.class,
+                    SimplifyPatternProviderBlockEntity::new,
+                    () -> ModRegistration.SIMPLIFY_PATTERN_PROVIDER_BLOCK.get());
     public static final RegistryObject<BlockEntityType<SimplifyCraftingWorkerBlockEntity>> CRAFTING_WORKER =
             registerType("simplify_crafting_worker", SimplifyCraftingWorkerBlockEntity.class,
                     SimplifyCraftingWorkerBlockEntity::new,
@@ -353,6 +365,19 @@ public final class ModBlockEntities {
                     ECOFluidOutputHatchBlockEntity::new,
                     (level, pos, state, be) -> be.tick(level, pos, state),
                     () -> ModRegistration.SIMPLIFY_FLUID_OUTPUT_HATCH_BLOCK.get());
+    /**
+     * The four dolls and the giant plushie share one block entity: it saves nothing and exists only to sweep
+     * for creepers. The giant is on this list too, which is what lets one client renderer cover her -
+     * renderers are registered per block entity type, not per block.
+     */
+    public static final RegistryObject<BlockEntityType<NamedDollBlockEntity>> FUMO_DOLL_BE =
+            registerType("fumo_doll", NamedDollBlockEntity.class,
+                    (type, pos, state) -> new NamedDollBlockEntity(pos, state),
+                    () -> ModRegistration.FUMO_DOLL_RELIQWQ_BLOCK.get(),
+                    () -> ModRegistration.FUMO_DOLL_YANG120_BLOCK.get(),
+                    () -> ModRegistration.FUMO_DOLL_KOOOKI_BLOCK.get(),
+                    () -> ModRegistration.FUMO_DOLL_TEDXENON_BLOCK.get(),
+                    () -> ModRegistration.FUMO_DOLL_YANG120_GIANT_BLOCK.get());
 
     private ModBlockEntities() {
     }

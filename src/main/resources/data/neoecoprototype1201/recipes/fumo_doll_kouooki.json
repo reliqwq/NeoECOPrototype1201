@@ -1,0 +1,18 @@
+{
+  "type": "neoecoprototype1201:processor_assembler",
+  "ingredients": [
+    {
+      "item": "minecraft:pink_dye"
+    },
+    {
+      "item": "minecraft:dried_kelp"
+    },
+    {
+      "item": "minecraft:brown_mushroom"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:fumo_doll_kouooki",
+    "count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:cable_pattern_provider"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_pattern_provider",
+    "count": 1
+  }
+}

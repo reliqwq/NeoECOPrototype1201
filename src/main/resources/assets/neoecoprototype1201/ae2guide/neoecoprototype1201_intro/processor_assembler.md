@@ -6,20 +6,27 @@ navigation:
   parent: neoecoprototype1201_intro/index.md
 item_ids:
   - neoecoprototype1201:simplify_stonecutting_assembler
+  - neoecoprototype1201:simplify_pattern_provider
+  - neoecoprototype1201:cable_pattern_provider
 ---
 
 # L1 Processor Assembler
 
-The **L1 Processor Assembler** is a green-shell version of the <ItemLink id="ae2:molecular_assembler" /> built for saves that do not have an inscriber yet: it crafts the three processors straight from patterns. It runs only this mod's processor assembly recipes; ordinary molecular assembly patterns are refused, and that work belongs to a Molecular Assembler.
+The **L1 Processor Assembler** is a green-shell version of the <ItemLink id="ae2:molecular_assembler" /> built for saves that do not have an inscriber yet: it crafts the three processors straight from patterns. It runs only this mod's processor assembly recipes; ordinary molecular assembly patterns are refused, and that work belongs to a Molecular Assembler. It is used with the L1 Pattern Provider below.
 
 <ItemGrid>
   <ItemIcon id="neoecoprototype1201:simplify_stonecutting_assembler" />
+  <ItemIcon id="neoecoprototype1201:simplify_pattern_provider" />
+  <ItemIcon id="neoecoprototype1201:cable_pattern_provider" />
 </ItemGrid>
 
-It is made in a **crafting table**: the assembler is 1 Molecular Assembler + 4 Trait Casings + 4 Green Crystal Matrices.
+The provider also mounts on one face of a cable bus. The two forms convert into each other in a crafting table, one for one.
+
+Both are made in a **crafting table**: the assembler is 1 Molecular Assembler + 4 Trait Casings + 4 Green Crystal Matrices, and the provider is 1 ME Pattern Provider + 4 Quartz Glass + 4 Green Crystal Matrices, giving **2** per craft.
 
 <Row>
   <RecipeFor id="neoecoprototype1201:simplify_stonecutting_assembler" />
+  <RecipeFor id="neoecoprototype1201:simplify_pattern_provider" />
 </Row>
 
 ## Built-in recipes

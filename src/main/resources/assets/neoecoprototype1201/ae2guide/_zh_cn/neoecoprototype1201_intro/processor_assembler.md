@@ -6,20 +6,27 @@ navigation:
   parent: neoecoprototype1201_intro/index.md
 item_ids:
   - neoecoprototype1201:simplify_stonecutting_assembler
+  - neoecoprototype1201:simplify_pattern_provider
+  - neoecoprototype1201:cable_pattern_provider
 ---
 
 # L1 处理器装配室
 
-**L1 处理器装配室**相当于绿色外壳的<ItemLink id="ae2:molecular_assembler" />，专门给还没压印器的存档用：处理器三件套在这里直接用样板做出来。它只跑本模组的处理器装配配方，普通分子装配样板会被拒收， 那类活请交给分子装配室。
+**L1 处理器装配室**相当于绿色外壳的<ItemLink id="ae2:molecular_assembler" />，专门给还没压印器的存档用：处理器三件套在这里直接用样板做出来。它只跑本模组的处理器装配配方，普通分子装配样板会被拒收， 那类活请交给分子装配室。它和下面的 L1 样板供应器搭配使用。
 
 <ItemGrid>
   <ItemIcon id="neoecoprototype1201:simplify_stonecutting_assembler" />
+  <ItemIcon id="neoecoprototype1201:simplify_pattern_provider" />
+  <ItemIcon id="neoecoprototype1201:cable_pattern_provider" />
 </ItemGrid>
 
-装配室在**合成台**做：装配室 = 1 台分子装配室 + 4 只特质机壳 + 4 个绿晶晶格。
+样板供应器也能只挂在线缆的一面。两种形态在合成台里互换，一比一。
+
+两台都在**合成台**做：装配室 = 1 台分子装配室 + 4 只特质机壳 + 4 个绿晶晶格；样板供应器 = 1 个 ME 样板供应器 + 4 块石英玻璃 + 4 个绿晶晶格，一次出 **2** 台。
 
 <Row>
   <RecipeFor id="neoecoprototype1201:simplify_stonecutting_assembler" />
+  <RecipeFor id="neoecoprototype1201:simplify_pattern_provider" />
 </Row>
 
 ## 出厂配方

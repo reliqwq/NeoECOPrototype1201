@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "neoecoprototype1201:block/dolls/tedxenon"
+    },
+    "facing=east": {
+      "model": "neoecoprototype1201:block/dolls/tedxenon",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "neoecoprototype1201:block/dolls/tedxenon",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "neoecoprototype1201:block/dolls/tedxenon",
+      "y": 270
+    }
+  }
+}

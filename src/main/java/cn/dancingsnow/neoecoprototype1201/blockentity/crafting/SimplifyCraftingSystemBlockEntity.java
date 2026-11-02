@@ -10,10 +10,13 @@ import cn.dancingsnow.neoecoae.blocks.entity.crafting.ECOCraftingWorkerBlockEnti
 import cn.dancingsnow.neoecoae.gui.crafting.CraftingControllerPanelState;
 import cn.dancingsnow.neoecoae.multiblock.cluster.NECraftingCluster;
 import cn.dancingsnow.neoecoae.multiblock.definition.MultiBlockDefinition;
+import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.api.MachineMood;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyPowerProfile;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingSystemBlock;
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyCraftingDefinition;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -43,8 +46,40 @@ public class SimplifyCraftingSystemBlockEntity extends ECOCraftingSystemBlockEnt
     /** The core column the crafting artwork numbers, so a slot with a core in it is not read as empty. */
     private static final int CORE_ART_COLUMN = 1;
 
+    /**
+     * The host rolls for the face once, the first time it forms, and keeps the answer: geometry checks
+     * re-run on neighbour changes, chunk loads and rebuilds, so a per-check roll would flip the look
+     * back and forth instead of being rare. One in sixteen.
+     */
+    private static final int MIND_CHANCE_ONE_IN = 16;
+    private static final String HAS_MIND_TAG = "neoecoprototype1201:has_mind";
+    private static final String MIND_ROLLED_TAG = "neoecoprototype1201:mind_rolled";
+
+    /** How often a minded host re-reads its own situation. One second is plenty for a mood. */
+    private static final int MOOD_SAMPLE_TICKS = 20;
+
+    /** The face is a one-in-sixteen roll per host, so noticing it is worth an advancement. 8 blocks. */
+    private static final double MIND_AWARD_RANGE_SQR = 64.0D;
+    private static final net.minecraft.resources.ResourceLocation MIND_ADVANCEMENT =
+            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(Prototype1201.MOD_ID, "mind");
+
+    /**
+     * How much of the idle draw a contented mind may take off, as a fraction of the normal draw. The 1.21.1
+     * line reads this from its server config; this line ships no config system, so it is the same number
+     * the other line ships as its default. It only ever saves - see {@link MachineMood}.
+     */
+    private static final double MIND_IDLE_POWER_SAVING = 0.10D;
+
     private boolean communicationInterface;
     private boolean appearancePending;
+    private boolean hasMind;
+    private boolean mindRolled;
+    private boolean mindAwarded;
+    private int moodCountdown = MOOD_SAMPLE_TICKS;
+    /** The idle draw the node currently carries, so a sample that changed nothing pushes nothing. */
+    private double idlePowerPushed = -1.0D;
+    /** A band the host has crossed but not yet written, or -1 when there is nothing to publish. */
+    private int mindTierToPublish = -1;
 
     public SimplifyCraftingSystemBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
                                              IECOTier tier) {
@@ -103,9 +138,10 @@ public class SimplifyCraftingSystemBlockEntity extends ECOCraftingSystemBlockEnt
     @Override
     public void onReady() {
         super.onReady();
-        // Deliberately after eco's own number, which is where this member's 64.0 AE/t is written.
-        getMainNode().setIdlePowerUsage(
-                SimplifyPowerProfile.L1.craftingControllerIdlePower());
+        // Deliberately after eco's own number: eco writes 64.0 AE/t for this member and this line ships
+        // 4.0 (SimplifyPowerProfile.L1 = 32.0 base at the 1/8 multiplier), which is what a face then
+        // trims to 3.6 when the mind is content.
+        applyIdlePower(SimplifyPowerProfile.L1.craftingControllerIdlePower());
     }
 
     /** Records what the interface cell turned out to hold, for the next {@link #tick}. */
@@ -122,7 +158,14 @@ public class SimplifyCraftingSystemBlockEntity extends ECOCraftingSystemBlockEnt
         super.tick(level, pos, state);
         if (appearancePending && !level.isClientSide()) {
             appearancePending = false;
-            publishAppearance(level, state);
+            publishAppearance(level, pos);
+        }
+        if (!level.isClientSide() && --moodCountdown <= 0) {
+            moodCountdown = MOOD_SAMPLE_TICKS;
+            applyMindMood();
+            if (level instanceof ServerLevel serverLevel) {
+                awardMindAdvancement(serverLevel);
+            }
         }
     }
 
@@ -132,18 +175,145 @@ public class SimplifyCraftingSystemBlockEntity extends ECOCraftingSystemBlockEnt
         appearancePending = true;
     }
 
-    private void publishAppearance(Level level, BlockState state) {
+    private void publishAppearance(Level level, BlockPos pos) {
         if (isRemoved() || level == null || level.isClientSide()) {
             return;
         }
+        BlockState state = level.getBlockState(worldPosition);
         if (!state.hasProperty(SimplifyCraftingSystemBlock.COMMUNICATION_INTERFACE)) {
             return;
         }
+        if (isFormed() && !mindRolled) {
+            mindRolled = true;
+            hasMind = level.random.nextInt(MIND_CHANCE_ONE_IN) == 0;
+            setChanged();
+        }
+        int publishedTier = mindTierToPublish >= 0 ? mindTierToPublish
+                : state.getValue(SimplifyCraftingSystemBlock.MIND_TIER);
+        mindTierToPublish = -1;
         BlockState next = state.setValue(SimplifyCraftingSystemBlock.COMMUNICATION_INTERFACE,
-                isFormed() && communicationInterface);
+                        isFormed() && communicationInterface)
+                .setValue(SimplifyCraftingSystemBlock.HAS_MIND, isFormed() && hasMind)
+                .setValue(SimplifyCraftingSystemBlock.MIND_TIER,
+                        isFormed() && hasMind ? publishedTier : 0);
         if (next != state) {
             level.setBlock(worldPosition, next, Block.UPDATE_CLIENTS);
         }
+    }
+
+    /**
+     * Tells the closest player within reach of the panel that this host grew a face. It is not persisted:
+     * {@code hasMind} is, so a world that reloaded before anyone came close asks again on the next sample,
+     * and an advancement can be awarded repeatedly without harm.
+     */
+    private void awardMindAdvancement(ServerLevel level) {
+        if (mindAwarded || !hasMind || !isFormed()) {
+            return;
+        }
+        net.minecraft.server.level.ServerPlayer nearest = null;
+        double nearestDistance = MIND_AWARD_RANGE_SQR;
+        for (net.minecraft.server.level.ServerPlayer player : level.getPlayers(p -> true)) {
+            double distance = player.distanceToSqr(worldPosition.getX() + 0.5D,
+                    worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D);
+            if (distance <= nearestDistance) {
+                nearestDistance = distance;
+                nearest = player;
+            }
+        }
+        if (nearest == null) {
+            return;
+        }
+        mindAwarded = true;
+        // 1.20.1 hands out the Advancement itself and answers null for an unknown id; the 1.21.1 line
+        // passes a Holder, so this is the one shape that differs in this method.
+        net.minecraft.advancements.Advancement mind = level.getServer().getAdvancements()
+                .getAdvancement(MIND_ADVANCEMENT);
+        if (mind != null) {
+            nearest.getAdvancements().award(mind, "easter_egg");
+        }
+    }
+
+    /**
+     * A host with a face draws slightly less power while idle, by how content its situation is: coolant in
+     * the bath and work to do. Nothing here is stored - the next sample recomputes it - so the value cannot
+     * be farmed, cannot drift across saves, and needs no migration when the numbers change.
+     *
+     * <p>The same mood also picks which face the art shows, but that one <em>is</em> written to the block
+     * state, because models cannot read a live number. It is therefore the only part allowed to trigger a
+     * block change, and it triggers on a band crossing rather than on every sample - see
+     * {@link MachineMood#tierOf}. The write itself rides {@code appearancePending}, the same deferral the
+     * face flag uses, so it never lands inside AE2's cluster recalculation.</p>
+     */
+    private void applyMindMood() {
+        Level reader = this.level;
+        if (reader == null || reader.isClientSide()) {
+            return;
+        }
+        double baseline = SimplifyPowerProfile.L1.craftingControllerIdlePower();
+        if (!hasMind) {
+            applyIdlePower(baseline);
+            return;
+        }
+        int capacity = getDisplayedCoolantCapacity();
+        double coolant = capacity > 0 ? (double) getDisplayedCoolantAmount() / capacity : 0.0D;
+        boolean busy = getRunningThreadCount() > 0;
+        boolean formed = isFormed();
+        applyIdlePower(baseline * MachineMood.idlePowerFactor(true, coolant, busy, formed,
+                MIND_IDLE_POWER_SAVING));
+        if (!formed) {
+            return;
+        }
+        int shown = reader.getBlockState(worldPosition).getValue(SimplifyCraftingSystemBlock.MIND_TIER);
+        int next = MachineMood.tierOf(MachineMood.mood(coolant, busy), shown);
+        if (next != shown) {
+            mindTierToPublish = next;
+            appearancePending = true;
+        }
+    }
+
+    /** Pushes a new idle draw only when it differs, because this runs on a timer and the node is shared. */
+    private void applyIdlePower(double value) {
+        if (Double.compare(value, idlePowerPushed) == 0) {
+            return;
+        }
+        idlePowerPushed = value;
+        getMainNode().setIdlePowerUsage(value);
+    }
+
+    /** Whether this host grew a face. */
+    public boolean hasMind() {
+        return hasMind;
+    }
+
+    /** Whether the once-per-host roll has already happened. */
+    public boolean mindRolled() {
+        return mindRolled;
+    }
+
+    /**
+     * What the grid actually charges this host while idle. The live node answers it - {@code IManagedGridNode}
+     * only has a setter - and before the node exists the answer is what we last meant to push.
+     */
+    public double idlePowerDraw() {
+        var node = getMainNode().getNode();
+        return node == null ? Math.max(0.0D, idlePowerPushed) : node.getIdlePowerUsage();
+    }
+
+    // public, not protected: AE2 15.4.10 widens this hook beyond vanilla 1.20.1's modifier, and an
+    // override may not narrow what it inherits.
+    @Override
+    public void saveAdditional(net.minecraft.nbt.CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putBoolean(MIND_ROLLED_TAG, mindRolled);
+        tag.putBoolean(HAS_MIND_TAG, hasMind);
+    }
+
+    @Override
+    public void loadTag(net.minecraft.nbt.CompoundTag tag) {
+        // AE2 declares load(final) and routes the extra fields here, so loadTag is the hook for these two.
+        super.loadTag(tag);
+        mindRolled = tag.getBoolean(MIND_ROLLED_TAG);
+        hasMind = tag.getBoolean(HAS_MIND_TAG);
     }
 
     /** What the interface cell of the formed machine holds. Read by the game tests and the blockstate write. */

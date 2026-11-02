@@ -1,0 +1,32 @@
+{
+  "parent": "neoecoprototype1201:root",
+  "display": {
+    "icon": {
+      "item": "neoecoprototype1201:fumo_doll_tedxenon"
+    },
+    "title": {
+      "translate": "advancement.neoecoprototype1201.tix_doll.title"
+    },
+    "description": {
+      "translate": "advancement.neoecoprototype1201.tix_doll.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": true
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "neoecoprototype1201:fumo_doll_tedxenon"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

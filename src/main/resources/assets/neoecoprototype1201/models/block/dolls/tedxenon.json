@@ -1,0 +1,7 @@
+{
+	"parent": "neoecoprototype1201:block/dolls/doll",
+	"textures": {
+		"0": "neoecoprototype1201:block/dolls/tedxenon",
+		"particle": "neoecoprototype1201:block/dolls/tedxenon"
+	}
+}

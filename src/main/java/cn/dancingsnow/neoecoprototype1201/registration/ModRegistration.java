@@ -29,8 +29,12 @@ import cn.dancingsnow.neoecoprototype1201.block.computation.SimplifyEnergizedCom
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingInterfaceBlock;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingNetworkInterfaceBlock;
 import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyCraftingSystemBlock;
+import cn.dancingsnow.neoecoprototype1201.block.crafting.SimplifyPatternProviderBlock;
+import cn.dancingsnow.neoecoprototype1201.block.decoration.GiantDollBlock;
+import cn.dancingsnow.neoecoprototype1201.block.decoration.NamedDollBlock;
 import cn.dancingsnow.neoecoprototype1201.block.storage.SimplifyStorageControllerBlock;
 import cn.dancingsnow.neoecoprototype1201.block.storage.SimplifyStorageInterfaceBlock;
+import cn.dancingsnow.neoecoprototype1201.items.FumoItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -39,6 +43,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -236,6 +241,13 @@ public final class ModRegistration {
     public static final RegistryObject<Block> SIMPLIFY_CRAFTING_PATTERN_BUS_BLOCK =
             registerBlock("simplify_crafting_pattern_bus",
                     () -> new ECOCraftingPatternBus(crafting()));
+    /**
+     * The L1 pattern provider. Not a cluster member and not eco's machine: AE2's own provider block, whose
+     * only opening is that its properties are AE2's {@code metalProps()} - this generation's constructor
+     * takes nothing at all, so there is no noOcclusion to ask for and the box is a full cube by design.
+     */
+    public static final RegistryObject<Block> SIMPLIFY_PATTERN_PROVIDER_BLOCK =
+            registerBlock("simplify_pattern_provider", SimplifyPatternProviderBlock::new);
     public static final RegistryObject<Block> SIMPLIFY_CRAFTING_WORKER_BLOCK =
             registerBlock("simplify_crafting_worker",
                     () -> new ECOCraftingWorker(crafting()));
@@ -261,6 +273,96 @@ public final class ModRegistration {
     public static final RegistryObject<Block> SIMPLIFY_FLUID_OUTPUT_HATCH_BLOCK =
             registerBlock("simplify_fluid_output_hatch",
                     () -> new ECOFluidOutputHatchBlock(crafting()));
+
+    /** The dolls' family colour, taken from the same green her lamp strip uses. */
+    private static final int NAME_THEME_GREEN = 0xFF94EDAB;
+
+    /**
+     * What the dolls are made of. Their face is in their texture, so nothing resolves a skin - only the
+     * shared {@link cn.dancingsnow.neoecoprototype1201.blockentity.decoration.NamedDollBlockEntity}, which
+     * exists to sweep for creepers, and one client renderer for the giant plushie.
+     *
+     * <p>The light level is a design choice carried over from the 1.21.1 line, not a fact this file can
+     * justify: the plushie was given one on purpose and the other dolls inherited it.</p>
+     */
+    private static BlockBehaviour.Properties dollProperties() {
+        return BlockBehaviour.Properties.of().strength(0.8F)
+                .sound(net.minecraft.world.level.block.SoundType.WOOL).noOcclusion()
+                .lightLevel(state -> 15);
+    }
+
+    /** A doll's worn stats: its own armour, then whatever effects it hands out on top of the night vision. */
+    private static FumoItem.DollStats dollStats(float armor, float toughness,
+                                                FumoItem.DollEffect... extra) {
+        return new FumoItem.DollStats(armor, toughness, java.util.List.of(extra), 0.0D);
+    }
+
+    /** The same for the doll that also feeds what its wearer is carrying; the rate is its own constant. */
+    private static FumoItem.DollStats chargingDollStats(float armor, float toughness,
+                                                        FumoItem.DollEffect... extra) {
+        return new FumoItem.DollStats(armor, toughness, java.util.List.of(extra), 100.0D);
+    }
+
+    /** One effect at one level - amplifier 0 is the first level, as everywhere else in vanilla. */
+    private static FumoItem.DollEffect dollEffect(net.minecraft.world.effect.MobEffect effect, int amplifier) {
+        return new FumoItem.DollEffect(effect, amplifier);
+    }
+
+    /**
+     * A doll's wearable item, registered against the block named above it. The plain {@link #registerBlock}
+     * would hand back a {@code BlockItem}, and these need the {@link FumoItem} that carries the armour, the
+     * effects and the worn tooltip - which is also why the tab entry is added here rather than there.
+     */
+    private static RegistryObject<Item> registerDollItem(String name, RegistryObject<? extends Block> block,
+                                                         FumoItem.DollStats stats,
+                                                         @Nullable Integer nameColor, boolean shiny) {
+        java.util.function.Supplier<Item> factory = () -> new FumoItem(block.get(),
+                new Item.Properties().stacksTo(16), stats, nameColor, shiny);
+        RegistryObject<Item> item = BLOCK_ITEMS.register(name, factory);
+        TAB_BLOCK_ITEMS.add(item);
+        return item;
+    }
+
+    public static final RegistryObject<NamedDollBlock> FUMO_DOLL_RELIQWQ_BLOCK =
+            BLOCKS.register("fumo_doll_reliqwq", () -> new NamedDollBlock(dollProperties()));
+    public static final RegistryObject<Item> FUMO_DOLL_RELIQWQ_ITEM =
+            registerDollItem("fumo_doll_reliqwq", FUMO_DOLL_RELIQWQ_BLOCK,
+                    dollStats(4.0F, 2.0F), NAME_THEME_GREEN, false);
+
+    public static final RegistryObject<NamedDollBlock> FUMO_DOLL_YANG120_BLOCK =
+            BLOCKS.register("fumo_doll_yang120", () -> new NamedDollBlock(dollProperties()));
+    public static final RegistryObject<Item> FUMO_DOLL_YANG120_ITEM =
+            registerDollItem("fumo_doll_yang120", FUMO_DOLL_YANG120_BLOCK,
+                    dollStats(4.0F, 2.0F), NAME_THEME_GREEN, false);
+
+    public static final RegistryObject<NamedDollBlock> FUMO_DOLL_KOOOKI_BLOCK =
+            BLOCKS.register("fumo_doll_kouooki", () -> new NamedDollBlock(dollProperties()));
+    public static final RegistryObject<Item> FUMO_DOLL_KOOOKI_ITEM =
+            registerDollItem("fumo_doll_kouooki", FUMO_DOLL_KOOOKI_BLOCK,
+                    dollStats(1.0F, 5.0F), NAME_THEME_GREEN, false);
+
+    public static final RegistryObject<NamedDollBlock> FUMO_DOLL_TEDXENON_BLOCK =
+            BLOCKS.register("fumo_doll_tedxenon", () -> new NamedDollBlock(dollProperties()));
+    public static final RegistryObject<Item> FUMO_DOLL_TEDXENON_ITEM =
+            registerDollItem("fumo_doll_tedxenon", FUMO_DOLL_TEDXENON_BLOCK,
+                    chargingDollStats(6.0F, 1.0F,
+                            dollEffect(net.minecraft.world.effect.MobEffects.REGENERATION, 1),
+                            dollEffect(net.minecraft.world.effect.MobEffects.LUCK, 0)),
+                    NAME_THEME_GREEN, false);
+
+    /**
+     * The plushie drawn three times her size, standing on the one block she was set down on. She is
+     * decoration only - no CPU, no grid node - and she carries no model of her own: the block declares
+     * itself {@link net.minecraft.world.level.block.RenderShape#INVISIBLE} and
+     * {@link cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.GiantPlushieRenderer} draws the
+     * plain doll's model scaled up, which is why the blockstate still names her model (breaking particles
+     * and the fallback path read it).
+     */
+    public static final RegistryObject<GiantDollBlock> FUMO_DOLL_YANG120_GIANT_BLOCK =
+            BLOCKS.register("fumo_doll_yang120_giant", () -> new GiantDollBlock(dollProperties()));
+    public static final RegistryObject<Item> FUMO_DOLL_YANG120_GIANT_ITEM =
+            registerDollItem("fumo_doll_yang120_giant", FUMO_DOLL_YANG120_GIANT_BLOCK,
+                    dollStats(4.0F, 2.0F), null, true);
 
     private ModRegistration() {
     }

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:fumo_doll_yang120_giant"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:fumo_doll_yang120",
+    "count": 9
+  }
+}

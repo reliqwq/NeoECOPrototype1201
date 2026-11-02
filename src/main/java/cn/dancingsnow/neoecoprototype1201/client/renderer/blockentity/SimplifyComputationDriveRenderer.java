@@ -6,6 +6,7 @@ import cn.dancingsnow.neoecoae.blocks.computation.ECOComputationDrive;
 import cn.dancingsnow.neoecoae.client.rendering.IFixedBlockEntityRenderer;
 import cn.dancingsnow.neoecoae.items.ECOComputationCellItem;
 import cn.dancingsnow.neoecoprototype1201.blockentity.computation.SimplifyComputationDriveBlockEntity;
+import cn.dancingsnow.neoecoprototype1201.client.ComputationCableModels;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,9 +20,9 @@ import org.joml.Quaternionf;
 /**
  * Draws the mounted computation cell and its cable into the L1 drive.
  *
- * <p>Shape copied from eco 20.5.3's own computation drive renderer; the only difference is that the
- * cable lookup cannot see the host block on this line, so both of our tiers share the plain pair that
- * {@code ComputationCableModels} registers.
+ * <p>Shape copied from eco 20.5.3's own computation drive renderer; the one difference is the cable,
+ * which comes from {@code ComputationCableModels} directly rather than from eco's tier-keyed table,
+ * because on this line that table holds the glowing pair eco's own drives are meant to show.
  */
 public final class SimplifyComputationDriveRenderer implements
         IFixedBlockEntityRenderer<SimplifyComputationDriveBlockEntity>,
@@ -54,16 +55,13 @@ public final class SimplifyComputationDriveRenderer implements
 
         boolean formed = blockEntity.isFormed();
         boolean shouldCellWork = false;
-        IECOTier cableTier = blockEntity.getTier();
+        IECOTier driveTier = blockEntity.getTier();
         if (itemStack != null && !itemStack.isEmpty() && itemStack.getItem() instanceof ECOComputationCellItem item) {
             IECOTier itemTier = item.getTier();
-            shouldCellWork = formed && cableTier != null && itemTier.compareTo(cableTier) <= 0;
+            shouldCellWork = formed && driveTier != null && itemTier.compareTo(driveTier) <= 0;
             ResourceLocation model = shouldCellWork
                     ? ECOComputationModels.getFormedModel(itemStack.getItem())
                     : ECOComputationModels.getNormalModel(itemStack.getItem());
-            if (shouldCellWork) {
-                cableTier = itemTier;
-            }
             // Cells supplied by another addon may be valid computation cells without a registered model.
             if (model != null) {
                 tessellateModel(poseStack, bufferSource, model, packedLight, packedOverlay);
@@ -75,7 +73,7 @@ public final class SimplifyComputationDriveRenderer implements
         if (formed) {
             if (itemStack != null && shouldCellWork) {
                 poseStack.translate(0, 0, -0.35);
-                cableModel = ECOComputationModels.getCableConnectedModel(cableTier);
+                cableModel = ComputationCableModels.LOWER_CONNECTED;
                 connected = true;
             } else {
                 if (blockEntity.isLowerDrive()) {
@@ -83,7 +81,7 @@ public final class SimplifyComputationDriveRenderer implements
                 } else {
                     poseStack.translate(0, -0.688, -0.3);
                 }
-                cableModel = ECOComputationModels.getCableDisconnectedModel(cableTier);
+                cableModel = ComputationCableModels.LOWER_DISCONNECTED;
             }
         }
         if (blockEntity.isLowerDrive()) {

@@ -1,0 +1,18 @@
+{
+  "type": "neoecoprototype1201:processor_assembler",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_storage_controller"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_computation_system"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_crafting_system"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:fumo_doll_reliqwq",
+    "count": 1
+  }
+}

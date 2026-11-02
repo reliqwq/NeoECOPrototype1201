@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "neoecoprototype1201:block/green_pattern_provider",
+    "down": "neoecoprototype1201:block/green_pattern_provider_alternate",
+    "up": "neoecoprototype1201:block/green_pattern_provider",
+    "north": "neoecoprototype1201:block/green_pattern_provider_alternate_arrow",
+    "south": "neoecoprototype1201:block/green_pattern_provider_alternate_arrow",
+    "east": "neoecoprototype1201:block/green_pattern_provider_alternate_arrow",
+    "west": "neoecoprototype1201:block/green_pattern_provider_alternate_arrow"
+  }
+}

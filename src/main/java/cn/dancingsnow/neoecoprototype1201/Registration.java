@@ -6,6 +6,7 @@ import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyComputationCellItem;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyConcreteStorageCellItem;
+import cn.dancingsnow.neoecoprototype1201.items.SimplifyMigrationDriveItem;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -68,6 +69,14 @@ public final class Registration {
             cn.dancingsnow.neoecoprototype1201.menu.ProcessorAssemblerMenu>> PROCESSOR_ASSEMBLER_MENU =
             MENUS.register("processor_assembler", () -> net.minecraftforge.common.extensions.IForgeMenuType
                     .create(cn.dancingsnow.neoecoprototype1201.menu.ProcessorAssemblerMenu::fromNetwork));
+    /**
+     * The L1 pattern provider's menu type, same route as the assembler's for the same reason: AE2's
+     * {@code MenuTypeBuilder} on this line names entries inside its own namespace only.
+     */
+    public static final RegistryObject<net.minecraft.world.inventory.MenuType<
+            cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu>> L1_PATTERN_PROVIDER_MENU =
+            MENUS.register("l1_pattern_provider", () -> net.minecraftforge.common.extensions.IForgeMenuType
+                    .create(cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu::fromNetwork));
 
     /**
      * Same ladder as the 1.21.1 L1 cells. Public because the chemical family builds the same five steps
@@ -171,6 +180,18 @@ public final class Registration {
             ITEMS.register("energized_computation_cell_4m",
                     () -> new SimplifyComputationCellItem(
                             new Item.Properties().stacksTo(8), SimplifyTier.L1_REINFORCED));
+    /**
+     * The provider on one face of a cable bus. There is no part-type registry to call on this line
+     * ({@code IPartHelper} is absent), so an {@code appeng.items.parts.PartItem} in our own item register is
+     * the whole registration: an {@code IPartItem}'s network id is literally that item's id in the item
+     * registry. The model names are a separate duty - see {@code PartModels.registerModels} in the client.
+     */
+    public static final RegistryObject<appeng.items.parts.PartItem<
+            cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart>> CABLE_PATTERN_PROVIDER =
+            ITEMS.register("cable_pattern_provider",
+                    () -> new appeng.items.parts.PartItem<>(new Item.Properties(),
+                            cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart.class,
+                            cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart::new));
 
     /**
      * The L1 core material the assembler and the green casing are built from; its name carries the family's
@@ -180,6 +201,42 @@ public final class Registration {
             ITEMS.register("simplify_green_crystal_matrix",
                     () -> new cn.dancingsnow.neoecoprototype1201.items.GreenCrystalMatrixItem(
                             new Item.Properties()));
+
+    /**
+     * The four rungs of the migration drive plus the shell it returns as. A drive takes one finished, full
+     * length host up a rung in place and hands every block it replaced back to the player, so the disk's own
+     * recipe would be the whole price - and this line ships no recipe for any of them, deliberately: the
+     * 1.21.1 line has not priced them either, and a paid-for disk whose price is a guess is worse in a
+     * public pack than one that is only reachable from the creative tab or /give.
+     *
+     * <p>The names wear the tier colour of the rung they start from (green L1, blue L4, orange L6, purple for
+     * the disk that jumps straight to L9); the empty shell is left colourless so it cannot be read as a
+     * usable drive.</p>
+     */
+    private static final int NAME_THEME_TIER_L1 = 0xFF61D389;
+    private static final int NAME_THEME_TIER_L4 = 0xFF80AEFF;
+    private static final int NAME_THEME_TIER_L6 = 0xFFE57E39;
+    private static final int NAME_THEME_TIER_L9 = 0xFFB379E0;
+
+    public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_1_4 =
+            ITEMS.register("migration_drive_1_4",
+                    () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
+                            SimplifyMigrationDriveItem.Rung.ONE_TO_FOUR, NAME_THEME_TIER_L1));
+    public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_4_6 =
+            ITEMS.register("migration_drive_4_6",
+                    () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
+                            SimplifyMigrationDriveItem.Rung.FOUR_TO_SIX, NAME_THEME_TIER_L4));
+    public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_6_9 =
+            ITEMS.register("migration_drive_6_9",
+                    () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
+                            SimplifyMigrationDriveItem.Rung.SIX_TO_NINE, NAME_THEME_TIER_L6));
+    /** What the machine returns once it has taken the structure across: the drive with nothing written on it. */
+    public static final RegistryObject<Item> MIGRATION_DRIVE_EMPTY =
+            ITEMS.register("migration_drive_empty", () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_CREATIVE =
+            ITEMS.register("migration_drive_creative",
+                    () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
+                            SimplifyMigrationDriveItem.Rung.STRAIGHT_TO_NINE, NAME_THEME_TIER_L9));
 
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main",
             () -> CreativeModeTab.builder()
@@ -205,7 +262,13 @@ public final class Registration {
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_CELL.get());
                         output.accept(SIMPLIFY_COMPUTATION_CELL_1M.get());
                         output.accept(ENERGIZED_COMPUTATION_CELL_4M.get());
+                        output.accept(CABLE_PATTERN_PROVIDER.get());
                         output.accept(GREEN_CRYSTAL_MATRIX.get());
+                        output.accept(MIGRATION_DRIVE_1_4.get());
+                        output.accept(MIGRATION_DRIVE_4_6.get());
+                        output.accept(MIGRATION_DRIVE_6_9.get());
+                        output.accept(MIGRATION_DRIVE_CREATIVE.get());
+                        output.accept(MIGRATION_DRIVE_EMPTY.get());
                     })
                     .build());
 

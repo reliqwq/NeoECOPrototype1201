@@ -1,0 +1,23 @@
+{
+  "parent": "neoecoprototype1201:crafting_host",
+  "display": {
+    "icon": {
+      "item": "neoecoprototype1201:simplify_crafting_system"
+    },
+    "title": {
+      "translate": "advancement.neoecoprototype1201.mind.title"
+    },
+    "description": {
+      "translate": "advancement.neoecoprototype1201.mind.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": true
+  },
+  "criteria": {
+    "easter_egg": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}
