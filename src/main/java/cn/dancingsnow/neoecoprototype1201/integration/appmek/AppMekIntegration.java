@@ -24,6 +24,13 @@ public final class AppMekIntegration {
     public static final List<RegistryObject<Item>> TAB_ITEMS = new ArrayList<>();
     /** The five cells only, in {@code Registration.CELL_SIZES} order, for the client's model ladder. */
     public static final List<RegistryObject<Item>> CELLS = new ArrayList<>();
+    /**
+     * What one chemical matrix may hold at once. This is eco's own number, not ours: 20.5.3 builds the
+     * {@code neoecoae:mekanism} row with {@code typeCount(25)} ({@code NEAppMekCellTypes}), and the 1.21.1
+     * line's chemical cells carry 25 for the same reason. Leaving it at {@code PrototypeCellItem}'s 256
+     * would give our matrix ten times the types eco gives its own, at the same bytes-per-type.
+     */
+    public static final int TOTAL_TYPES = 25;
 
     public static void register(DeferredRegister<Item> items) {
         TAB_ITEMS.add(items.register("simplify_chemical_storage_matrix_housing",
@@ -33,7 +40,8 @@ public final class AppMekIntegration {
             RegistryObject<Item> cell = items.register(
                     "simplify_chemical_storage_cell_" + Registration.CELL_SIZES[i],
                     () -> new PrototypeCellItem(new Item.Properties().stacksTo(1),
-                            ChemicalKeyType.get(), () -> Registration.ecoCellType("mekanism"), bytes));
+                            ChemicalKeyType.get(), () -> Registration.ecoCellType("mekanism"),
+                            bytes, TOTAL_TYPES));
             TAB_ITEMS.add(cell);
             CELLS.add(cell);
         }

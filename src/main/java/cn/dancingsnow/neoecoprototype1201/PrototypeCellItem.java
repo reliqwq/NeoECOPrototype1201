@@ -22,17 +22,20 @@ import java.util.function.Supplier;
  */
 public final class PrototypeCellItem extends ECOStorageCellItem {
     /**
-     * The type ceiling every rung of this family carries: 256 types, each costing one 256th of the cell.
+     * The type ceiling the item and fluid families carry: 256 types, each costing one 256th of the cell.
      *
      * <p>It is a number we hold rather than one we borrow from the panel row. eco 20.5.3's
      * {@code ECOStorageCellItem.getTotalTypes()} answers {@code cellType().typeCount()}, and the row the
      * 1.21.1 line rides ({@code neoecoae:items}) carries 315 - so reading the row would quietly move the
      * ceiling. Overriding the getter keeps the wording of the row (物品) and the capacity of our own tier.
+     * The chemical family passes its own number instead; see {@code AppMekIntegration#TOTAL_TYPES}.
      */
     public static final int TOTAL_TYPES = 256;
 
+    private final int totalTypes;
+
     public PrototypeCellItem(Item.Properties properties, Supplier<ECOCellType> cellType, long bytes) {
-        this(properties, AEKeyType.items(), cellType, bytes);
+        this(properties, AEKeyType.items(), cellType, bytes, TOTAL_TYPES);
     }
 
     /**
@@ -41,12 +44,18 @@ public final class PrototypeCellItem extends ECOStorageCellItem {
      */
     public PrototypeCellItem(Item.Properties properties, AEKeyType keyType,
                              Supplier<ECOCellType> cellType, long bytes) {
+        this(properties, keyType, cellType, bytes, TOTAL_TYPES);
+    }
+
+    public PrototypeCellItem(Item.Properties properties, AEKeyType keyType,
+                             Supplier<ECOCellType> cellType, long bytes, int totalTypes) {
         super(properties, SimplifyTier.L1, keyType, cellType,
                 bytes, (int) (bytes >> 8), (double) bytes / (1L << 20));
+        this.totalTypes = totalTypes;
     }
 
     @Override
     public int getTotalTypes() {
-        return TOTAL_TYPES;
+        return totalTypes;
     }
 }
