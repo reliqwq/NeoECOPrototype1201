@@ -53,6 +53,15 @@ public final class SimplifyConcreteStorageCellItem extends Item implements IBasi
      * row. Hidden from the storage host's own list - its row could only ever read "16 / 16 types" against
      * an unbounded byte budget, which says nothing a player can act on.
      *
+     * <p>What this desc's text does NOT do on this line: nothing renders it. Measured across all 1847
+     * classes of eco 20.5.3, {@code ECOCellType.desc()} has exactly one reader -
+     * {@code HostText.storageTypeAccentColor}, which takes {@code desc().getStyle().getColor()} and never
+     * the text - and no class in that jar contains the string {@code eco_cell_type} at all, so the lang
+     * key below is not something upstream translates for a row label. It is kept because the artwork and
+     * text stream is one-way from the 1.21.1 project (see README), where eco does read desc as the row
+     * label; deleting it here would be a silent divergence in a file that is not meant to diverge. The
+     * player-facing name of this item is its item name, not this row.
+     *
      * <p>Deliberately not registered in {@code neoecoae:cell_type}. eco 20.5.3's host statistics asks the
      * registry for an id and branches on {@code id < 0} before touching it, so an unregistered type is a
      * skipped row rather than a crash - measured in {@code ECOStorageHostStatistics.driveUiSnapshot},

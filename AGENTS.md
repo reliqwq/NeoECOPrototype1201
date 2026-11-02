@@ -69,6 +69,13 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 守卫 `check_node` 现在两件事都做：认包装形状并递归查内层、见到 `neoforge:` 前缀键直接红。
 **控制组建过**（临时塞一颗带 `neoforge:conditions` 的假节点 → 红的正是那句，摘掉后 14 颗全绿）。
 
+**同一个方向的另一个坑：文本抄过来了，这条线上没有读者。** `ECOCellType.desc()` 在 20.5.3 全 jar 1847 个类里
+只有一个读者 —— `HostText.storageTypeAccentColor`，而且只取 `desc().getStyle().getColor()`；
+**没有任何类含 `eco_cell_type` 这个字符串**，所以 `eco_cell_type.<ns>.<name>` 那类 lang 键不是上游在翻译的行标签
+（1.21.1 那条线上 eco 确实把 desc 当行标签用）。这条线上我们只有一颗自造行（无限混凝土，`visible=false` 且不注册），
+所以那行文字在这条线**任何界面都画不出来**。**结论：键留着**（lang 属于单向文本流，删了就是在不该分叉的文件上分叉），
+但别在文档/指南里声称"面板会显示这一行"，也别为它去做渲染。玩家看得到的名字是物品名。
+
 ## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
