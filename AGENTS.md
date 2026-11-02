@@ -19,6 +19,15 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 把 `<slug>/<version>` 收敛到该版本任意一个文件，15.59.0.212 走 maven 拿到的是 1 826 038 B 的那份，
 而 forge 构建是 1 849 781 B；MezzConfig 在 maven 上只有 1.19.2 的构建。
 
+**eco 20.5.3 上"样板迁移"那道门的现状**（2026-11-02 逐条读字节码量的，不是从 1.21.1 推的）：
+`ECOMachineInterfaceBlockEntity` 的搬运路径**已经在用** #136 那三条里的两条 ——
+`PatternCatalog.containsPatternOtherThan(PatternStorageHost,int,AEItemKey,Object)`（匹配时排除来源那一格）
+和 `insertPreparedPatternReporting(Object,ECOPreparedPattern)`（带来源槽的重载），并且
+`$PatternTransferTask` 带 `releaseClaims()` 与 `skipCandidate(ECOPatternSourceSlot)`，
+所以"候选被丢弃要还锁"也落了。**没落的只剩第三条**：这版 `ECOPatternInsertionResult` 只有 5 个常量
+（`UNCHANGED` 是 21.2.11 才加的），也就是"失败要出声"缺、"吞样板"的两条机制成因已堵。
+⇒ 开不开母线那道门仍然是一个要拍的产品决定，但代价比我原先记的小一档。
+
 ## 2. 最重要的一条：可选依赖不能出现在"会被加载"的位置
 
 **Forge 1.20.1 在构建事件表时会强加载我们 jar 里的每一个类**（`EventSubclassTransformer` 逐个
@@ -130,6 +139,19 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
   `ae2 [15.4.10,)` / `neoecoae [20.5.3,)` 拒启动（缺依赖屏原文如此）。
   素材仓库顺带记一笔：`F:/gradle-cache/caches/forge_gradle/assets` 620 MB 里 520 MB 是 `.ogg`、
   贴图只占 11.3 MB，dev 与 prod 共用一份，所以 prod 客户端不需要重新下几百 MB。
+- **但"服务端侧"不需要真实例：headless `./gradlew runServer --offline` 在这台机器上是通的**
+  （2026-11-02；早前有一轮把它记成"卡在 Forge 在线版本检查、跑不到加载配方"，那是错的——
+  版本检查失败在这条线上只是一条 WARN，不拦启动）。FG6 的 server run 配置就在
+  `run/`（`--nogui`，`eula.txt` 已存在），走到 `DedicatedServer: Done (12.623s)`，
+  **0 条 `Parsing error loading recipe`**，我们三行 INFO 全在（mixin 已织入 / 管道能力表已绑 /
+  装配室菜单已登记），eco 的服务也在同一轮起来。⇒ 注册、配方、mixin 这三类判据以后走这条路，
+  只有真视觉（面板、渲染器、状态灯）仍要客户端。
+- **`Registry minecraft:item: Object did not get ID it asked for`（13 条）与
+  `ERROR Unidentified mapping from registry neoecoae:cell_type`（2 条）是旧存档的账，不是 jar 的账。**
+  A/B 只有一个变量＝世界目录：带着 `run/world`（本次新增物品之前的旧 dev 服务端存档）跑 = 13 + 2；
+  把它改名让服务器新建一份 = **0 / 0**，其余读数不变。这条线还没发布过 ⇒ 现实里只有 dev 存档会念这几句；
+  将来玩家跨版本升级会同样看到一次这种 id 提示，**别把它当注册缺陷**（判据同上：换一个变量跑一遍）。
+- `Loaded 43 recipes` 在服务端也是 43 ⇒ 上面那句"这行不数我们的配方文件"两侧都验过了。
 
 ## 6. 本机工具坑
 
