@@ -15,9 +15,9 @@ If you have never used eco: think of these as **longer-buildable AE2 versions wi
 | Automating processors from patterns | [L1 Processor Assembler](processor_assembler.md) - processors before you have an inscriber |
 | Which matrix stores what | [Supported storage matrices](matrix_types.md) |
 | Parking a block of charge in the grid | [Energized Energy Cells](energized_energy_cells.md) |
-| An interface that powers the grid | [L1 Powered ME Interface](powered_interface.md) and [Energized Superconductive Interface](superconductive_interface.md) |
+| An interface that powers the grid | [L1 Interfaces](interfaces.md) - powered and superconductive, on one page |
 | More crafting throughput | [L1 Computation System](computation_system.md) and [L1 Crafting System](crafting_system.md) |
 
-Both interfaces generate power passively, but AE2 keeps only the highest-output generator per grid - see the [L1 Powered ME Interface](powered_interface.md).
+Both interfaces generate power passively, but AE2 keeps only the highest-output generator per grid - see the [L1 Interfaces](interfaces.md) page.
 
 The combined three-in-one machine is still in early development and is not covered here.
