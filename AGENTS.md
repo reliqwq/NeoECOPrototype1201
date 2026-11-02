@@ -59,16 +59,57 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 原因在 Forge 1.20.1 会先问上一格"这面能不能被裁掉"再选光照，而 eco 的成型外壳在 `INVISIBLE` 时答"能"，
 于是那几格回退到邻居的 0 光、**机器顶面整片黑**。从 1.21.1 直接覆盖回来就会把黑顶带回来。
 
+**发光面在这条线上有一个必须显式写的标记，eco 20.5.3 自己 830/830 条全写、0 条例外**：元素级 `"shade": false`。
+它不是装饰——带 shade 的面要再乘一次朝向系数（侧面 0.6、底面 0.5），`forge_data` 把 `block_light/sky_light`
+给满也照不回去，所以缺这一个键的"发光"面在 eco 家里就比邻居暗，读起来像"换了张贴图"
+（2026-11-02 他就是这么看出来的："闪存晶阵在高等级主机上有别的贴图"）。本仓 205 条发光面里 14 条缺，
+全在四只主控成型底板（`computation_cooling_controller/controller_formed_base{,_mirrored}.json` 各 6 颗元素、
+`computation_controller/` 两只各 1 颗），2026-11-02 补齐 ⇒ 现量 **205/205 的元素都带 `"shade": false`**。
+
+**`ambient_occlusion` 是另一回事，还没拍。** eco 20.5.3 也在 830/830 条发光面写 `false`，但它自己没有任何模型
+写顶层 `ambientocclusion`，而顶层默认是 true ⇒ 在这条线上"不写"与"写 true"是同一件事。eco 21.2.13 反过来
+818/854 条不写，我们 1.21.1 那份也是 324 条全不写。所以本仓现在的读数 `false 20 / true 114 / 不写 71`
+（20 = 搬来的那对发光线缆 18 + 闪存晶阵两只面 2）**跟 1.21.1 同源、不跟 eco 20.5.3 同源**，要不要整仓压到
+false 是他的拍；守卫把这条**印成读数**、不判红。
+
+**批量改 JSON 不许走 `json.dumps` 回合。** 试过：199 个标记改动被 17041 行新增埋掉（每个文件的数组都被重排），
+而且第一版行扫描写坏了 190 份模型（只留下元素行，`git checkout --` 整目录回滚）。现在的做法是**只动文本行**，
+并且自检三件事：行数只能按插入数增长、原有每一行必须还在结果里、写完后仍能 parse。
+
+**计算主机那对线缆（`ComputationCableModels`）在这条线上换了拆法。** 1.21.1 用 eco 的**双参**查表
+`getCableConnectedModel(IECOTier, Block)` 把"发光的 `_normal` 那对"注册到 eco 自己的 `COMPUTATION_DRIVE` 上，
+我们自己的帧走**单参**查表拿朴素那对。20.5.3 只有单参版本，表里按档位一键，所以宿主分不出来——原来据此判定
+"发光那对在这条线上无法落地"并留了 0 处引用。**那个判定错了，漏了一层**：我们自己的驱动器有我们自己的渲染器
+（`SimplifyComputationDriveRenderer`，按 BE 类型注册，精确键优先），eco 的表**只有 eco 的渲染器会读**，
+而 eco 的渲染器只画 eco 的驱动器。于是 `cable_l1r`/`cable_l1r_dis`（8 元素 14 发光面 / 3 元素 4 发光面）+ 两张
+`*_normal` 贴图搬过来，注册进 eco 的表，我们自己的渲染器改成直接引用 `LOWER_*`——同一份可见结果，无 mixin。
+细胞本体仍然**按物品**查（eco 两代都是这张表），所以 CE1/CE1R 在谁家里都是我们那两张 `computation_cell/*`；
+我们 `cell_north_a.png` 相对 eco 原件只有 20/256 像素不同（把 LED 换成我们家族的绿），eco 自己 a/b/c 三张同样
+只差这 20 个像素（蓝/橙/紫 = L4/L6/L9）。档位颜色跟**细胞**走、不跟宿主走，这条是 eco 的口径。
+**仍未眼验**：这套改动要重启客户端才看得见（他 13:30 起那一轮在这之前）。
+
 **指南里的 3D 场景（`ae2guide/scenes/*.nbt`）是这条线上自己产的东西。** 做法：世界里用结构方块存 →
 文件落在 `run/saves/<world>/generated/minecraft/structures/<name>.nbt`（gzip NBT）→ 按内容改名拷进
 `ae2guide/scenes/` → 在**两种语言**的页里各写一次
 `<GameScene zoom="4" interactive={true}><ImportStructure src="../scenes/x.nbt"/><IsometricCamera yaw="45" pitch="30"/></GameScene>`。
-守卫现在验四件事：`src` 指的文件在不在、**每个注册 id 被恰好一页声明**（`item_ids` 是 guideme 建"物品 → 页"索引的唯一来源，没页声明的物品在书里点不开；今天一次补进 31 个：所有矩阵细胞、整套存储成员、两只材料、计算收发器与 CE1 阵列）、**两种语言声明的集合相同**、以及**没有哪颗场景不被 import**。画面对不对仍然验不了——**朝向、成型与否、成员放对格，只有客户端翻开那页才看得见**。
-两条读数（现量四颗，逐颗解 NBT）：新存的场景 `DataVersion=3465`（1.20.1 原生），从 1.21.1 抄来的那两颗是 `3955`，
-1.20.1 的 `NbtUtils` 遇到本地方块没有的属性会跳过，所以旧捕获仍能显示、只是拿默认状态；
+守卫现在验五件事：`src` 指的文件在不在、**每个注册 id 被恰好一页声明**（`item_ids` 是 guideme 建"物品 → 页"索引的唯一来源，没页声明的物品在书里点不开；今天一次补进 31 个：所有矩阵细胞、整套存储成员、两只材料、计算收发器与 CE1 阵列）、**两种语言声明的集合相同**、**没有哪颗场景不被 import**、以及**每颗场景的 palette 里每个我们命名空间的方块都真的在这条线上注册**（判据：结构文件是 gzip NBT，方块名只存在于 `palette[]` 里 `Name` 这个 TAG_String 中，其前缀 `\x08\x00\x04Name` + uint16 长度足够定址，不必上完整解析器）。画面对不对仍然验不了——**朝向、成型与否、成员放对格，只有客户端翻开那页才看得见**。
+三条读数（现量四颗，逐颗解 NBT）：新存的场景 `DataVersion=3465`（1.20.1 原生），从 1.21.1 抄来的那两颗是 `3955`；
+1.20.1 的 `NbtUtils` 遇到本地方块没有的属性会跳过，所以**属性面**旧捕获仍能显示、只是拿默认状态。
+**但这句话曾经盖住真正的坑**：那两颗 1.21.1 捕获的 palette 写的是 `neoecoprototype:`（另一条线的命名空间，
+这条线一个都不注册），guideme 把未注册的 id 读成 air ⇒ 合成图 10 个 palette 里 10 个、计算图 9 个里 8 个
+全部变成空气，**整台多方块的壳层被吞掉**（2026-11-02 他就是这么报的："多方块合成与计算的基础被吞了"）。
+当天用 `C:/tmp/scene_namespace.py` 就地把 palette 换成我们的命名空间（逐颗先证明"解析→重序列化"与原文件**逐字节相同**
+才敢写；写完再读一遍同样 round-trip 通过），并给守卫补上第五条。**没验的**：这两颗的摆法仍是 1.21.1 世界里的形状，
+这条线的最小合法摆法若与它不同，图画是对的但摆法不对——要这条线的真相就得在世界里重存一遍（同 `c1_main_best` 的做法）。
+另外 `l1_storage_main.nbt` 的 palette 是干净的，但它体内还留着**改名前**的方块实体数据（`id` 写作 `neoecoprototype1201:drive`
+`energy_cell` `storage_host` `storage_vent` 等，都在 `blocks[].nbt` 的 `ForgeCaps`/`visual` 里，本条线不注册这些裸 id）——
+不影响方块渲染（渲染只看 palette），**但会不会让预览报错误没量**。
 另外结构方块文件里**不要留 `author`/`pos`/`name`/`time`/`metadata`**（现在四颗都干净，顶层只有 DataVersion/size/blocks/palette/entities，每颗 112 格＝整盒捕获），
 那是会把玩家名和坐标打进 jar 的地方。
 
+**L1 样板供应器（11-02 搬来）留下三条可复用的口径。** ① 这代的 `MenuTypeBuilder` 只有 `build(String)`，而它把名字过一遍 `AppEng.makeId` ⇒ 用它就会把菜单 id 写进 `ae2:`；我们照装配室的先例走 Forge 的 `IForgeMenuType.create` + `MenuOpener.addOpener`（`Prototype1201.registerProviderMenu`），id 才留在自己命名空间。② `openMenu` / `returnToMainMenu` 在 20.5.3 世代的 AE2 里是接口 `PatternProviderLogicHost` 的 **default 方法**、参数类型是 `MenuLocator`（1.21 叫 `MenuHostLocator`）⇒ **照抄 1.21 的覆写会静默变成重载**，`@Override` 编得过但界面还是 AE2 自己那个。③ 样式文档只能放在 **`assets/ae2/screens/…`**：`InitScreens.register(type, factory, stylePath)` 的路径是 AE2 的 `StyleManager` 按 ae2 命名空间解析的，而我们要 `includes` 它自己的 `pattern_provider.json`，所以我们的 json 与面板贴图必须写进它的文件夹（1.21.1 同一做法，不是我们的发明）。面板能换行的根据也量了：**AE2 15.4.10 的 `screens/schema.json` 的 grid 枚举里有 `BREAK_AFTER_9COLS`**（它自己的 storage_bus/io_bus/formation_plane/cell_workbench/player_inventory 都在用），`textureHeight` 同样支持；画不开只是 AE2 自己那份供应器样式选了 `HORIZONTAL`（它的逻辑本来就是 `this(node, host, 9)`，一行 9 格刚好 8+9×18=170 ≤ 176）。所以 27 格不是特供，是"自带一份把组换成 BREAK_AFTER_9COLS 的样式"。
+
+**线缆零件那一刀没做，但不是因为注册不了。** 这代没有 `IPartHelper`，附属要建 part 只需把 `appeng.items.parts.PartItem<T>` 注册进自己的 `DeferredRegister<Item>`（`IPartItem.getNetworkId` 就是 `BuiltInRegistries.ITEM.getId`）；**唯一必须补的动作**是在模型冻结前调 `PartModels.registerModels(PartModelsHelper.createModels(我们的Part类))`，否则模型的 `part/…` 路径根本不进 AE2 的附加模型表（`InitAdditionalModels` 会 `freeze()`，之后调用直接抛 `Cannot register models after the pre-initialization phase!`）。
 **重复摆法不进书。** 同一台机器转个朝向、或只差一个可替换成员的第二张图，**写成一句话而不是第二颗场景**
 （2026-11-02 他点名删掉 `l1_compute_interface` 与 `l1_crafting_other_end` 两颗，字节相同的副本在
 `_removed_sources/`，页里各留一句说明）。`l1_compute_energized` 这一格现在装的是世界里存的 `c1_main_best`
@@ -81,6 +122,23 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 现量（`1f96399` 之后）：20 只细胞 / 19 份拆解表 / 14 个节点、65 已注册 id、126 有来源 id、引用全解析。
 **无限混凝土矩阵故意没有拆解表** —— 那是"压缩艺术，不可拆卸"那句文案，不是漏了。
 
+2026-11-02 加了第四类读数 `check_models()`，管模型这一族（它过去完全没有守卫面）：
+①**每个带发光面的元素**必须写 `"shade": false`（§3 那条口径；AO 只**印读数**、不判红，理由见 §3 那一段）；
+②元素不许**混**发光面与不发光面（shade 是元素级的，混了就至少有一面是错的）；
+③`textures`/`parent` 里指我们自己命名空间的 id 必须有对应 png/json；
+④`models/block/computation_cable/` 与 `computation_cell/` 里**文件名 ↔ java 里的 `id("…")` 字面量双向相等**
+——这两族不是被游戏自己发现的资源，是代码点名的图，缺哪一边都是静默。
+现量：205 条发光面全平光、4 颗线缆模型都被 java 点名、纹理与 parent 全解析。
+**控制组建过并逐条红在预期的那句**（每步按原始字节还原、还原后全绿）：摘掉 `cell_l4_formed` 的 shade、
+给 `cable_l1r_dis` 的 `light` 元素抹掉一个面的 `forge_data`（造出混面）、把纹理键指到不存在的 png、
+把 parent 指到不存在的模型、往目录里扔一颗没人点名的 `cable_l1_orphan.json`（红在"没有 java 点名它"）、
+以及把 `cable_l1r.json` 改名（红在"java 点名了但这份不发货"）。
+**验不了的仍然验不了**：这四类都是形状读数，面到底亮不亮只有客户端看得见。
+同一天给 `check_pages()` 补了第五条：**每颗场景 palette 里的方块必须在这条线注册**（§3 那条"壳层被吞"就是它漏的）。
+三条控制组各自红在预期那句、按原始字节还原后全绿：①把 `l1_crafting_min.nbt` 换回 git 里那份 1.21.1 捕获（同时点亮
+"另一条线的命名空间"与"没有我们方块"两句）；②把一颗 palette 名字改一个字母（`..._drive`→`..._xrive`，长度不变才敢直接写
+gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 字节前缀。改动只在解压后的正文里做，重新 gzip(level 9)。
+
 ### 4.1 从 1.21.1 抄过来的 JSON，有四处在这条线上换了形状（全部静默）
 
 | 东西 | 1.21.1 写法 | Forge 1.20.1 现实 | 抄错的后果 |
@@ -88,10 +146,44 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 | 成就的条件 | 顶层 `"neoforge:conditions": [...]` | **只认包装形状** `{"advancements":[{"conditions":[…],"advancement":{…}}]}`（`ConditionalAdvancement.processConditional`） | 顶层键被当未知字段忽略 → 节点**无条件加载**，缺模组时判据点名的物品不存在，树里多一颗永远点不亮的洞，0 条日志抱怨 |
 | 配方的条件 | `"neoforge:conditions"` | 裸键 `"conditions"` + `forge:mod_loaded` | 我们 18 份条件配方本来就是对的；**别把成就那套写法搬过来** |
 | 成就的图标 | `{"id": "ns:item"}` | `{"item": "ns:item"}` | 守卫已拦（`display.icon still uses 1.21's 'id'`） |
+| 配方的原料/产物 id | 一样 | **必须带命名空间** | 少写 `neoecoprototype1201:` 的那一格被读成 `minecraft:simplify_storage_controller` ⇒ `ShapedRecipe.itemFromJson` 抛 `Unknown item`，**整条配方被丢弃**，日志里只有一行 `Parsing error loading recipe …`（现量：玩偶那只就这么丢的，其余 4 条没事） |
 | 模型的面级光照 | `"neoforge_data"` | `"forge_data"` | 发光层不再是全亮烘焙光 → 整张面板像被乘 0.05（见 §3 那条例外） |
 
 守卫 `check_node` 现在两件事都做：认包装形状并递归查内层、见到 `neoforge:` 前缀键直接红。
 **控制组建过**（临时塞一颗带 `neoforge:conditions` 的假节点 → 红的正是那句，摘掉后 14 颗全绿）。
+
+2026-11-02 又补了一条 `check_data_ids()`：它走 `data/` 全部 JSON，凡是 `item` / `tag` / `name` / `id` / `items`
+这几个键上的字符串**没有冒号**就判红。表里那一行**不是一条两代差异**（1.21.1 也要求带命名空间），它进表是因为
+旧规则的口径漏：`member_ids()` 只挑"看起来已经是我们命名空间"的串，所以**漏命名空间的那一份恰好不在它的视野里**
+——守卫当时报"all references resolve"，是服务端那行 `Parsing error` 把它揭出来的。**分母印在读数里**
+（现量：427 条 id 被扫、0 条缺命名空间），因为"0 问题"和"扫到 0 条"是同一个数字；控制组是把 reliqwq 配方里
+三格原料的命名空间抹掉一格 ⇒ 正好红 1 条、点名的就是那份文件，按原始字节还原后全绿。
+
+机魂那次（2026-11-02 晚）再加一条 `check_blockstates()`：它走 `assets/<ns>/blockstates/`，①**每一条指向我们自己命名空间的 model 都必须有对应 json**（现量：916 行里 69 条这种），②并且**合成主机的每一"形状"必须交齐四行外观**（无脸 + mind_tier 0/1/2）。这条规则存在是因为 68 行的 multipart 里少一行完全不打日志——有脸的主机只会继续画那张没脸的面板，玩家报的是"表情没换"，不是"资源缺失"。现量读数：formed 的 16 个形状 × 48 行脸。**控制组两条各自红在预期那句**：删掉一行 `mind_tier=2` ⇒ 红的正是 `('north','false','false') shape offers ['0','1','absent']`；把一张脸指到不存在的 `controller_l1_formed_face_7` ⇒ 红的正是"ships no such model"；按原始字节还原后 916/69 与 16×48 复现。
+
+### 4.2 Java 侧的形状差（玩偶与机魂那两次搬运，逐条 javap `forge-1.20.1-47.4.20_mapped_official_1.20.1.jar` 与两颗上游 jar）
+
+这些不是"写法偏好"，是编不过 / 编得过但静默不对的分界：
+
+| 1.21.1 那条线上 | 这条线的现实 | 踩错的后果 |
+|---|---|---|
+| `implements Equipable` + 无参 `getEquipmentSlot()` | **一模一样**（`ArmorItem` 也是 implements 它） | 不用改 |
+| `Holder<MobEffect>`、`getEffect(Holder)` | `MobEffect` 裸类型（`MobEffects.NIGHT_VISION` 就是 `MobEffect`） | 编不过 |
+| `getDefaultAttributeModifiers(ItemStack)` 返 `ItemAttributeModifiers`；`EquipmentSlotGroup.HEAD` | 两个类都不存在。装备扫描走的是 `ItemStack#getAttributeModifiers(EquipmentSlot)`，它的**末条 invoke 是 `Item#getAttributeModifiers(EquipmentSlot, ItemStack)`**（Forge 加的口子）⇒ 覆写这一条 | 覆写错的那条 = 护甲值永远不生效，客户端看不出来 |
+| `AttributeModifier.Operation.ADD_VALUE` | 这条线叫 **`ADDITION`**（`ADD_VALUE` 是 1.20.5 起的改名） | 编不过 |
+| `DataComponents.ITEM_NAME` 上色 | 覆写 `Item#getName(ItemStack)`；**不是** anvil 改名，所以不斜体、不算重命名 | 用 CUSTOM_NAME 那条等价物会让 tooltip 斜体并且算改名 |
+| `DataComponents.ENCHANTMENT_GLINT_OVERRIDE` | 覆写 `Item#isFoil(ItemStack)`（现量：`ItemStack#hasFoil()` 就是 `getItem().isFoil(stack)`） | 光泽丢了 |
+| `PlayerTickEvent.Post` + `getEntity()` | `TickEvent.PlayerTickEvent` + `phase == TickEvent.Phase.END` + public 字段 `player` | 编不过 |
+| `Capabilities.EnergyStorage.ITEM.getCapability(stack, null)` | `stack.getCapability(ForgeCapabilities.ENERGY)`（`ItemStack extends CapabilityProvider`），返回 **LazyOptional** | 判 `!= null` 会恒真（空的是 empty()，不是 null） |
+| `net.neoforged…client.model.data.ModelData` | `net.minecraftforge.client.model.data.ModelData`，**`EMPTY` 在**，七参 `renderSingleBlock(BlockState, PoseStack, MultiBufferSource, int, int, ModelData, RenderType)` **逐字存在** | 只换 import 那一行 |
+| `protected getRenderShape` / `rotate` / `mirror` | 这条线上三个都是 **public**，子类保留 `protected` 就是收窄 ⇒ 编不过（`createBlockStateDefinition` 仍是 protected，别一起摘） | 编不过 |
+| 数值从 `ModConfigSpec` 现读 | **这条线 0 处配置系统**（全树 `ForgeConfigSpec` / `ModConfig` 命中 0）⇒ 玩偶充电速率落成了常量 100 AE/t，与 1.21.1 那份配置的默认值同数 | 想"照抄配置"就得先给这条线起一整套；已判定不值 |
+| `PartModels.registerModels(...)` 放在客户端设置的 enqueueWork 里 | **那是竞态**：AE2 的表在 `InitAdditionalModels.init(ModelEvent$RegisterAdditional)` 与 `CableBusModel.resolveDependencies` 两处冻结，谁先到都算。2026-11-02 加完 Jade 插件之后同一行就晚了一步 ⇒ `IllegalStateException: Cannot register models after the pre-initialization phase!` 直接从 `DeferredWorkQueue` 里把启动打断 | **只在模组构造子里注册**（构造期没人能烘焙模型），并按 `FMLEnvironment.dist == Dist.CLIENT` 分支；1.21.1 那条线上是同一课（`NeoECOPrototypeClient#registerPartModels` 的注释记的是玩家报的启动崩溃） |
+| Jade：注册 provider 不需要 lang 键 | 11.13.2 在 provider 注册时 **断言 `config.jade.plugin_<modid>.<uid path>` 存在**，且这条只在物理客户端走 | 缺键 = `AssertionError: Missing config translation: …`，崩在加载界面。已补两份 lang（现 **123 键**），守卫 `check_jade_keys()` 从 `integration/jade` 里读 uid 再查两份文件；控制组抹掉 en 那条 ⇒ 红的正是那句 |
+| `BlockEntity#saveAdditional(CompoundTag)`（1.20.1 原版是 protected） | AE2 15.4.10 把它声明成 **public**（`javap appeng.blockentity.AEBaseBlockEntity`） | 子类写 protected 直接编不过：`正在尝试分配更低的访问权限; 以前为public` |
+| 额外字段落盘走 `loadTag(tag, registries)` | 这条线是**单参** `loadTag(CompoundTag)`（`AEBaseBlockEntity#load` 依旧 final，路由点没变，变的是签名带不带 `HolderLookup.Provider`） | 编不过 |
+| `getAdvancements().get(rl)` 返 `Optional<AdvancementHolder>`，`award(Holder, criterion)` | `ServerAdvancementManager#getAdvancement(rl)` 直接返 **可空的 `Advancement`**，`PlayerAdvancements#award(Advancement, String)` | 编不过；**别把 null 判断写成 orElseThrow**，那是这条路径唯一会说话的地方 |
+| Jade：`@WailaPlugin`（1.21 无参） | `WailaPlugin.value()` 是**必填的 modid**（11.13.2），插件由 Jade 自己扫描 `Class.forName` 装载 | 少传 modid ⇒ 编不过；更关键的是**发现失败没有别的读数**，所以 `register()` 里打了一行 `neoeco1201-jade` 日志：玩家报"提示里没有机魂"时，那行能分开"Jade 没扫到我们"和"扫到了但内容不对" |
 
 **同一个方向的另一个坑：文本抄过来了，这条线上没有读者。** `ECOCellType.desc()` 在 20.5.3 全 jar 1847 个类里
 只有一个读者 —— `HostText.storageTypeAccentColor`，而且只取 `desc().getStyle().getColor()`；
