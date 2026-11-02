@@ -53,7 +53,7 @@ repositories {
         url = 'https://cdn.modrinth.com/data'
         patternLayout { artifact '[organisation]/versions/[revision]/[module].[ext]' }
         metadataSources { artifact() }
-        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw' }
+        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g' }
     }
 }
 
@@ -130,6 +130,24 @@ dependencies {
     // arbitrary file of that name. This is the CDN path data/UhW5uCKw/versions/eoUaDkZf, sha1
     // c7534db3248adfcf39a6158b423dfc9bfc99a378 - the same 60 550 B jar the shelf copy under 参考模组/ is.
     runtimeOnly fg.deobf("UhW5uCKw:Glodium-1.20-1.5-forge:eoUaDkZf")
+
+    // MEGA Cells is the backend the 小宗 (small-bulk) family rides on the 1.21.1 line, and this is that
+    // mod's 1.20.1 build: data/jjuIRIVr/versions/SH2D1n3s/megacells-forge-2.4.6-1.20.1.jar, 387 196 B,
+    // sha1 ed6fd5eb0c782529be03f199d66d9a7c9eb2a518 - read back off the download and equal to what
+    // Modrinth reports. Its own mods.toml requires ae2 [15.1.0,16) (we are on 15.4.10), cloth_config *
+    // and minecraft [1.20.1], so Cloth Config is declared next to it or the dev client stops at a
+    // missing-dependency screen instead of reaching the game.
+    // runtimeOnly only, deliberately: nothing on this line compiles against MEGA Cells. The cells read
+    // their eco cell types by id (eco 20.5.3 registers mega_item / mega_fluid / mega_chemical from its
+    // integration/megacells package - 42 classes there name the mod, and its optional dependency on
+    // megacells is versionRange "*"), and the recipes name MEGA's items as strings, so the jar is on the
+    // classpath only so the dev world and the dependency screen see it. Should a later step need a MEGA
+    // symbol at compile time, that is when compileOnly gets added - and when AGENTS §2 has to be re-read,
+    // because a must-resolve reference to an optional mod crashes the boot on packs without it.
+    runtimeOnly fg.deobf("jjuIRIVr:megacells-forge-2.4.6-1.20.1:SH2D1n3s")
+    // Cloth Config, same file-pinned route: data/9s6osm5g/versions/t8TXrZvZ/cloth-config-11.1.136-forge.jar,
+    // 1 181 413 B. MEGA Cells' mandatory dependency, dev-only like everything above.
+    runtimeOnly fg.deobf("9s6osm5g:cloth-config-11.1.136-forge:t8TXrZvZ")
 
     // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
     // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's
