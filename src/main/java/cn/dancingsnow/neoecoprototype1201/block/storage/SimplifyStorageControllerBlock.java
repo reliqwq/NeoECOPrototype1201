@@ -4,11 +4,10 @@ import cn.dancingsnow.neoecoae.api.IHostPanelTextureProvider;
 import cn.dancingsnow.neoecoae.blocks.storage.ECOStorageSystemBlock;
 import cn.dancingsnow.neoecoae.blocks.entity.storage.ECOStorageSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.block.MachineDiagnostics;
 import cn.dancingsnow.neoecoprototype1201.multiblock.calculator.SimplifyStorageClusterCalculator;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -62,9 +61,11 @@ public class SimplifyStorageControllerBlock extends ECOStorageSystemBlock implem
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
-        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+        if (!level.isClientSide && player.isShiftKeyDown() && MachineDiagnostics.askedByBuilder(player)
+                && level instanceof ServerLevel serverLevel
                 && serverLevel.getBlockEntity(pos) instanceof ECOStorageSystemBlockEntity host) {
-            diagnoseSafely(serverLevel, pos, player, host);
+            diagnoseSafely(serverLevel, pos, host);
+            MachineDiagnostics.tellWhereTheReadingWent(player, state);
             return InteractionResult.CONSUME;
         }
         return super.use(state, level, pos, player, hand, hit);
@@ -75,21 +76,21 @@ public class SimplifyStorageControllerBlock extends ECOStorageSystemBlock implem
      * null, and a diagnostic that throws costs both the reading and the interaction. A failure now prints a
      * warning naming the position instead of a packet-handler stack.
      */
-    private static void diagnoseSafely(ServerLevel level, BlockPos pos, Player player,
+    private static void diagnoseSafely(ServerLevel level, BlockPos pos,
                                        ECOStorageSystemBlockEntity host) {
         try {
-            diagnose(level, pos, player, host);
+            diagnose(level, pos, host);
         } catch (RuntimeException e) {
             LOGGER.warn("L1 storage diagnose at {} failed", pos, e);
         }
     }
 
     /**
-     * Sneak + right-click prints why the machine is not formed. eco's own click path only ever opens the
-     * panel, and {@code SimplifyStorageClusterCalculator.diagnose} had no caller at all, so a shell that
-     * refused to form gave nothing to read.
+     * Sneak + right-click reads why the machine is not formed, and what the cluster really collected.
+     * eco's own click path only ever opens the panel, and {@code SimplifyStorageClusterCalculator.diagnose}
+     * had no caller at all, so a shell that refused to form gave nothing to read.
      */
-    private static void diagnose(ServerLevel level, BlockPos pos, Player player,
+    private static void diagnose(ServerLevel level, BlockPos pos,
                                  ECOStorageSystemBlockEntity host) {
         List<String> issues = SimplifyStorageClusterCalculator.diagnose(level, host);
         // The geometry half was already readable; this is the half that answers 'it formed but
@@ -142,17 +143,6 @@ public class SimplifyStorageControllerBlock extends ECOStorageSystemBlock implem
                 + " faults={} diagnostic={}",
                 pos, host.isFormed(), issues, cluster, drives.size(), cells,
                 host.storageFailures(), host.storageDiagnosticText());
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(Component.literal("L1 存储矩阵诊断 formed=" + host.isFormed()
-                    + " 问题数=" + issues.size() + " 驱动器=" + drives.size()
-                    + " 故障=" + host.storageFailures().size()), false);
-            for (String issue : issues) {
-                serverPlayer.displayClientMessage(Component.literal("  - " + issue), false);
-            }
-            serverPlayer.displayClientMessage(Component.literal("  驱动与细胞:" + cells), false);
-            host.storageFailures().forEach(fault -> serverPlayer.displayClientMessage(
-                    Component.literal("  故障 " + fault), false));
-        }
     }
 
     @Override

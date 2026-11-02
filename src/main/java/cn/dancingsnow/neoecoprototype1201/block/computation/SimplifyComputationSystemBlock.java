@@ -6,12 +6,11 @@ import cn.dancingsnow.neoecoae.blocks.NEBlock;
 import cn.dancingsnow.neoecoae.blocks.computation.ECOComputationSystem;
 import cn.dancingsnow.neoecoae.blocks.entity.computation.ECOComputationSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.block.MachineDiagnostics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -129,9 +128,11 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
-        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+        if (!level.isClientSide && player.isShiftKeyDown() && MachineDiagnostics.askedByBuilder(player)
+                && level instanceof ServerLevel serverLevel
                 && serverLevel.getBlockEntity(pos) instanceof ECOComputationSystemBlockEntity host) {
-            diagnoseSafely(pos, player, host);
+            diagnoseSafely(pos, host);
+            MachineDiagnostics.tellWhereTheReadingWent(player, state);
             return InteractionResult.CONSUME;
         }
         return super.use(state, level, pos, player, hand, hit);
@@ -143,9 +144,9 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
      * times in one dev session and the reading below it never printed once - so the whole read is wrapped,
      * and a failure now costs a warning naming the position instead of a packet-handler stack.
      */
-    private static void diagnoseSafely(BlockPos pos, Player player, ECOComputationSystemBlockEntity host) {
+    private static void diagnoseSafely(BlockPos pos, ECOComputationSystemBlockEntity host) {
         try {
-            diagnose(pos, player, host);
+            diagnose(pos, host);
         } catch (RuntimeException e) {
             LOGGER.warn("L1 computation diagnose at {} failed", pos, e);
         }
@@ -159,7 +160,7 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
      * {@code NEComputationCluster.getTotalStorage()} sums {@code getCPUTotalBytes()} over the cell stack
      * of every drive in both rows, so this prints each drive's stack and each CPU's own three answers.
      */
-    private static void diagnose(BlockPos pos, Player player, ECOComputationSystemBlockEntity host) {
+    private static void diagnose(BlockPos pos, ECOComputationSystemBlockEntity host) {
         var cluster = host.getCluster();
         var sb = new StringBuilder();
         var drives = new StringBuilder();
@@ -207,13 +208,6 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
         }
         LOGGER.info("L1 computation diagnose at {} formed={} tier={} cluster={} drives={}{}",
                 pos, host.isFormed(), host.getTier(), cluster, drives, sb);
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.displayClientMessage(Component.literal("L1 计算矩阵诊断 formed=" + host.isFormed()
-                    + (cluster == null ? " 无集群" : " 合成存储=" + cluster.getTotalStorage()
-                    + " 可用=" + cluster.getAvailableStorage() + " CPU数=" + cluster.getActiveCPUs().size())), false);
-            serverPlayer.displayClientMessage(Component.literal("  驱动与闪存:" + drives), false);
-            serverPlayer.displayClientMessage(Component.literal("  集群:" + sb), false);
-        }
     }
 
     /**

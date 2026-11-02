@@ -3,6 +3,7 @@
   "machine_mood.neoecoprototype1201.slacking": "摸鱼",
   "machine_mood.neoecoprototype1201.happy": "开心",
   "jade.neoecoprototype1201.machine_mind": "机魂：%1$s · 空闲消耗：%2$s AE/t",
+  "diagnose.neoecoprototype1201.log_written": "%s 的读数已写入服务端日志（latest.log）",
   "block.neoecoprototype1201.energized_computation_core": "盈能强化计算机核心",
   "block.neoecoprototype1201.energized_computation_threading_core": "盈能强化线程核心",
   "block.neoecoprototype1201.simplify_computation_casing": "ECO - C1 计算子结构外壳",

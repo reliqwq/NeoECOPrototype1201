@@ -3,6 +3,7 @@
   "machine_mood.neoecoprototype1201.slacking": "slacking",
   "machine_mood.neoecoprototype1201.happy": "happy",
   "jade.neoecoprototype1201.machine_mind": "Mind: %1$s · idle draw: %2$s AE/t",
+  "diagnose.neoecoprototype1201.log_written": "Read of %s written to the server log (latest.log)",
   "block.neoecoprototype1201.energized_computation_core": "Energized Reinforced Computation Core",
   "block.neoecoprototype1201.energized_computation_threading_core": "Energized Reinforced Threading Core",
   "block.neoecoprototype1201.simplify_computation_casing": "ECO - C1 Computation Substructure Casing",

@@ -7,11 +7,10 @@ import cn.dancingsnow.neoecoae.api.PatternStorageHost;
 import cn.dancingsnow.neoecoae.blocks.crafting.ECOCraftingSystem;
 import cn.dancingsnow.neoecoae.blocks.entity.crafting.ECOCraftingSystemBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.block.MachineDiagnostics;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -116,7 +115,8 @@ public class SimplifyCraftingSystemBlock extends ECOCraftingSystem implements IH
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
-        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+        if (!level.isClientSide && player.isShiftKeyDown() && MachineDiagnostics.askedByBuilder(player)
+                && level instanceof ServerLevel serverLevel
                 && serverLevel.getBlockEntity(pos) instanceof ECOCraftingSystemBlockEntity host) {
             // Same rule as the other two diagnostics: the read walks upstream objects, and a throw here
             // would cost both the reading and the interaction. A failure prints a warning naming the block.
@@ -128,9 +128,7 @@ public class SimplifyCraftingSystemBlock extends ECOCraftingSystem implements IH
                 report = "diagnostic failed: " + e;
             }
             LOGGER.info("L1 pattern index diagnose at {} {}", pos, report);
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(Component.literal("L1 样板索引诊断 " + report), false);
-            }
+            MachineDiagnostics.tellWhereTheReadingWent(player, state);
             return InteractionResult.CONSUME;
         }
         return super.use(state, level, pos, player, hand, hit);
