@@ -230,16 +230,28 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
   （现量：产物 89 个 class 里 **333 处 SRG 形式**，我们那颗 mixin 只碰 AE2 成员且 `remap=false`，
   所以 jar 里**没有 refmap 也不影响它** —— 但以后谁加一条碰 MC 成员的 mixin，就没有 refmap 承载它，
   mixin AP 在这条线上没接）。
-- **手装 Forge 实例这条冒烟路在这台机器上不通，别再走第二遍（2026-11-02）。** installer 的 server 装能装成
-  （卡住的四个件从本机 Gradle 缓存 / Maven Central 补，sha1 与 installer 期望值逐字符相同），
-  但**拼出来的 server 死在 AE2 自己的 mixin 上**：`ae2.mixins.json:spatial.MinecraftServerMixin` →
-  `@Shadow field levels was not located … Using refmap ae2.mixins.refmap`；**把我们整颗 jar 移出 `mods/`
-  崩溃一模一样** ⇒ 这是拼装环境不代表真实发布环境，它在我们的代码之前就炸，继续分辨只会得到"我的拼装坏了"
-  而不是"模组坏了"的读数。`--installClient` 两次都在 socket 上卡死（7 分钟 0 输出；forge/creeperhost
-  实测 7 KB/s 且反复 Read timed out）。**正确做法：拿一个真启动器里的 Forge 1.20.1 实例**（真素材、真名通道）
-  丢五颗 jar 跑：我们的 `build/libs/*.jar` + AE2 15.4.10 + eco 20.5.3 + GuideME 20.1.14 + LDLib（eco 强制），
-  判据三条 = 进得了主菜单、那颗 mixin 打"8192 可用"而不是 ClassCastException、注册与配方无异常。
-  这次拼装已经验到并且算数的部分：FML 在**生产启动器**下读我们的 `mods.toml` 并按
+- **手装的 server 实例是通的。上一轮死在拼装里不是拼装法错了，是拿错了 AE2 的件（2026-11-02 夜追出来）。**
+  当时崩在 `ae2.mixins.json:spatial.MinecraftServerMixin` → `@Shadow field levels was not located …
+  Using refmap ae2.mixins.refmap`，把我们整颗 jar 移出 `mods/` 崩得一模一样，于是就判成"拼装环境不代表真实
+  环境"停手了。真相是命名通道：maven 的 `appeng:appliedenergistics2-forge:15.4.10`（8 417 759 B，
+  md5 `f73a2cc3a1f5`）是**官方名通道的 dev 件**——同一把尺扫 160 颗类得 **0 条 `f_/m_` 对 648 条 Mojmap 成员**；
+  而 installer 装出来的 `server-1.20.1-20230612.114412-srg.jar` 里 `MinecraftServer` 的成员是
+  `f_129762_ / m_129783_`（SRG 通道）⇒ AE2 按 `levels` 找的那个字段在这份运行时根本不存在，谁的 mixin 都注不进去。
+  AE2 的 GitHub release（tag `forge/v15.4.10`，同名文件 8 495 956 B，md5 `69e47ebd8018`）才是生产件：190 SRG 对 15 Mojmap。
+  **所以：往生产实例里放件之前，先按这条尺量一遍通道，别按文件名猜。**
+- 换上生产 AE2 之后 `F:/1201prod` 起来了：`DedicatedServer: Done (12.723s)`，我们四行 INFO 全在（代表物品、
+  管道能力表已绑、两颗菜单登记、**`L1 interface accessor is mixed into appeng.helpers.InterfaceLogic`**
+  ——最后这条就是 `build.gradle` 讲的"dev 加载类、发布 jar 才走 manifest `MixinConfigs`"那个通道，第一次在
+  生产加载器下落到），0 条 `Parsing error loading recipe`，唯一 ERROR 是首启没有 `server.properties`（随即自建）。
+  同批五颗件的通道核对：AE2 release=SRG、GuideME 20.1.14=SRG(53/4)、LDLib=SRG(512/18)、eco 20.5.3=SRG(1333/5)、
+  **我们的 1.0.0=SRG(263/18)** ⇒ `reobfJar` 这条通道没问题，发布包与上游同一命名道。
+- 一个新读数的坑：server 侧 `RecipeManager: Loaded 17 recipes`（dev 客户端三次都是 43）。**这两个数都不是我们的
+  配方数**，旁边那行 `Loaded 1808 advancements` 说明 reload 是全量跑完的，所以 17 是这条日志自己的口径，未查清；
+  判据照旧 = `Parsing error loading recipe` 0 条 + 客户端里逐条点开看。
+- 复用件：`F:/1201prod`（installer 装好的 `libraries/` + `win_args.txt` + `run.bat`，`eula.txt` 已 true）留着，
+  起法 = `cd F:/1201prod && F:/jdk17/bin/java @user_jvm_args.txt @libraries/net/minecraftforge/forge/1.20.1-47.4.20/win_args.txt nogui`。
+  `--installClient` 仍然别碰：客户端要微软登录，脚本起不来，跟速度无关。
+- 这条拼装已经验到并且算数的另一部分：FML 在生产启动器下读我们的 `mods.toml` 并按
   `ae2 [15.4.10,)` / `neoecoae [20.5.3,)` 拒启动（缺依赖屏原文如此）。
   素材仓库顺带记一笔：`F:/gradle-cache/caches/forge_gradle/assets` 620 MB 里 520 MB 是 `.ogg`、
   贴图只占 11.3 MB，dev 与 prod 共用一份，所以 prod 客户端不需要重新下几百 MB。
@@ -294,9 +306,10 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
   **那颗 jar 自己的 `mods.toml` 读出来的**，不是抄 1.21 的表；LDLib **v1**（这条线）自报 `GPL-3.0 license`，
   和 1.21 那条线的 LDLib**2** 不是一个东西。美术侧：这条线的 **213 张 PNG 全部与 1.21.1 同路径文件逐字节相同**
   （md5 全量对过），所以美术出处记录在那边，这里不改写。
-- **本条线仍然没有 tag、没有 CHANGELOG、没有发版流程**。第一次发布前要先定四件事：
-  ① 号段（建议从 `0.2.0` / `0.1.0-preview1` 起，**别用 1.0.0** —— 缺一键建造 / 主机动作层 / 大宗标记 /
-  快速路径，还带"接口面闪烁"那条未结缺陷）；② 渠道（私有 GitHub Release 还是 Modrinth/Curse，
-  以及命名要一直带 `(1.20.1)`）；③ 先做一次**生产实例冒烟**（上一条）；④ CHANGELOG 与 release 正文
-  用哪套写法（1.21.1 的 §16 那套形状可以直接沿用：重点 / 升级前必读 / 新增·变更·修复·移除 / 依赖）。
-  **别在没定之前先中门。**
+- **发版四件事里三件已经拍了（2026-11-02 夜）。**
+  ① 号段 = **1.0.0**。这里原来写的是"别用 1.0.0，因为缺一键建造 / 主机动作层 / 大宗标记 / 快速路径，还带着
+  接口面闪烁那条未结缺陷"——**这条被否了**，理由记下来：这条线是独立的一条移植线，第一版就给 1.0.0 更好认，
+  缺的那些在 CHANGELOG 的"升级前必读"里逐条写明，不用号段去暗示。③ 生产实例冒烟**已做**（21:31，
+  `F:/1201prod`，`Done (12.723s)` + mixin 在生产通道落到），④ CHANGELOG 已按 1.21.1 §16 那套形状写了第一版。
+  **还没定的只有一条**：② 渠道——GitHub Release 已经算定（仓 PUBLIC），Modrinth/Curse 上不上没拍；
+  以及 §17 那条"接口每个面闪烁"仍未结，CHANGELOG 里没有为它写任何话。
