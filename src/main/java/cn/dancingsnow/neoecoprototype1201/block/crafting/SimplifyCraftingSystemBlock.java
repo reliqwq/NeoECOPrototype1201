@@ -99,7 +99,15 @@ public class SimplifyCraftingSystemBlock extends ECOCraftingSystem implements IH
                                  InteractionHand hand, BlockHitResult hit) {
         if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
                 && serverLevel.getBlockEntity(pos) instanceof ECOCraftingSystemBlockEntity host) {
-            var report = describeIndex(host);
+            // Same rule as the other two diagnostics: the read walks upstream objects, and a throw here
+            // would cost both the reading and the interaction. A failure prints a warning naming the block.
+            String report;
+            try {
+                report = describeIndex(host);
+            } catch (RuntimeException e) {
+                LOGGER.warn("L1 pattern index diagnose at {} failed", pos, e);
+                report = "diagnostic failed: " + e;
+            }
             LOGGER.info("L1 pattern index diagnose at {} {}", pos, report);
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(Component.literal("L1 样板索引诊断 " + report), false);

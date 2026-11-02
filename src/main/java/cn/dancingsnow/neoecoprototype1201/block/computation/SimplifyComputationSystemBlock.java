@@ -126,6 +126,31 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
         return state.hasProperty(bit) && state.getValue(bit) ? state.setValue(bit, false) : state;
     }
 
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
+                && serverLevel.getBlockEntity(pos) instanceof ECOComputationSystemBlockEntity host) {
+            diagnoseSafely(pos, player, host);
+            return InteractionResult.CONSUME;
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+
+    /**
+     * The diagnostic must never be the thing that fails the interaction. Both crashes this file has already
+     * caused were reads of upstream objects that answer null - {@code ICraftingCPU.getName()} threw twelve
+     * times in one dev session and the reading below it never printed once - so the whole read is wrapped,
+     * and a failure now costs a warning naming the position instead of a packet-handler stack.
+     */
+    private static void diagnoseSafely(BlockPos pos, Player player, ECOComputationSystemBlockEntity host) {
+        try {
+            diagnose(pos, player, host);
+        } catch (RuntimeException e) {
+            LOGGER.warn("L1 computation diagnose at {} failed", pos, e);
+        }
+    }
+
     /**
      * Sneak + right-click prints what the crafting-submission filters read. AE2's
      * {@code CraftingCpuLogic} rejects a CPU in three steps - busy, then {@code isActive()}, then
@@ -134,68 +159,71 @@ public class SimplifyComputationSystemBlock extends ECOComputationSystem
      * {@code NEComputationCluster.getTotalStorage()} sums {@code getCPUTotalBytes()} over the cell stack
      * of every drive in both rows, so this prints each drive's stack and each CPU's own three answers.
      */
-    @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
-                                 InteractionHand hand, BlockHitResult hit) {
-        if (!level.isClientSide && player.isShiftKeyDown() && level instanceof ServerLevel serverLevel
-                && serverLevel.getBlockEntity(pos) instanceof ECOComputationSystemBlockEntity host) {
-            var cluster = host.getCluster();
-            var sb = new StringBuilder();
-            var drives = new StringBuilder();
-            if (cluster != null) {
-                for (var drive : cluster.getUpperDrives()) {
-                    describeDrive(drives, "upper", drive);
-                }
-                for (var drive : cluster.getLowerDrives()) {
-                    describeDrive(drives, "lower", drive);
-                }
-                var cpus = new StringBuilder();
-                for (var cpu : cluster.getActiveCPUs()) {
-                    cpus.append(' ').append(cpu.getName().getString())
-                            .append(" active=").append(cpu.isActive())
+    private static void diagnose(BlockPos pos, Player player, ECOComputationSystemBlockEntity host) {
+        var cluster = host.getCluster();
+        var sb = new StringBuilder();
+        var drives = new StringBuilder();
+        if (cluster != null) {
+            for (var drive : cluster.getUpperDrives()) {
+                describeDrive(drives, "upper", drive);
+            }
+            for (var drive : cluster.getLowerDrives()) {
+                describeDrive(drives, "lower", drive);
+            }
+            var cpus = new StringBuilder();
+            for (var cpu : cluster.getActiveCPUs()) {
+                cpus.append(' ').append(cpuName(cpu))
+                        .append(" active=").append(cpu.isActive())
+                        .append(" busy=").append(cpu.isBusy())
+                        .append(" avail=").append(cpu.getAvailableStorage())
+                        .append(" status=").append(cpu.getJobStatus());
+            }
+            // The list the submit filter actually walks is AE2's grid service, not the cluster's job
+            // map: getActiveCPUs() only holds CPUs that already carry a plan, so an idle machine reads
+            // empty no matter how many threads it has.
+            var gridCpus = new StringBuilder();
+            var grid = host.getMainNode().getGrid();
+            var service = grid == null ? null : grid.getService(ICraftingService.class);
+            if (service != null) {
+                for (var cpu : service.getCpus()) {
+                    gridCpus.append(' ').append(cpuName(cpu))
                             .append(" busy=").append(cpu.isBusy())
                             .append(" avail=").append(cpu.getAvailableStorage())
+                            .append(" co=").append(cpu.getCoProcessors())
                             .append(" status=").append(cpu.getJobStatus());
                 }
-                // The list the submit filter actually walks is AE2's grid service, not the cluster's job
-                // map: getActiveCPUs() only holds CPUs that already carry a plan, so an idle machine reads
-                // empty no matter how many threads it has.
-                var gridCpus = new StringBuilder();
-                var grid = host.getMainNode().getGrid();
-                var service = grid == null ? null : grid.getService(ICraftingService.class);
-                if (service != null) {
-                    for (var cpu : service.getCpus()) {
-                        gridCpus.append(' ').append(cpu.getName().getString())
-                                .append(" busy=").append(cpu.isBusy())
-                                .append(" avail=").append(cpu.getAvailableStorage())
-                                .append(" co=").append(cpu.getCoProcessors())
-                                .append(" status=").append(cpu.getJobStatus());
-                    }
-                    gridCpus.append(" count=").append(service.getCpus().size());
-                } else {
-                    gridCpus.append("no-grid-or-service");
-                }
-                sb.append(" total=").append(cluster.getTotalStorage())
-                        .append(" avail=").append(cluster.getAvailableStorage())
-                        .append(" threads=").append(cluster.getMaxThreads())
-                        .append(" parallel=").append(cluster.getPooledParallelism())
-                        .append(" cpus=").append(cluster.getActiveCPUs().size())
-                        .append(" blockers=").append(cluster.getEndgameBlockers())
-                        .append(" cpuList=").append(cpus)
-                        .append(" gridCpus=").append(gridCpus);
+                gridCpus.append(" count=").append(service.getCpus().size());
+            } else {
+                gridCpus.append("no-grid-or-service");
             }
-            LOGGER.info("L1 computation diagnose at {} formed={} tier={} cluster={} drives={}{}",
-                    pos, host.isFormed(), host.getTier(), cluster, drives, sb);
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(Component.literal("L1 计算矩阵诊断 formed=" + host.isFormed()
-                        + (cluster == null ? " 无集群" : " 合成存储=" + cluster.getTotalStorage()
-                        + " 可用=" + cluster.getAvailableStorage() + " CPU数=" + cluster.getActiveCPUs().size())), false);
-                serverPlayer.displayClientMessage(Component.literal("  驱动与闪存:" + drives), false);
-                serverPlayer.displayClientMessage(Component.literal("  集群:" + sb), false);
-            }
-            return InteractionResult.CONSUME;
+            sb.append(" total=").append(cluster.getTotalStorage())
+                    .append(" avail=").append(cluster.getAvailableStorage())
+                    .append(" threads=").append(cluster.getMaxThreads())
+                    .append(" parallel=").append(cluster.getPooledParallelism())
+                    .append(" cpus=").append(cluster.getActiveCPUs().size())
+                    .append(" blockers=").append(cluster.getEndgameBlockers())
+                    .append(" cpuList=").append(cpus)
+                    .append(" gridCpus=").append(gridCpus);
         }
-        return super.use(state, level, pos, player, hand, hit);
+        LOGGER.info("L1 computation diagnose at {} formed={} tier={} cluster={} drives={}{}",
+                pos, host.isFormed(), host.getTier(), cluster, drives, sb);
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.displayClientMessage(Component.literal("L1 计算矩阵诊断 formed=" + host.isFormed()
+                    + (cluster == null ? " 无集群" : " 合成存储=" + cluster.getTotalStorage()
+                    + " 可用=" + cluster.getAvailableStorage() + " CPU数=" + cluster.getActiveCPUs().size())), false);
+            serverPlayer.displayClientMessage(Component.literal("  驱动与闪存:" + drives), false);
+            serverPlayer.displayClientMessage(Component.literal("  集群:" + sb), false);
+        }
+    }
+
+    /**
+     * A CPU's name read for the diagnostic line. {@code ICraftingCPU.getName()} is not guaranteed: measured
+     * on a live network, a CPU the grid service hands back carried a null name, and {@code getName()
+     * .getString()} threw inside the packet handler, so the sneak + right-click read never printed at all.
+     */
+    private static String cpuName(appeng.api.networking.crafting.ICraftingCPU cpu) {
+        var name = cpu.getName();
+        return name == null ? "<unnamed>" : name.getString();
     }
 
     private static void describeDrive(StringBuilder into, String row,
