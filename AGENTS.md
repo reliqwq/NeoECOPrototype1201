@@ -192,6 +192,23 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 所以那行文字在这条线**任何界面都画不出来**。**结论：键留着**（lang 属于单向文本流，删了就是在不该分叉的文件上分叉），
 但别在文档/指南里声称"面板会显示这一行"，也别为它去做渲染。玩家看得到的名字是物品名。
 
+### 4.3 小宗搬到这条线时换掉的六件事（11-02 夜，每件都有理由，不是随手改）
+
+| 1.21.1 那边 | 这条线 | 为什么 |
+|---|---|---|
+| 元件工作台里 `ae2:storage_cell_upgrade` 做升级，另外退你一颗 1M 元件 | 工作台 shapeless，不退东西 | AE2 15.4.10 **没有这个配方类型**（1455 个类里 `storage_cell_upgrade` / `cell_upgrade` 0 命中）。自己造一个配方类型 + serializer + JEI 槽位是这项目第四次引擎级手写 |
+| 只有流体与化学品基础盘有拆解表 | 物品 + 流体两只有；**两只扩展版故意没有** | 扩展版若能拆回"外壳 + 元件"就等于把扩展卡白送回去。守卫的 `UNDISASSEMBLABLY` 收了这两只并写明理由 |
+| 化学品那一对 + 第三只外壳在这一族里 | **这条线还没有** | 它同时要 `megacells` 与 `appmek` 两道门，而守卫认的是"目录名＝那一个 modid"（`integration_registers()` 取 `integration/<modid>/`）；双门要先给守卫加规则，那一刀单独拍 |
+| 流体外壳配方用 `neoecoae:mega_fluid_cell_housing` 且**没带条件** | 用 `megacells:mega_fluid_cell_housing`，九份配方**全部**带 `forge:mod_loaded` | 前者在 eco 20.5.3 上静态确认不了，后者是 MEGA 自己 lang 里就有的；"没条件"是 1.21.1 的缺陷（缺件时配方引用不存在的物品），不抄 |
+| 盘的面板行靠继承的 `getConfigInventory` + DataComponent 读写 | 覆写 `getConfigInventory` 走 `CellConfig.create(filter, stack, n)` | eco 20.5.3 继承的那版调**两参** `CellConfig.create`，里面 `bipush 63` **硬编码 63 格** —— 3 标记的盘会在元件工作台里拿到 63 个格。三参版给数量，持久化还是 AE2 的，我们不写 tag |
+| 内容交给标准 `ECOStorageCell`（外加一段 long-bulk 迁移） | `createCellInventory` 返回 `ECOBulkStorageCell` | 这族的数字就是 `Long.MAX_VALUE` 字节，eco 的大宗盘是唯一按 `BigInteger` 记账的一支（`getStoredItemCountExact` / `getExactUsedBytes`）。迁移不搬：这条线从没发过带旧 payload 的版本，没有东西要搬 |
+
+**这一族的闸是"注册或不注册"，跟 must-resolve 无关**：`SimplifySmallBulkCellItem` 的父类链到 `Item` 为止（eco 20.5.3 自己的 `ECOMegaItemStorageCellItem` 同形，它也只多覆写一个 `isBlackListed`）。门是为了 `mega_item` / `mega_fluid` 那两行——eco 20.5.3 只在装了 MEGA 时由 `MegaCellsIntegration` 注册它们（dev 日志现量：`Loading integration …megacells.MegaCellsIntegration`）。id 一律写成字面量放在 `integration/megacells/` 里，走 helper 传变量的话守卫认不到它属于哪个可选 mod，配方条件与标签那条"只在装了它时才注册"的规则就会漏判。
+
+**装上游件仍然要先量命名通道**（§5 那条 AE2 的坑在这族上重演了一次）：MEGA Cells 这条线用的是 Modrinth release 的 `megacells-forge-2.4.6-1.20.1.jar`（sha1 回读一致），而不是任何 maven 件。
+
+**它带进来的上游噪声，别判成我们的**：装上 MEGA 之后 dev 日志固定有 1 条 `Couldn't parse element loot_tables:megacells:blocks/mega_emc_interface`、1 条 `Parsing error loading recipe megacells:cells/standard/radioactive_chemical_cell`（`Unknown item mekanismgenerators:reactor_glass`）和 25 条 `Skipping loading recipe megacells:…`——全是 MEGA 在向这包没装的 mana / source / EMC 模组要东西。**所以 §5 那句"0 条 `Parsing error loading recipe`"的口径从今往后按"0 条我们命名空间里的"判。**
+
 ## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
