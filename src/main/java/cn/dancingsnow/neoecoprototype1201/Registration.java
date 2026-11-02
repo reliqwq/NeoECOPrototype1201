@@ -256,6 +256,10 @@ public final class Registration {
                         // Empty unless the appflux branch of the mod constructor filled it.
                         cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration.TAB_ITEMS
                                 .forEach(item -> output.accept(item.get()));
+                        // Same for the megacells branch: the family's four cells, its card and its two
+                        // housings, or nothing at all.
+                        cn.dancingsnow.neoecoprototype1201.integration.megacells.SmallBulkIntegration.TAB_ITEMS
+                                .forEach(item -> output.accept(item.get()));
                         output.accept(PIGMEE_STORAGE_MATRIX_HOUSING.get());
                         output.accept(PIGMEE_STORAGE_CELL.get());
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_MATRIX_HOUSING.get());

@@ -1,0 +1,20 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "megacells"
+    }
+  ],
+  "type": "neoecoae:storage_cell_disassembly",
+  "cell": "neoecoprototype1201:simplify_small_bulk_fluid_storage_cell",
+  "cell_disassembly_items": [
+    {
+      "count": 1,
+      "item": "neoecoprototype1201:simplify_small_bulk_fluid_storage_matrix_housing"
+    },
+    {
+      "count": 1,
+      "item": "megacells:cell_component_1m"
+    }
+  ]
+}

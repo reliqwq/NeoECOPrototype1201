@@ -149,5 +149,15 @@
   "item.neoecoprototype1201.simplify_fe_storage_cell_1k": "ECO - L1 1K Storage Matrix (FE)",
   "item.neoecoprototype1201.simplify_fe_storage_cell_1m": "ECO - L1 1M Storage Matrix (FE)",
   "item.neoecoprototype1201.simplify_fe_storage_cell_4m": "ECO - L1 4M Storage Matrix (FE)",
+  "item.neoecoprototype1201.simplify_small_bulk_storage_cell": "ECO - L1 Small Bulk Storage Cell (3 Types)",
+  "item.neoecoprototype1201.simplify_small_bulk_storage_cell.desc": "Craft with the expansion card in a crafting table to upgrade to 10 types",
+  "item.neoecoprototype1201.simplify_small_bulk_storage_cell_expanded": "ECO - L1 Small Bulk Storage Cell (10 Types)",
+  "item.neoecoprototype1201.simplify_small_bulk_fluid_storage_cell": "ECO - L1 Small Bulk Fluid Storage Matrix (3 Types)",
+  "item.neoecoprototype1201.simplify_small_bulk_fluid_storage_cell_expanded": "ECO - L1 Small Bulk Fluid Storage Matrix (10 Types)",
+  "item.neoecoprototype1201.simplify_small_bulk_expansion_card": "L1 Small Bulk Expansion Card",
+  "item.neoecoprototype1201.simplify_small_bulk_storage_matrix_housing": "ECO - Small Bulk Storage Matrix Housing",
+  "item.neoecoprototype1201.simplify_small_bulk_fluid_storage_matrix_housing": "ECO - L1 Small Bulk Fluid Storage Matrix Housing",
+  "advancement.neoecoprototype1201.small_bulk.title": "Small bulk, still…",
+  "advancement.neoecoprototype1201.small_bulk.description": "Obtain a small bulk storage matrix. It needs no compression chain.",
   "item.neoecoprototype1201.simplify_item_storage_matrix_housing": "ECO - L1 Item Storage Matrix Housing"
 }

@@ -31,6 +31,7 @@ Neo ECO Prototype 把 Neo ECO AE Extension 的后期内容带到 **L1 前期**�
 |----------|----------|
 | 用样板自动化处理器 | [L1 处理器装配室](processor_assembler.md)（前期没有压印器也能做出处理器） |
 | 哪种矩阵存什么 | [支持的存储矩阵](matrix_types.md) |
+| 很少几种、每种近乎无限 | [小宗存储矩阵](small_bulk_matrices.md)（要装 MEGA Cells，3 种或 10 种） |
 | 把一整块电量存进网格 | [盈能能源元件](energized_energy_cells.md) |
 | 一台既分区又供电的接口 | [L1 接口](interfaces.md)（供能与超导两台写在同一页） |
 | 提升合成吞吐 | [L1 计算系统](computation_system.md) 与 [L1 合成系统](crafting_system.md) |

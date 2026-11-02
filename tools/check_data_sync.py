@@ -306,7 +306,12 @@ DISASSEMBLY_DIR = os.path.join(RECIPE_DIR, "disassembly")
 DISASSEMBLY_TYPE = "neoecoae:storage_cell_disassembly"
 # The infinite matrix is the punchline of a joke, not an oversight: 1.21.1 ships no disassembly for it
 # either, and the cell itself hands the player ten seconds of blindness for trying.
-UNDISASSEMBLABLY = {NS + ":simplify_concrete_storage_cell"}
+# The two small-bulk expansions are the other kind of deliberate: the card is spent turning a base cell
+# into them, and a disassembly back to housing + 1M component would quietly un-spend it. 1.21.1 leaves
+# them un-takable for the same reason, and its guide page warns the player before they craft one.
+UNDISASSEMBLABLY = {NS + ":simplify_concrete_storage_cell",
+                    NS + ":simplify_small_bulk_storage_cell_expanded",
+                    NS + ":simplify_small_bulk_fluid_storage_cell_expanded"}
 CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?)$")
 
 

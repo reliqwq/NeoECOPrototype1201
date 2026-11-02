@@ -1,0 +1,44 @@
+{
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "megacells"
+        }
+      ],
+      "advancement": {
+        "parent": "neoecoprototype1201:root",
+        "display": {
+          "icon": {
+            "item": "neoecoprototype1201:simplify_small_bulk_storage_cell"
+          },
+          "title": {
+            "translate": "advancement.neoecoprototype1201.small_bulk.title"
+          },
+          "description": {
+            "translate": "advancement.neoecoprototype1201.small_bulk.description"
+          },
+          "frame": "task",
+          "show_toast": true,
+          "announce_to_chat": false,
+          "hidden": false
+        },
+        "criteria": {
+          "obtained": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "neoecoprototype1201:simplify_small_bulk_storage_cell"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

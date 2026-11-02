@@ -80,6 +80,22 @@
     {
       "id": "neoecoprototype1201:simplify_fe_storage_cell_4m",
       "required": false
+    },
+    {
+      "id": "neoecoprototype1201:simplify_small_bulk_storage_cell",
+      "required": false
+    },
+    {
+      "id": "neoecoprototype1201:simplify_small_bulk_storage_cell_expanded",
+      "required": false
+    },
+    {
+      "id": "neoecoprototype1201:simplify_small_bulk_fluid_storage_cell",
+      "required": false
+    },
+    {
+      "id": "neoecoprototype1201:simplify_small_bulk_fluid_storage_cell_expanded",
+      "required": false
     }
   ]
 }

@@ -47,6 +47,17 @@ public final class Prototype1201 {
             cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration
                     .register(Registration.ITEMS);
         }
+        // The small-bulk (小宗) family as a whole, gated the same way and for a different reason than the
+        // two above: nothing in it names MEGA Cells at all - the items are ours, their cell types are looked
+        // up by id (neoecoae:mega_item, mega_fluid) and the MEGA items only appear inside recipe JSONs - so
+        // the gate is not about must-resolve references. It is about the rows: eco registers those two cell
+        // types from its own MEGA Cells integration, which the dev server log confirms runs only when the
+        // mod is present ("Loading integration …integration.megacells.MegaCellsIntegration"). Registering
+        // the family without it would leave cells whose supplier throws the moment the registry event asks.
+        if (ModList.get().isLoaded("megacells")) {
+            cn.dancingsnow.neoecoprototype1201.integration.megacells.SmallBulkIntegration
+                    .register(Registration.ITEMS);
+        }
         Registration.TABS.register(modBus);
         Registration.RECIPE_TYPES.register(modBus);
         Registration.RECIPE_SERIALIZERS.register(modBus);

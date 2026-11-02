@@ -51,6 +51,7 @@ requires.
 | FE (Forge Energy) | 1K, 1M, 4M | 1 | AppliedFlux |
 | Infinite concrete | unbounded | 16 | - |
 | Pigmee | one 2,560-byte step | 256 | - |
+| Small bulk (item, fluid) | one rung, nearly unlimited bytes per type | 3, or 10 with the expansion card | MEGA Cells - [the whole page](small_bulk_matrices.md) |
 
 - The 1K / 16K / 64K / 1M / 4M figures count **bytes**, not resources. Each type slot costs 1/256th of
   the cell, so a 1K matrix gives one thing 4 bytes and a 4M matrix gives the same thing 16384 bytes. How
