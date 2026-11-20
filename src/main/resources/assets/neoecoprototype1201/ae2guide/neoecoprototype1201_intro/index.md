@@ -32,6 +32,7 @@ A formed L1 storage subsystem, as one shape: controller at one end, drive, energ
 | Automating processors from patterns | [L1 Processor Assembler](processor_assembler.md) - processors before you have an inscriber |
 | Which matrix stores what | [Supported storage matrices](matrix_types.md) |
 | Few types, nearly unlimited amounts | [Small Bulk Matrices](small_bulk_matrices.md) - needs MEGA Cells, 3 types or 10 |
+| Upgrade AE2 blocks to L1 in place | [AE2 to L1 Upgrade Cards](ae2_upgrade_cards.md) - patterns come along |
 | Parking a block of charge in the grid | [Energized Energy Cells](energized_energy_cells.md) |
 | An interface that powers the grid | [L1 Interfaces](interfaces.md) - powered and superconductive, on one page |
 | More crafting throughput | [L1 Computation System](computation_system.md) and [L1 Crafting System](crafting_system.md) |

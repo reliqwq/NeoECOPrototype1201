@@ -160,5 +160,8 @@
   "item.neoecoprototype1201.simplify_small_bulk_fluid_storage_matrix_housing": "ECO - L1 小宗流体存储矩阵外壳",
   "advancement.neoecoprototype1201.small_bulk.title": "小宗虽小……",
   "advancement.neoecoprototype1201.small_bulk.description": "获得一个小宗存储矩阵。它不需要压缩链。",
-  "item.neoecoprototype1201.simplify_item_storage_matrix_housing": "ECO - L1 物品存储矩阵外壳"
+  "item.neoecoprototype1201.simplify_item_storage_matrix_housing": "ECO - L1 物品存储矩阵外壳",
+  "item.neoecoprototype1201.ae2_pattern_provider_to_l1_card": "L1 样板供应器升级卡",
+  "item.neoecoprototype1201.ae2_interface_to_l1_powered_card": "L1 供能接口升级卡",
+  "item.neoecoprototype1201.ae2_interface_to_l1_superconductive_card": "盈能超导接口升级卡"
 }

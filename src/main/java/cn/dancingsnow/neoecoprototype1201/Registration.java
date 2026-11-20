@@ -4,6 +4,8 @@ import appeng.api.stacks.AEKeyType;
 import cn.dancingsnow.neoecoae.all.NERegistries;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
+import cn.dancingsnow.neoecoprototype1201.items.Ae2ToL1UpgradeCardItem;
+import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyComputationCellItem;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyConcreteStorageCellItem;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyMigrationDriveItem;
@@ -233,6 +235,36 @@ public final class Registration {
     /** What the machine returns once it has taken the structure across: the drive with nothing written on it. */
     public static final RegistryObject<Item> MIGRATION_DRIVE_EMPTY =
             ITEMS.register("migration_drive_empty", () -> new Item(new Item.Properties().stacksTo(16)));
+
+    /**
+     * The three AE2-to-L1 upgrade cards, ported from the 1.21.1 line with its ids: right-click the
+     * matching AE2 block (or, for the pattern provider, cable part) and it is replaced in place with
+     * the L1 counterpart, contents and settings carried over. On this line the two interface cards
+     * are block-only - the powered and superconductive cable parts are not ported yet, so their
+     * part halves pass null and the cable branch stays dormant.
+     */
+    public static final RegistryObject<Item> AE2_PATTERN_PROVIDER_TO_L1_CARD =
+            ITEMS.register("ae2_pattern_provider_to_l1_card", () -> new Ae2ToL1UpgradeCardItem(
+                    new Item.Properties().stacksTo(1),
+                    appeng.blockentity.crafting.PatternProviderBlockEntity.class,
+                    appeng.parts.crafting.PatternProviderPart.class,
+                    () -> ModRegistration.SIMPLIFY_PATTERN_PROVIDER_BLOCK.get(),
+                    () -> ModBlockEntities.PATTERN_PROVIDER.get(),
+                    () -> CABLE_PATTERN_PROVIDER.get()));
+    public static final RegistryObject<Item> AE2_INTERFACE_TO_L1_POWERED_CARD =
+            ITEMS.register("ae2_interface_to_l1_powered_card", () -> new Ae2ToL1UpgradeCardItem(
+                    new Item.Properties().stacksTo(1),
+                    appeng.blockentity.misc.InterfaceBlockEntity.class, appeng.parts.misc.InterfacePart.class,
+                    () -> ModRegistration.SIMPLIFY_POWERED_ME_INTERFACE_BLOCK.get(),
+                    () -> ModBlockEntities.POWERED_ME_INTERFACE.get(),
+                    null));
+    public static final RegistryObject<Item> AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD =
+            ITEMS.register("ae2_interface_to_l1_superconductive_card", () -> new Ae2ToL1UpgradeCardItem(
+                    new Item.Properties().stacksTo(1),
+                    appeng.blockentity.misc.InterfaceBlockEntity.class, appeng.parts.misc.InterfacePart.class,
+                    () -> ModRegistration.SUPERCONDUCTIVE_INTERFACE_BLOCK.get(),
+                    () -> ModBlockEntities.SUPERCONDUCTIVE_INTERFACE.get(),
+                    null));
     public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_CREATIVE =
             ITEMS.register("migration_drive_creative",
                     () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
@@ -267,6 +299,9 @@ public final class Registration {
                         output.accept(SIMPLIFY_COMPUTATION_CELL_1M.get());
                         output.accept(ENERGIZED_COMPUTATION_CELL_4M.get());
                         output.accept(CABLE_PATTERN_PROVIDER.get());
+                        output.accept(AE2_PATTERN_PROVIDER_TO_L1_CARD.get());
+                        output.accept(AE2_INTERFACE_TO_L1_POWERED_CARD.get());
+                        output.accept(AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD.get());
                         output.accept(GREEN_CRYSTAL_MATRIX.get());
                         output.accept(MIGRATION_DRIVE_1_4.get());
                         output.accept(MIGRATION_DRIVE_4_6.get());
