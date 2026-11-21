@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+    },
+    "B": {
+      "item": "ae2:ender_dust"
+    },
+    "C": {
+      "item": "ae2omnicells:ender_ingot"
+    },
+    "D": {
+      "item": "ae2omnicells:omni_link_processor"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "B B",
+    "CDC"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_universal_storage_matrix_housing",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "ae2omnicells"
+    }
+  ]
+}

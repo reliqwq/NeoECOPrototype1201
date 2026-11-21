@@ -33,6 +33,15 @@ item_ids:
   - neoecoprototype1201:simplify_fe_storage_cell_4m
   - neoecoprototype1201:pigmee_storage_cell
   - neoecoprototype1201:simplify_concrete_storage_cell
+  - neoecoprototype1201:simplify_universal_storage_matrix_housing
+  - neoecoprototype1201:simplify_universal_storage_cell_1k
+  - neoecoprototype1201:simplify_universal_storage_cell_1m
+  - neoecoprototype1201:simplify_quantum_storage_matrix_housing
+  - neoecoprototype1201:simplify_quantum_storage_cell_1k
+  - neoecoprototype1201:simplify_quantum_storage_cell_1m
+  - neoecoprototype1201:simplify_complex_universal_storage_matrix_housing
+  - neoecoprototype1201:simplify_complex_universal_storage_cell_1k
+  - neoecoprototype1201:simplify_complex_universal_storage_cell_1m
 ---
 
 # 支持的存储矩阵
@@ -51,10 +60,19 @@ item_ids:
 | 无限混凝土 | 无限 | 16 | — |
 | 猪咪 | 2,560 字节 | 256 | — |
 | MEGA | [小宗存储矩阵](small_bulk_matrices.md)（物品、流体） | 3，装卡 10 | MEGA Cells |
+| 全能（omni） | 1K, 1M | 512 | AE2 Omni Cells |
+| 量子 | 1K, 1M | 无限 | AE2 Omni Cells |
+| 复合全能 | 1K, 1M | 1024 | AE2 Omni Cells |
+| 乏核废料 | 1K, 1M | 1 | AE2 Omni Cells + Mekanism + Applied Mekanistics |
 
 - 1K - 4M 说的是**字节**，不是资源数量：每个类型槽占整只矩阵的 1/256。
 - 化学品的 25 沿用 eco 自己的面板行，不是我们定的。
 - 无限混凝土只存 16 色、而且是表里唯一**拆不回来**的矩阵；猪咪是一档 2,560 字节的物品矩阵。
+- 四支**全能家族**是本附属的高容量档，需要 AE2 Omni Cells：矩阵本体跑在 eco 自己的 omni 存储后端上——
+  与 eco 的 LE4/LE6/L9 全能矩阵同一套，所以没装那个模组的整合包根本看不到它们。全能矩阵一次可容 512 种，
+  量子矩阵无类型上限——它的 1M 档刻意比全能 1M 贵一半。复合全能用类型预算换更大的 1M。乏核废料矩阵只收
+  一种物质——Mekanism 的乏核废料——让这种副产物在 L1 也有容身之处；它额外要求 Mekanism 与 Applied
+  Mekanistics。
 
 ## 怎么做出来
 

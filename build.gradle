@@ -53,7 +53,7 @@ repositories {
         url = 'https://cdn.modrinth.com/data'
         patternLayout { artifact '[organisation]/versions/[revision]/[module].[ext]' }
         metadataSources { artifact() }
-        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g' }
+        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g'; includeGroup 'RYE1pYyr' }
     }
 }
 
@@ -148,6 +148,18 @@ dependencies {
     // Cloth Config, same file-pinned route: data/9s6osm5g/versions/t8TXrZvZ/cloth-config-11.1.136-forge.jar,
     // 1 181 413 B. MEGA Cells' mandatory dependency, dev-only like everything above.
     runtimeOnly fg.deobf("9s6osm5g:cloth-config-11.1.136-forge:t8TXrZvZ")
+
+    // AE2 Omni Cells is the backend the four omni matrix families ride on the 1.21.1 line, and this is
+    // that mod's 1.20.1 build (Modrinth RYE1pYyr version c2s3iMw8): ae2omnicells-1.20.1-forge-1.1.6.jar,
+    // 838 472 B, sha1 0aabdc3897ac479074f8dfa643fe07bedb5527f8 - read back equal. Its mods.toml requires
+    // forge [47.1.3,) (we are on 47.4.20), minecraft [1.20.1] and ae2 [15.0.10,) (15.4.10). eco 20.5.3
+    // takes it as optional [1.1.6,) AFTER, and our own omni items extend eco's ECOUniversalStorageCellItem,
+    // whose superclass chain reaches this jar - so it is compileOnly, the one optional mod this line
+    // compiles against. The items themselves are constructed only inside the gated integration class
+    // (AGENTS §4.4): eco's own @Integration machinery is what keeps the classes from ever loading on a
+    // pack without it.
+    compileOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
+    runtimeOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
 
     // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
     // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's

@@ -292,6 +292,11 @@ public final class Registration {
                         // housings, or nothing at all.
                         cn.dancingsnow.neoecoprototype1201.integration.megacells.SmallBulkIntegration.TAB_ITEMS
                                 .forEach(item -> output.accept(item.get()));
+                        // The four omni families: empty without OmniCells, because eco's
+                        // IntegrationManager only constructs the integration behind its gate.
+                        cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
+                                .UniversalIntegration.TAB_ITEMS
+                                .forEach(item -> output.accept(item.get()));
                         output.accept(PIGMEE_STORAGE_MATRIX_HOUSING.get());
                         output.accept(PIGMEE_STORAGE_CELL.get());
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_MATRIX_HOUSING.get());

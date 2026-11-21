@@ -10,6 +10,7 @@ import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.GiantPlush
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyComputationDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.integration.appmek.AppMekIntegration;
+import cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells.UniversalIntegration;
 import cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
@@ -64,6 +65,15 @@ public final class Prototype1201Client {
     /** appflux's own ladder starts at 1M, so its 1K rung is ours alone and it has no 16k or 64k. */
     private static final String[] FE_RUNGS = {
             "storage_cell_l0_fe_1k", "storage_cell_l1_fe", "storage_cell_l1r_fe"};
+    /** The three omni families, in {@code UniversalIntegration.CELLS} order: universal, quantum and
+     *  complex universal, one lower and one upper model per family. The spent waste pair waits on a
+     *  multi-gate rule and is not in this list. */
+    private static final String[] OMNI_RUNGS = {
+            "l0_universal", "l1_universal",
+            "l0_quantum", "l1_quantum",
+            "l0_complex_universal", "l1_complex_universal",
+    };
+
     private static final String PIGMEE_RUNG = "storage_cell_l1_pigmee";
     private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
     /**
@@ -76,7 +86,8 @@ public final class Prototype1201Client {
 
     /** Everything the drive can be asked to draw, for the bake pass. */
     private static String[] everyCellModel() {
-        String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS, SMALL_BULK_RUNGS};
+        String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS, SMALL_BULK_RUNGS,
+                OMNI_RUNGS};
         java.util.List<String> all = new java.util.ArrayList<>();
         for (String[] group : groups) {
             all.addAll(java.util.List.of(group));
@@ -160,6 +171,10 @@ public final class Prototype1201Client {
             // without the medium simply registers nothing.
             registerLadder(AppMekIntegration.CELLS, rungs("chemical"));
             registerLadder(FeStorageIntegration.CELLS, FE_RUNGS);
+            // Empty without OmniCells: eco's IntegrationManager never constructs the integration,
+            // so the list stays empty and the ladder registers nothing.
+            registerLadder(cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
+                    .UniversalIntegration.CELLS, OMNI_RUNGS);
             ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
                     cellModel(CONCRETE_RUNG));
@@ -238,6 +253,8 @@ public final class Prototype1201Client {
         tinted.add(Registration.PIGMEE_STORAGE_CELL.get());
         AppMekIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         FeStorageIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
+                .UniversalIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         cn.dancingsnow.neoecoprototype1201.integration.megacells
                 .SmallBulkIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         // The infinite matrix is not tinted: it reports the same full status forever, so a band that

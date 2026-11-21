@@ -163,5 +163,14 @@
   "item.neoecoprototype1201.simplify_item_storage_matrix_housing": "ECO - L1 Item Storage Matrix Housing",
   "item.neoecoprototype1201.ae2_pattern_provider_to_l1_card": "L1 Pattern Provider Upgrade Card",
   "item.neoecoprototype1201.ae2_interface_to_l1_powered_card": "L1 Powered Interface Upgrade Card",
-  "item.neoecoprototype1201.ae2_interface_to_l1_superconductive_card": "Energized Superconductive Interface Upgrade Card"
+  "item.neoecoprototype1201.ae2_interface_to_l1_superconductive_card": "Energized Superconductive Interface Upgrade Card",
+  "item.neoecoprototype1201.simplify_quantum_storage_cell_1k": "ECO - L1 Quantum Storage Matrix 1K",
+  "item.neoecoprototype1201.simplify_quantum_storage_cell_1m": "ECO - L1 Quantum Storage Matrix 1M",
+  "item.neoecoprototype1201.simplify_quantum_storage_matrix_housing": "ECO - L1 Quantum Storage Matrix Housing",
+  "item.neoecoprototype1201.simplify_universal_storage_cell_1k": "ECO - L1 Universal Storage Matrix 1K",
+  "item.neoecoprototype1201.simplify_universal_storage_cell_1m": "ECO - L1 Universal Storage Matrix 1M",
+  "item.neoecoprototype1201.simplify_universal_storage_matrix_housing": "ECO - L1 Universal Storage Matrix Housing",
+  "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1k": "ECO - L1 Complex Universal Storage Matrix (1K)",
+  "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1m": "ECO - L1 Complex Universal Storage Matrix 1M",
+  "item.neoecoprototype1201.simplify_complex_universal_storage_matrix_housing": "ECO - L1 Complex Universal Storage Matrix Housing"
 }

@@ -33,6 +33,15 @@ item_ids:
   - neoecoprototype1201:simplify_fe_storage_cell_4m
   - neoecoprototype1201:pigmee_storage_cell
   - neoecoprototype1201:simplify_concrete_storage_cell
+  - neoecoprototype1201:simplify_universal_storage_matrix_housing
+  - neoecoprototype1201:simplify_universal_storage_cell_1k
+  - neoecoprototype1201:simplify_universal_storage_cell_1m
+  - neoecoprototype1201:simplify_quantum_storage_matrix_housing
+  - neoecoprototype1201:simplify_quantum_storage_cell_1k
+  - neoecoprototype1201:simplify_quantum_storage_cell_1m
+  - neoecoprototype1201:simplify_complex_universal_storage_matrix_housing
+  - neoecoprototype1201:simplify_complex_universal_storage_cell_1k
+  - neoecoprototype1201:simplify_complex_universal_storage_cell_1m
 ---
 
 # Supported storage matrices
@@ -52,6 +61,10 @@ requires.
 | Infinite concrete | unbounded | 16 | - |
 | Pigmee | one 2,560-byte step | 256 | - |
 | Small bulk (item, fluid) | one rung, nearly unlimited bytes per type | 3, or 10 with the expansion card | MEGA Cells - [the whole page](small_bulk_matrices.md) |
+| Universal (omni) | 1K, 1M | 512 | AE2 Omni Cells |
+| Quantum | 1K, 1M | unlimited | AE2 Omni Cells |
+| Complex universal | 1K, 1M | 1024 | AE2 Omni Cells |
+| Spent nuclear waste | 1K, 1M | 1 | AE2 Omni Cells + Mekanism + Applied Mekanistics |
 
 - The 1K / 16K / 64K / 1M / 4M figures count **bytes**, not resources. Each type slot costs 1/256th of
   the cell, so a 1K matrix gives one thing 4 bytes and a 4M matrix gives the same thing 16384 bytes. How
@@ -67,6 +80,13 @@ requires.
   apart**: compression art is not a thing you un-compress.
 - The Pigmee matrix is a 2,560-byte item cell - smaller than a 1K, on purpose. Its housing is a sword:
   it deals damage, swings at sword speed and reaches two blocks further than your hand.
+- The four **omni families** are this addon's high-capacity step, and they need AE2 Omni Cells: the
+  matrices themselves run on eco's own omni storage backend, exactly like eco's LE4/LE6/L9 omni
+  matrices, so a pack without that mod simply never sees them. The universal matrix holds 512 things
+  at once and the quantum one has no type limit at all - its 1M rung is worth half again the universal
+  1M on purpose. The complex universal trades type budget for a bigger 1M. The spent nuclear waste
+  matrix holds exactly one substance - Mekanism's spent nuclear waste - and exists so that byproduct
+  has somewhere to live at L1; it needs both Mekanism and Applied Mekanistics next to Omni Cells.
 
 ## How they are built
 

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_complex_universal_storage_matrix_housing"
+    },
+    {
+      "item": "ae2:singularity"
+    },
+    {
+      "item": "ae2omnicells:complex_omni_cell_component_1k"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_complex_universal_storage_cell_1k",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "ae2omnicells"
+    }
+  ]
+}
