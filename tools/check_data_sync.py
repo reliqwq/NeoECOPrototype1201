@@ -459,6 +459,33 @@ NAMED_FOLDERS = {
 }
 
 
+def java_cell_names():
+    """Drive-chip model names the client and MatrixMaterials point at, for the block/cell folder.
+
+    Three name sources, because the client names chips in three shapes: string literals
+    (the rung arrays and the three single-family constants), the rungs() template whose
+    medium argument is expanded here - item / fluid / chemical, the same three calls
+    everyCellModel() makes; a family added there without adding it to this list turns the
+    new files red, which is the accounting this check exists for - and MatrixMaterials'
+    kind table, whose drive paths name the custom and small-bulk chips nothing else names.
+    """
+    root = os.path.join(os.path.dirname(RES), "java", "cn", "dancingsnow", "neoecoprototype1201")
+    client = open(os.path.join(root, "Prototype1201Client.java"), encoding="utf-8").read()
+    # The rungs() template carries "storage_cell_l0_" as a bare stem; a name that ends in the
+    # underscore is that stem, not a model, so it is dropped here.
+    named = {n for n in re.findall(r'"(storage_cell_[a-z0-9_]+)"', client)
+             if not n.endswith("_")}
+    for medium in ("item", "fluid", "chemical"):
+        named |= {"storage_cell_l0_" + medium + "_1k",
+                  "storage_cell_l0_" + medium + "_16k",
+                  "storage_cell_l0_" + medium + "_64k",
+                  "storage_cell_l1_" + medium,
+                  "storage_cell_l1r_" + medium}
+    materials = open(os.path.join(root, "api", "MatrixMaterials.java"), encoding="utf-8").read()
+    named |= set(re.findall(r'"block/cell/(storage_cell_[a-z0-9_]+)"', materials))
+    return named
+
+
 def java_names(source, pattern):
     """Every string literal the named helper is called with, read out of the file that calls it."""
     root = os.path.join(os.path.dirname(RES), "java")
@@ -520,9 +547,17 @@ def check_models():
                             f" it ({source})")
         for missing in sorted(named - shipped):
             problems.append(f"{source} names {folder}/{missing} but this line does not ship that model")
+    cell_shipped = {name[:-5] for name in os.listdir(os.path.join(MODEL_DIR, "block/cell"))
+                    if name.endswith(".json")}
+    cell_named = java_cell_names()
+    for extra in sorted(cell_shipped - cell_named):
+        problems.append(f"models/block/cell/{extra}.json: no java names it, so nothing bakes or draws it"
+                        " (Prototype1201Client / MatrixMaterials)")
+    for missing in sorted(cell_named - cell_shipped):
+        problems.append(f"the client names block/cell/{missing} but this line does not ship that model")
     print(f"models: {lit} lit faces on flat-shaded elements, every texture and parent resolving, "
           f"{len(os.listdir(os.path.join(MODEL_DIR, 'block/computation_cable')))} cable models named by "
-          f"java; ambient_occlusion census {dict(ao)} - eco 20.5.3 spells false on all 830 of its lit "
+          f"java, {len(cell_shipped)} drive-chip models all named; ambient_occlusion census {dict(ao)} - eco 20.5.3 spells false on all 830 of its lit "
           "faces and no model anywhere sets a top-level ambientocclusion, so true and absent are the "
           "same thing here: the number is the open question, not a failure")
 

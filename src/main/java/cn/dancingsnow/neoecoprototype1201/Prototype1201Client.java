@@ -67,21 +67,26 @@ public final class Prototype1201Client {
             "storage_cell_l0_fe_1k", "storage_cell_l1_fe", "storage_cell_l1r_fe"};
     /** The three omni families, in {@code UniversalIntegration.CELLS} order: universal, quantum and
      *  complex universal, one lower and one upper model per family. The spent waste pair waits on a
-     *  multi-gate rule and is not in this list. */
+     *  multi-gate rule and is not in this list. The names are the shipped files under
+     *  {@code models/block/cell/} - an earlier revision of this array dropped the
+     *  {@code storage_cell_} prefix and pointed eleven registrations at models nobody baked. */
     private static final String[] OMNI_RUNGS = {
-            "l0_universal", "l1_universal",
-            "l0_quantum", "l1_quantum",
-            "l0_complex_universal", "l1_complex_universal",
+            "storage_cell_l0_universal", "storage_cell_l1_universal",
+            "storage_cell_l0_quantum", "storage_cell_l1_quantum",
+            "storage_cell_l0_complex_universal", "storage_cell_l1_complex_universal",
     };
     /** The source family's five rungs, in {@code SourceIntegration.CELLS} order. The type stripe is
      *  the last rail of cell_type_lower, free on this line. */
     private static final String[] SOURCE_RUNGS = {
-            "l0_source_1k", "l0_source_16k", "l0_source_64k", "l1_source", "l1r_source",
+            "storage_cell_l0_source_1k", "storage_cell_l0_source_16k", "storage_cell_l0_source_64k",
+            "storage_cell_l1_source", "storage_cell_l1r_source",
     };
 
 
     private static final String PIGMEE_RUNG = "storage_cell_l1_pigmee";
     private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
+    /** The singularity family's chip, shared by the singularity and sky-stone-dust cells. */
+    private static final String SINGULARITY_RUNG = "storage_cell_l1_singularity";
     /**
      * The small-bulk rungs in {@code SmallBulkIntegration.CELLS}' order: each medium's base cell on L1's
      * band and its ten-mark cell on the 4M band. Not a five-rung ladder, so the family keeps its own array.
@@ -100,6 +105,7 @@ public final class Prototype1201Client {
         }
         all.add(PIGMEE_RUNG);
         all.add(CONCRETE_RUNG);
+        all.add(SINGULARITY_RUNG);
         return all.toArray(new String[0]);
     }
 
@@ -186,8 +192,8 @@ public final class Prototype1201Client {
             // so the list stays empty and the ladder registers nothing.
             registerLadder(cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
                     .UniversalIntegration.CELLS, OMNI_RUNGS);
-            ECOCellModels.register(Registration.SIMPLIFY_SINGULARITY_CELL.get(), cellModel("l1_singularity"));
-            ECOCellModels.register(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get(), cellModel("l1_singularity"));
+            ECOCellModels.register(Registration.SIMPLIFY_SINGULARITY_CELL.get(), cellModel(SINGULARITY_RUNG));
+            ECOCellModels.register(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get(), cellModel(SINGULARITY_RUNG));
             // Empty without arseng, same shape as the omni list above.
             registerLadder(cn.dancingsnow.neoecoprototype1201.integration.arseng
                     .SourceIntegration.CELLS, SOURCE_RUNGS);
