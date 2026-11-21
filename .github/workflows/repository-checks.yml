@@ -50,9 +50,19 @@ jobs:
             echo 'Addon-owned assets must not reference the neoecoae resource namespace.' >&2
             exit 1
           fi
-          # Layer rule: api/ holds records and interfaces, not runtime classes.
+          # Layer rule: api/ holds records and interfaces, not runtime classes - with one documented
+          # carve-out. StorageMatrixRegistration.java is the registration door advertised to pack
+          # authors in docs/kubejs.md, and a factory has to name the concrete item it builds, so its
+          # items/ import is allowed HERE ONLY; every other api/ file stays clean, and inside the
+          # carved-out file blockentity/block/integration/recipe/menu/client remain forbidden.
           for source in $(git ls-files 'src/main/java/cn/dancingsnow/neoecoprototype1201/api/*.java'); do
-            if grep -qE '^import cn\.dancingsnow\.neoecoprototype1201\.(blockentity|items|block|integration|recipe|menu|client)\.' "$source"; then
+            base=$(basename "$source")
+            if [[ "$base" == "StorageMatrixRegistration.java" ]]; then
+              if grep -qE '^import cn\.dancingsnow\.neoecoprototype1201\.(blockentity|block|integration|recipe|menu|client)\.' "$source"; then
+                echo "api/ layer violation inside the carved-out file: $source" >&2
+                exit 1
+              fi
+            elif grep -qE '^import cn\.dancingsnow\.neoecoprototype1201\.(blockentity|items|block|integration|recipe|menu|client)\.' "$source"; then
               echo "api/ must not depend on the runtime layers: $source" >&2
               exit 1
             fi
