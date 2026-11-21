@@ -23,3 +23,4 @@ __pycache__/
 
 # Byte-for-byte backups of source files we removed, kept locally the same way.
 _removed_sources/
+.zcode/
