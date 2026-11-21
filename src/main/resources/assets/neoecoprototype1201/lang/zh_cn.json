@@ -34,6 +34,8 @@
   "block.neoecoprototype1201.simplify_storage_casing": "ECO - L1 存储子系统结构外壳",
   "block.neoecoprototype1201.simplify_storage_controller": "ECO - L1 可拓展存储子系统主机",
   "block.neoecoprototype1201.simplify_storage_interface": "L1 存储子系统接口",
+  "item.neoecoprototype1201.cable_powered_me_interface": "L1 供能接口",
+  "item.neoecoprototype1201.cable_superconductive_interface": "盈能超导接口",
   "block.neoecoprototype1201.simplify_storage_network_interface": "L1 存储子系统通讯接口",
   "block.neoecoprototype1201.simplify_storage_vent": "L1 存储子系统结构散热器",
   "block.neoecoprototype1201.storage_matrix_formed.no": "存储矩阵未成型",

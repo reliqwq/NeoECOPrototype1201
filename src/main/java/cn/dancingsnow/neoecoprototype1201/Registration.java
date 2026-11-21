@@ -219,6 +219,22 @@ public final class Registration {
                             cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart.class,
                             cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart::new));
 
+    /** The two cable-face interfaces. Their generation lives in the part (the same
+     *  IPassiveEnergyGenerator service the block entities carry), and the upgrade cards' cable
+     *  branch swaps AE2's own interface part for these in place. */
+    public static final RegistryObject<appeng.items.parts.PartItem<
+            cn.dancingsnow.neoecoprototype1201.part.PoweredInterfacePart>> CABLE_POWERED_ME_INTERFACE_PART =
+            ITEMS.register("cable_powered_me_interface",
+                    () -> new appeng.items.parts.PartItem<>(new Item.Properties(),
+                            cn.dancingsnow.neoecoprototype1201.part.PoweredInterfacePart.class,
+                            cn.dancingsnow.neoecoprototype1201.part.PoweredInterfacePart::new));
+    public static final RegistryObject<appeng.items.parts.PartItem<
+            cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart>> CABLE_SUPERCONDUCTIVE_INTERFACE_PART =
+            ITEMS.register("cable_superconductive_interface",
+                    () -> new appeng.items.parts.PartItem<>(new Item.Properties(),
+                            cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart.class,
+                            cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart::new));
+
     /**
      * The L1 core material the assembler and the green casing are built from; its name carries the family's
      * green, as on the 1.21.1 line.
@@ -281,7 +297,7 @@ public final class Registration {
                     appeng.blockentity.misc.InterfaceBlockEntity.class, appeng.parts.misc.InterfacePart.class,
                     () -> ModRegistration.SIMPLIFY_POWERED_ME_INTERFACE_BLOCK.get(),
                     () -> ModBlockEntities.POWERED_ME_INTERFACE.get(),
-                    null));
+                    () -> CABLE_POWERED_ME_INTERFACE_PART.get()));
     /** The two self-growing cells ship unconditionally; the source member is arseng-gated and lives
      * in SourceIntegration. The registered handler behind them mounts in {@code Prototype1201}. */
     public static final RegistryObject<Item> SIMPLIFY_SINGULARITY_CELL =
@@ -351,7 +367,7 @@ public final class Registration {
                     appeng.blockentity.misc.InterfaceBlockEntity.class, appeng.parts.misc.InterfacePart.class,
                     () -> ModRegistration.SUPERCONDUCTIVE_INTERFACE_BLOCK.get(),
                     () -> ModBlockEntities.SUPERCONDUCTIVE_INTERFACE.get(),
-                    null));
+                    () -> CABLE_SUPERCONDUCTIVE_INTERFACE_PART.get()));
     public static final RegistryObject<SimplifyMigrationDriveItem> MIGRATION_DRIVE_CREATIVE =
             ITEMS.register("migration_drive_creative",
                     () -> new SimplifyMigrationDriveItem(new Item.Properties().stacksTo(16),
@@ -398,6 +414,9 @@ public final class Registration {
                         output.accept(SIMPLIFY_COMPUTATION_CELL_1M.get());
                         output.accept(ENERGIZED_COMPUTATION_CELL_4M.get());
                         output.accept(CABLE_PATTERN_PROVIDER.get());
+                        // The two cable-face interfaces, next to the cable pattern provider.
+                        output.accept(CABLE_POWERED_ME_INTERFACE_PART.get());
+                        output.accept(CABLE_SUPERCONDUCTIVE_INTERFACE_PART.get());
                         output.accept(SIMPLIFY_SINGULARITY_CELL.get());
                         output.accept(SIMPLIFY_SKY_STONE_DUST_CELL.get());
                         output.accept(AE2_PATTERN_PROVIDER_TO_L1_CARD.get());

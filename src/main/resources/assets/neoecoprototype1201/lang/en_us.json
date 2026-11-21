@@ -34,6 +34,8 @@
   "block.neoecoprototype1201.simplify_storage_casing": "ECO - L1 Storage Subsystem Structural Casing",
   "block.neoecoprototype1201.simplify_storage_controller": "ECO - L1 Extensible Storage Subsystem Controller",
   "block.neoecoprototype1201.simplify_storage_interface": "L1 Storage Subsystem Interface",
+  "item.neoecoprototype1201.cable_powered_me_interface": "L1 Cable Powered ME Interface",
+  "item.neoecoprototype1201.cable_superconductive_interface": "Energized Superconductive Interface",
   "block.neoecoprototype1201.simplify_storage_network_interface": "L1 Storage Subsystem Communication Interface",
   "block.neoecoprototype1201.simplify_storage_vent": "L1 Storage Subsystem Structural Radiator",
   "block.neoecoprototype1201.storage_matrix_formed.no": "Storage matrix not formed",

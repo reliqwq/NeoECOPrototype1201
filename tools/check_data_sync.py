@@ -455,7 +455,10 @@ NAMED_FOLDERS = {
     # A part model nobody names is a part that draws nothing at all, and the other direction is a path
     # handed to PartModels that never bakes. Same silent pair as the two folders above. The lookbehind skips
     # AE2's own status overlays, which are its models to ship, not ours.
-    "part": ("SimplifyPatternProviderPart.java", r'(?<!"ae2", )"part/([a-z0-9_]+)"'),
+    # The interface cable faces name their base models from their own part classes, so this folder's
+    # check reads three sources and unions them.
+    "part": (["SimplifyPatternProviderPart.java", "PoweredInterfacePart.java",
+              "SuperconductiveInterfacePart.java"], r'(?<!"ae2", )"part/([a-z0-9_]+)"'),
 }
 
 
@@ -486,17 +489,26 @@ def java_cell_names():
     return named
 
 
-def java_names(source, pattern):
-    """Every string literal the named helper is called with, read out of the file that calls it."""
+def java_names(sources, pattern):
+    """Every string literal the named helpers are called with, across the files that call them.
+
+    sources is one file name or a list of them; a multi-file folder unions every source's literals.
+    """
+    if isinstance(sources, str):
+        sources = [sources]
     root = os.path.join(os.path.dirname(RES), "java")
+    named = set()
+    seen_any = False
     for here, _, files in os.walk(root):
         for name in files:
-            if name != source:
+            if name not in sources:
                 continue
+            seen_any = True
             text = open(os.path.join(here, name), encoding="utf-8").read()
-            return set(re.findall(pattern, text))
-    problems.append(f"models: {source} not found, so no model name in it can be checked")
-    return set()
+            named |= set(re.findall(pattern, text))
+    if not seen_any:
+        problems.append(f"models: none of {sources} found, so no model name in them can be checked")
+    return named
 
 
 def check_models():

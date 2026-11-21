@@ -48,6 +48,10 @@ public final class Prototype1201Client {
     public static void registerPartModels() {
         appeng.api.parts.PartModels.registerModels(
                 cn.dancingsnow.neoecoprototype1201.part.SimplifyPatternProviderPart.MODELS);
+        appeng.api.parts.PartModels.registerModels(
+                cn.dancingsnow.neoecoprototype1201.part.PoweredInterfacePart.MODELS);
+        appeng.api.parts.PartModels.registerModels(
+                cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart.MODELS);
     }
 
     /**
