@@ -206,37 +206,6 @@ public class SimplifyStructureExpansionCardItem extends Item {
     }
 
     /**
-     * What a disk costs, what comes back, and the one thing it does not carry over. This item has no screen,
-     * so its rules have to be readable on the item itself: the 1.21.1 line adds the same text from a Forge
-     * tooltip event, while on this line the item owns it directly - the one shape 1.20.1 has. One component
-     * per line, because a newline inside a single component draws as a glyph box instead of breaking the row.
-     */
-    @Override
-    public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level level,
-                                List<Component> tooltip, net.minecraft.world.item.TooltipFlag flag) {
-        super.appendHoverText(stack, level, tooltip, flag);
-        String key = descriptionKey(stack);
-        if (key == null) {
-            return;
-        }
-        for (String line : Component.translatable(key).getString().split("\n")) {
-            tooltip.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.GRAY));
-        }
-    }
-
-    /** The four rungs share one description; the disk that jumps to L9 says something else about itself. */
-    @Nullable
-    private static String descriptionKey(ItemStack stack) {
-        if (stack.is(Registration.MIGRATION_DRIVE_CREATIVE.get())) {
-            return "item.neoecoprototype1201.migration_drive_creative.desc";
-        }
-        if (stack.getItem() instanceof SimplifyMigrationDriveItem) {
-            return "item.neoecoprototype1201.migration_drive.desc";
-        }
-        return null;
-    }
-
-    /**
      * A target plan with eco's formation-flag mismatches moved off the conflict list.
      *
      * @param plan    the plan to hand over, with only genuinely foreign positions left conflicting
