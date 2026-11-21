@@ -134,6 +134,9 @@ public final class Prototype1201 {
         // Creative-only everything-cell: it only reacts to its own item, and its key list is read lazily
         // on first use, so no mod check or extra ordering is involved.
         event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.AllItemsCreativeCellHandler::register);
+        // The script-made endless source: it only reacts to its own item class, and the key resolves
+        // lazily, so registering it early costs nothing in packs without KubeJS.
+        event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.CustomInfiniteCellHandler::register);
         registerAssemblerMenu();
         registerProviderMenu();
         reportInterfaceMixinApplied();

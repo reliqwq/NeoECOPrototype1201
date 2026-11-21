@@ -198,6 +198,21 @@ dependencies {
     compileOnly fg.deobf("u6dRKJwZ:jei-1.20.1-forge-15.59.0.212:IrfJO7PN")
     runtimeOnly fg.deobf("u6dRKJwZ:jei-1.20.1-forge-15.59.0.212:IrfJO7PN")
 
+    // KubeJS: compileOnly against the newest 1.20.1 forge build (Modrinth umyGl7zF version hVR2xUSr,
+    // sha1 8b0cc9797d4ed00fd2d1002d58960af8b32012ae; the jar itself lives in libs/, which is
+    // gitignored). The plugin class is referenced only by our own kubejs.plugins.txt, which KubeJS
+    // reads when it is present - the same ship shape eco 20.5.3 uses for its optional plugin, and
+    // the production pack (F:/1201prod) runs eco without KubeJS and boots clean, so a class whose
+    // parent lives in an absent mod survives the scan as long as nothing of ours loads it first.
+    // Deliberately NOT runtimeOnly: kubejs 2001.6.x would drag rhino and architectury into every dev
+    // run, while the no-KubeJS boot is exactly the path the AGENTS §2 gate says to verify. A
+    // with-KubeJS run drops kubejs/rhino/architectury jars into run/mods by hand.
+    compileOnly files("libs/kubejs-forge-2001.6.5-build.26.jar")
+    // Rhino rides next to kubejs: RegistryInfo (the addType door) implements a rhino wrapper
+    // interface, so javac has to see the type. CompileOnly, same reasoning as above.
+    // (Modrinth rhino forge 2001.2.3-build.10, sha1-verified at download.)
+    compileOnly files("libs/rhino-forge-2001.2.3-build.10.jar")
+
 }
 
 jar {

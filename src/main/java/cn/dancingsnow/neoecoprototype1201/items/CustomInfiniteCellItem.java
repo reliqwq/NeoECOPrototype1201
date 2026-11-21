@@ -1,0 +1,223 @@
+package cn.dancingsnow.neoecoprototype1201.items;
+
+import appeng.api.stacks.AEKey;
+import appeng.api.stacks.AEKeyType;
+import appeng.api.stacks.GenericStack;
+import appeng.core.AEConfig;
+import appeng.items.storage.StorageCellTooltipComponent;
+import appeng.util.ConfigInventory;
+import appeng.util.InteractionUtil;
+import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
+import cn.dancingsnow.neoecoae.api.storage.IBasicECOCellItem;
+import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+/**
+ * KubeJS 可创建的自定义无限存储矩阵：与无限混凝土矩阵同一套"无限仓库"行为，
+ * 但绑定的类型由脚本决定（单物品或单流体）。
+ *
+ * <p>记录类型延迟解析（脚本注册时其他模组物品可能尚未入册），首次在游戏逻辑中
+ * 使用时才求值。格子行为见 {@link CustomInfiniteCellHandler}；本类只携带
+ * tier / 类型等元数据。移植自 1.21.1；20.5.3 上没有 exact-amount 口子，所以
+ * "无限"的口径与全物品创造元件同一条：按很大的有限数计费。</p>
+ */
+public final class CustomInfiniteCellItem extends Item implements IBasicECOCellItem {
+
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger(CustomInfiniteCellItem.class);
+
+    public static final double IDLE_DRAIN = 8.0D;
+    /** 单绑定类型：1 个类型槽 × 1 字节，与混凝土矩阵的 footprint 标注口径一致。 */
+    public static final int TOTAL_TYPES = 1;
+    /**
+     * The byte half is unbounded. AE2's own byte-used tooltip does not special-case that and would
+     * print 9223372036854775807, so our drive tooltip detects this value and drops the numbers
+     * entirely - an infinite matrix has no fill level to report.
+     */
+    public static final long REPORTED_BYTES = Long.MAX_VALUE;
+    /** 终端显示量：对齐 ExtendedAE 的 Integer.MAX_VALUE × amountPerUnit。 */
+    public static final long REPORTED_AMOUNT = (long) Integer.MAX_VALUE;
+    /**
+     * Its own cell type, invisible: borrowing the media's shared type would add this cell's one bound
+     * item and zero bytes to that media's row in the storage host GUI, which is a statistic nobody can
+     * act on. Like the concrete matrix's, it is deliberately not registered.
+     */
+    public static final ECOCellType INFINITE_CELL_TYPE = new ECOCellType(
+            Component.translatable("eco_cell_type.neoecoprototype1201.infinite"), TOTAL_TYPES, false);
+
+    private final Supplier<AEKey> record;
+    private final Supplier<ECOCellType> cellType;
+    @Nullable
+    private final ResourceLocation driveModel;
+    private boolean failureLogged;
+
+    public CustomInfiniteCellItem(Properties properties, Supplier<AEKey> record,
+                                  @Nullable ResourceLocation driveModel) {
+        this(properties, record, () -> INFINITE_CELL_TYPE, driveModel);
+    }
+
+    public CustomInfiniteCellItem(Properties properties, Supplier<AEKey> record,
+                                  Supplier<ECOCellType> cellType,
+                                  @Nullable ResourceLocation driveModel) {
+        super(properties);
+        this.record = record;
+        this.cellType = cellType;
+        this.driveModel = driveModel;
+    }
+
+    /** @return the bound key; resolves lazily and fails with a script-readable message. */
+    public AEKey getRecord() {
+        AEKey key;
+        try {
+            key = this.record.get();
+        } catch (RuntimeException failure) {
+            // The binder names the missing id in its own sentence; this names the script item.
+            logResolutionFailure(failure);
+            throw failure;
+        }
+        if (key == null) {
+            IllegalStateException failure = new IllegalStateException(
+                    "Invalid custom infinite storage matrix, check your KubeJS script. Item: "
+                            + BuiltInRegistries.ITEM.getKey(this));
+            logResolutionFailure(failure);
+            throw failure;
+        }
+        return key;
+    }
+
+    /** One line per broken matrix: callers ask every tick, and the stack is only useful the first time. */
+    private void logResolutionFailure(Throwable failure) {
+        if (!this.failureLogged) {
+            this.failureLogged = true;
+            LOGGER.error("Custom infinite storage matrix '" + BuiltInRegistries.ITEM.getKey(this)
+                    + "' cannot resolve its bound id", failure);
+        }
+    }
+
+    /** Drive-render model override from the script, or null for the default item cell model. */
+    @Nullable
+    public ResourceLocation getDriveModel() {
+        return this.driveModel;
+    }
+
+    @Override
+    public cn.dancingsnow.neoecoae.api.IECOTier getTier() {
+        return SimplifyTier.L1;
+    }
+
+    @Override
+    public AEKeyType getKeyType() {
+        return getRecord().getType();
+    }
+
+    @Override
+    public long getBytes() {
+        return REPORTED_BYTES;
+    }
+
+    @Override
+    public int getBytesPerType() {
+        return 1;
+    }
+
+    @Override
+    public int getTotalTypes() {
+        return TOTAL_TYPES;
+    }
+
+    @Override
+    public double getIdleDrain() {
+        return IDLE_DRAIN;
+    }
+
+    @Override
+    public ECOCellType getCellType() {
+        return this.cellType.get();
+    }
+
+    // 固定无限源：没有可编辑的分区，模糊模式保持无效。
+    // AE2 的 isEditable 默认实现对 null config 直接调 size()（null 会 NPE 崩溃）；
+    // 本类没有分区、工作台不可配置，明确返回 false 让 WORKBENCH_CELL 槽拒收而不是崩溃。
+    @Override
+    public boolean isEditable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public ConfigInventory getConfigInventory(ItemStack stack) {
+        return null;
+    }
+
+    @Override
+    public appeng.api.config.FuzzyMode getFuzzyMode(ItemStack stack) {
+        return appeng.api.config.FuzzyMode.IGNORE_ALL;
+    }
+
+    @Override
+    public void setFuzzyMode(ItemStack stack, appeng.api.config.FuzzyMode mode) {
+        // unsupported: fixed infinite source
+    }
+
+    /**
+     * Hover preview showing the bound key with its reported stock.
+     */
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        if (!AEConfig.instance().isTooltipShowCellContent()) {
+            return Optional.empty();
+        }
+        var content = List.of(new GenericStack(getRecord(), REPORTED_AMOUNT * getKeyType().getAmountPerUnit()));
+        return Optional.of(new StorageCellTooltipComponent(List.of(), content, false, true));
+    }
+
+    /**
+     * 同无限混凝土矩阵：拆卸是字面意思的不可拆卸——零产出 + 10 秒失明。
+     */
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        if (tryDisassemble(level, player)) {
+            return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
+        }
+        return InteractionResultHolder.pass(player.getItemInHand(hand));
+    }
+
+    @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
+        if (player != null && tryDisassemble(level, player)) {
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+        return InteractionResult.PASS;
+    }
+
+    private static boolean tryDisassemble(Level level, Player player) {
+        if (!InteractionUtil.isInAlternateUseMode(player)) {
+            return false;
+        }
+        if (!level.isClientSide) {
+            player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0));
+        }
+        return true;
+    }
+}

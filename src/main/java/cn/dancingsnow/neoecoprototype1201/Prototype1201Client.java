@@ -146,6 +146,11 @@ public final class Prototype1201Client {
         event.register(ComputationCableModels.LOWER_DISCONNECTED);
         event.register(ComputationCableModels.UPPER_CONNECTED);
         event.register(ComputationCableModels.UPPER_DISCONNECTED);
+        // Scripted drive-model overrides bake as standalone models, same rule as the rungs above.
+        cn.dancingsnow.neoecoprototype1201.integration.kubejs.ScriptedMatrixClientModels
+                .registerAdditionalModels(event);
+        cn.dancingsnow.neoecoprototype1201.integration.kubejs.ScriptedMatrixClientModels
+                .registerScriptedAdditionalModels(event);
     }
 
     /**
@@ -189,6 +194,13 @@ public final class Prototype1201Client {
             ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
                     cellModel(CONCRETE_RUNG));
+            // Script-made matrices: a custom infinite cell with no override falls back to the concrete
+            // shell, and every scripted finite matrix gets the drive model its definition named. Both
+            // walks are empty in packs that never ran a KubeJS script, so they cost nothing here.
+            cn.dancingsnow.neoecoprototype1201.integration.kubejs.ScriptedMatrixClientModels
+                    .registerCellModels(cellModel(CONCRETE_RUNG));
+            cn.dancingsnow.neoecoprototype1201.integration.kubejs.ScriptedMatrixClientModels
+                    .registerScriptedCellModels();
             // Empty unless the mod constructor took its megacells branch, which is what lets this pass skip
             // the family without testing a gate of its own. An unregistered cell model is not an error
             // anywhere: the drive simply has nothing to draw for that item.
