@@ -1,8 +1,8 @@
 {
   "parent": "block/block",
   "textures": {
-    "particle": "neoecoprototype1201:block/energized_energy_cell/face_512g",
-    "all": "neoecoprototype1201:block/energized_energy_cell/face_512g"
+    "particle": "neoecoprototype1201:block/energized_energy_cell/16g_face_3",
+    "all": "neoecoprototype1201:block/energized_energy_cell/16g_face_3"
   },
   "elements": [
     {

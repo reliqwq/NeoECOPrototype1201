@@ -1,19 +1,19 @@
 {
   "variants": {
     "fullness=0": {
-      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g"
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g_0"
     },
     "fullness=1": {
-      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g"
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g_1"
     },
     "fullness=2": {
-      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g"
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g_2"
     },
     "fullness=3": {
-      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g"
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g_3"
     },
     "fullness=4": {
-      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g"
+      "model": "neoecoprototype1201:block/energized_energy_cell/cell_512g_4"
     }
   }
 }
