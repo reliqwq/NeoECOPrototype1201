@@ -219,6 +219,22 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 
 **它带进来的上游噪声，别判成我们的**：装上 MEGA 之后 dev 日志固定有 1 条 `Couldn't parse element loot_tables:megacells:blocks/mega_emc_interface`、1 条 `Parsing error loading recipe megacells:cells/standard/radioactive_chemical_cell`（`Unknown item mekanismgenerators:reactor_glass`）和 25 条 `Skipping loading recipe megacells:…`——全是 MEGA 在向这包没装的 mana / source / EMC 模组要东西。**所以 §5 那句"0 条 `Parsing error loading recipe`"的口径从今往后按"0 条我们命名空间里的"判。**
 
+### 4.4 omni 四支判死、魔源一族的移植规格（11-21 侦察，未开工）
+
+**omni 四支（量子/全能/复合全能/乏核）在这条线上不可直移**，判据就是本文件 §5 之前那条 + Prototype1201.java 构造器注释里记的实测：物品继承 eco 的 `ECOUniversalStorageCellItem`，父链直通 OmniCells 自己的 `AEUniversalCellItem`，而 Forge 1.20.1 强载全 jar ⇒ 没装 OmniCells 的包启动即崩。eco 20.5.3 自己有全部宿主类（`NEOmniCellTypes` OMNI/COMPLEX_OMNI/QUANTUM_OMNI、`NEOmniWasteCells.SPENT_NUCLEAR_WASTE`、六参构造子带 bytes，javap 现量），缺的从来不是宿主，是父链。要上只有两条路：omnicells 提硬依赖（不可取），或照小宗仓重造 item 基类（第四次引擎级手写 + omni 多介质引擎未知数）。重开前先读这两条记录。
+
+**魔源一族可移**（父链停在我们自己的 `PrototypeCellItem`，与 FE 家族同形；`Integration/arseng/` 门 = arseng）。规格：
+
+- arseng 1.20.1：Modrinth IJI3QuK8，forge 1.20.1 最新 `arseng-2.1.1-beta.jar`（123 229 B，sha1 e46e7cf5c4fc5f48d1b1ea025eb59c484811b2c6，2026-11-21 已下载进 libs/ 未接线）；`gripe._90.arseng.me.key.SourceKey/SourceKeyType` 类路径与 1.21.1 一致（jar tf 现量）；硬依赖 Ars Nouveau（TKB6INcv）+ AE2，dev 跑要连 Ars Nouveau 一起进 run/mods。
+- eco 20.5.3 有 L4/L6/L9 魔源盘 ⇒ `neoecoae:source` cell type 在；`EcoCellTypes.require("source")` 问的是 eco 自己的 `NERegistries.CELL_TYPE`，同一口可用。
+- 前置件：`SimplifySingularityCellItem`（470 行）+ `SingularityCellHandler`（218 行）必须先搬——魔源的五档盘、growing cell、面板行三处都踩在这两个类上。1.21.1 的 Bank 走 **DataComponent**，1.20.1 没有这条机制 ⇒ 改物品 stack NBT（两个 long），`SINGULARITY_CELL_BANK` 的注册不存在也不需要。
+- AE2 15.4.10 差异两处未验：`StorageCellTooltipComponent`（预览图那条）与 `AEConfig.isTooltipShowCellContent()` 方法名，javap 后照实改；没有就把 `getTooltipImage` 答 empty，预览是便宜的一半。
+- config 六项：`singularity_cell` 一对 + `sky_stone_dust_cell` 一对 + `source_cell` 一对（魔源的 SelfGrow 走 source 那对）。
+- 内容 7 件：source 五档盘（PrototypeCellItem 五参构造子正合适，bytesPerType=bytes>>8 恰好是 256 档的价）+ housing + growing cell。
+- 资产：类型条纹用 `cell_type_lower` 的 y12-15 轨（本线 FE 占到 y9-12，12-15 空，javap/Pillow 现量），盘模型 ×5（l0_source_1k/16k/64k、l1_source、l1r_source）+ 外壳贴图 + item 模型；照 §4.1 三转换 + §4.3 四处接线（每家族逐条对，守卫看不见第 1 与第 3 处）。
+- 配方 8 份从 1.21.1 转换（`neoforge:conditions`→`forge:conditions`、result `id`→`item`、命名空间 1201），lang 双文件 7 键，`matrix_types.md` 补 source 段并 claim 全部 id（`check_data_sync.py` 的认领闸会拦）。
+- 奇点单元自己的 lang 键与 `eco_cell_type.neoecoprototype.singularity/sky_stone_dust/source` 三条一起进。
+
 ## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
