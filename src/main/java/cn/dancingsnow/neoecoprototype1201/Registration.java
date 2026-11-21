@@ -176,6 +176,28 @@ public final class Registration {
             ITEMS.register("simplify_concrete_storage_cell",
                     () -> new SimplifyConcreteStorageCellItem(new Item.Properties().stacksTo(1)));
 
+    /**
+     * Creative-only source listing every item this addon and eco register. No recipe and no survival
+     * route on purpose: it exists to test drives, terminals and crafting setups without hoarding items.
+     * The 1.20.1 shape of the cell has no config of its own to gate it - it ships unconditionally,
+     * exactly like the 1.21.1 one does.
+     */
+    public static final RegistryObject<cn.dancingsnow.neoecoprototype1201.items.AllItemsCreativeCellItem>
+            ALL_ITEMS_CREATIVE_CELL =
+            ITEMS.register("all_items_creative_cell",
+                    () -> new cn.dancingsnow.neoecoprototype1201.items.AllItemsCreativeCellItem(
+                            new Item.Properties().stacksTo(1)));
+
+    /**
+     * Creative-only: right-click hands out a random batch of encoded patterns for this addon's and eco's
+     * recipes, skipping the ones already in the inventory. See {@code PatternGeneratorItem}.
+     */
+    public static final RegistryObject<cn.dancingsnow.neoecoprototype1201.items.PatternGeneratorItem>
+            PATTERN_GENERATOR =
+            ITEMS.register("pattern_generator",
+                    () -> new cn.dancingsnow.neoecoprototype1201.items.PatternGeneratorItem(
+                            new Item.Properties().stacksTo(1)));
+
     /** Computation cells live in the drive, so they carry a tier instead of a storage type row. */
     public static final RegistryObject<SimplifyComputationCellItem> SIMPLIFY_COMPUTATION_CELL_1M =
             ITEMS.register("simplify_computation_cell_1m",
@@ -368,6 +390,11 @@ public final class Registration {
                         output.accept(PIGMEE_STORAGE_CELL.get());
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_MATRIX_HOUSING.get());
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_CELL.get());
+                        // Creative-only helpers: an endless everything-cell, and the pattern generator.
+                        // Neither has a survival recipe; they exist so testers can build a crafting
+                        // setup without hand-encoding hundreds of patterns.
+                        output.accept(ALL_ITEMS_CREATIVE_CELL.get());
+                        output.accept(PATTERN_GENERATOR.get());
                         output.accept(SIMPLIFY_COMPUTATION_CELL_1M.get());
                         output.accept(ENERGIZED_COMPUTATION_CELL_4M.get());
                         output.accept(CABLE_PATTERN_PROVIDER.get());

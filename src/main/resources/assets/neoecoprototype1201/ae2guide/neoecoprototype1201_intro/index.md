@@ -38,6 +38,7 @@ A formed L1 storage subsystem, as one shape: controller at one end, drive, energ
 | An interface that powers the grid | [L1 Interfaces](interfaces.md) - powered and superconductive, on one page |
 | More crafting throughput | [L1 Computation System](computation_system.md) and [L1 Crafting System](crafting_system.md) |
 | Turn a formed host into the next tier | [Migration Drives](migration_drives.md) - no recipe yet, /give only |
+| Test setups without grinding | [Creative Helpers](creative_helpers.md) - an endless cell and the pattern generator |
 
 Both interfaces generate power passively, but AE2 keeps only the highest-output generator per grid - see the [L1 Interfaces](interfaces.md) page.
 

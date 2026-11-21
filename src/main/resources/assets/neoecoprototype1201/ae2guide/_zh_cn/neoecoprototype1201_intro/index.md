@@ -38,6 +38,7 @@ Neo ECO Prototype 把 Neo ECO AE Extension 的后期内容带到 **L1 前期**�
 | 一台既分区又供电的接口 | [L1 接口](interfaces.md)（供能与超导两台写在同一页） |
 | 提升合成吞吐 | [L1 计算系统](computation_system.md) 与 [L1 合成系统](crafting_system.md) |
 | 把成型主机换成上一档 | [升格迁移驱动](migration_drives.md)（暂时没配方，只能 /give） |
+| 不手搓就想测试 | [创造模式助手](creative_helpers.md)（无限元件与样板生成器） |
 
 两台接口都自带被动发电，但 AE2 每个网格只保留输出功率最高的那台——细节见 [L1 接口](interfaces.md) 那一页。
 

@@ -131,6 +131,9 @@ public final class Prototype1201 {
         // asks this table for every stack it mounts, which is what makes a stateless cell like ours work
         // without eco ever knowing the item.
         event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.InfiniteConcreteCellHandler::register);
+        // Creative-only everything-cell: it only reacts to its own item, and its key list is read lazily
+        // on first use, so no mod check or extra ordering is involved.
+        event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.AllItemsCreativeCellHandler::register);
         registerAssemblerMenu();
         registerProviderMenu();
         reportInterfaceMixinApplied();
