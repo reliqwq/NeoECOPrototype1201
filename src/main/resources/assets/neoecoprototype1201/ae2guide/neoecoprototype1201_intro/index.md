@@ -28,6 +28,8 @@ A formed L1 storage subsystem, as one shape: controller at one end, drive, energ
 |---------------|----------------|
 | Automating processors from patterns | [L1 Processor Assembler](processor_assembler.md) - processors before you have an inscriber |
 | Which matrix stores what | [Supported storage matrices](matrix_types.md) |
+| Keeping FE inside the network | [FE Storage Matrices](flux_storage.md) - 1K / 1M / 4M, needs AppliedFlux |
+| Registering matrices and recipes from scripts | [KubeJS support](kubejs.md) |
 | The full storage multiblock | [L1 Storage System](storage_system.md) - parts, idle draw, build order |
 | Singularities without a condenser | [L1 Singularity Cell](singularity_cell.md) - it grows its own stock |
 | Few types, nearly unlimited amounts | [Small Bulk Matrices](small_bulk_matrices.md) - needs MEGA Cells, 3 types or 10 |

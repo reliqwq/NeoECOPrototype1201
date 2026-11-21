@@ -28,6 +28,8 @@ Neo ECO Prototype 把 Neo ECO AE Extension 的后期内容带到 **L1 前期**�
 |----------|----------|
 | 用样板自动化处理器 | [L1 处理器装配室](processor_assembler.md)（前期没有压印器也能做出处理器） |
 | 哪种矩阵存什么 | [支持的存储矩阵](matrix_types.md) |
+| 把 FE 存进网络 | [FE存储矩阵](flux_storage.md)（1K / 1M / 4M，要装 AppliedFlux） |
+| 用脚本注册矩阵和改配方 | [KubeJS 支持](kubejs.md) |
 | 整台存储多方块 | [L1 存储系统](storage_system.md)（部件、耗电、搭建顺序） |
 | 不造凝聚器攒奇点 | [L1 奇点元件](singularity_cell.md)（自己长库存） |
 | 很少几种、每种近乎无限 | [小宗存储矩阵](small_bulk_matrices.md)（要装 MEGA Cells，3 种或 10 种） |
