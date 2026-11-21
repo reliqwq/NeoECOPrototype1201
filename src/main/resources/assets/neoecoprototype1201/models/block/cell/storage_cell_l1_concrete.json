@@ -92,7 +92,8 @@
      "forge_data": {
       "block_light": 15,
       "sky_light": 15
-     }
+     ,
+      "ambient_occlusion": false}
     },
     "east": {
      "uv": [
@@ -105,7 +106,8 @@
      "forge_data": {
       "block_light": 15,
       "sky_light": 15
-     }
+     ,
+      "ambient_occlusion": false}
     },
     "west": {
      "uv": [
@@ -118,7 +120,8 @@
      "forge_data": {
       "block_light": 15,
       "sky_light": 15
-     }
+     ,
+      "ambient_occlusion": false}
     }
    }
   }

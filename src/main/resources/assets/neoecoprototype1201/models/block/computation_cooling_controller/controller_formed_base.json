@@ -39,7 +39,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -71,7 +71,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -103,7 +103,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -144,7 +144,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -176,7 +176,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -208,7 +208,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -249,7 +249,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -281,7 +281,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -313,7 +313,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }
@@ -354,7 +354,7 @@
       "color": -1,
       "block_light": 15,
       "sky_light": 15,
-      "ambient_occlusion": true,
+      "ambient_occlusion": false,
       "calculate_normals": false
      }
     }

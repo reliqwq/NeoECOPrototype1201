@@ -72,11 +72,10 @@ dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekani
 全在四只主控成型底板（`computation_cooling_controller/controller_formed_base{,_mirrored}.json` 各 6 颗元素、
 `computation_controller/` 两只各 1 颗），2026-11-02 补齐 ⇒ 现量 **205/205 的元素都带 `"shade": false`**。
 
-**`ambient_occlusion` 是另一回事，还没拍。** eco 20.5.3 也在 830/830 条发光面写 `false`，但它自己没有任何模型
-写顶层 `ambientocclusion`，而顶层默认是 true ⇒ 在这条线上"不写"与"写 true"是同一件事。eco 21.2.13 反过来
-818/854 条不写，我们 1.21.1 那份也是 324 条全不写。所以本仓现在的读数 `false 20 / true 114 / 不写 71`
-（20 = 搬来的那对发光线缆 18 + 闪存晶阵两只面 2）**跟 1.21.1 同源、不跟 eco 20.5.3 同源**，要不要整仓压到
-false 是他的拍；守卫把这条**印成读数**、不判红。
+**`ambient_occlusion` 已经拍了（2026-11-21，reliqwq 拍的"整仓发光面"那条）。** 283 条发光面的 forge_data
+全部写死 `"ambient_occlusion": false`（114 处 true 改写 + 149 处补写，64 份模型），与 eco 20.5.3 自己 830/830
+的口径对齐。闸的 census 现在就是全平读数（false 283 / true 0 / absent 0）——未来任何一条发光面不带显式
+false 都会让这一行偏掉，照着查即可。
 
 **批量改 JSON 不许走 `json.dumps` 回合。** 试过：199 个标记改动被 17041 行新增埋掉（每个文件的数组都被重排），
 而且第一版行扫描写坏了 190 份模型（只留下元素行，`git checkout --` 整目录回滚）。现在的做法是**只动文本行**，
