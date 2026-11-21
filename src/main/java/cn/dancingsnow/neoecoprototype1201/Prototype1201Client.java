@@ -87,6 +87,8 @@ public final class Prototype1201Client {
     private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
     /** The singularity family's chip, shared by the singularity and sky-stone-dust cells. */
     private static final String SINGULARITY_RUNG = "storage_cell_l1_singularity";
+    /** The creative everything-cell's chip: the infinite family's shape with its own animated housing. */
+    private static final String CREATIVE_RUNG = "storage_cell_l1_creative";
     /**
      * The small-bulk rungs in {@code SmallBulkIntegration.CELLS}' order: each medium's base cell on L1's
      * band and its ten-mark cell on the 4M band. Not a five-rung ladder, so the family keeps its own array.
@@ -106,6 +108,7 @@ public final class Prototype1201Client {
         all.add(PIGMEE_RUNG);
         all.add(CONCRETE_RUNG);
         all.add(SINGULARITY_RUNG);
+        all.add(CREATIVE_RUNG);
         return all.toArray(new String[0]);
     }
 
@@ -194,6 +197,9 @@ public final class Prototype1201Client {
                     .UniversalIntegration.CELLS, OMNI_RUNGS);
             ECOCellModels.register(Registration.SIMPLIFY_SINGULARITY_CELL.get(), cellModel(SINGULARITY_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get(), cellModel(SINGULARITY_RUNG));
+            // The creative everything-cell rides the infinite family's chip shape with its own
+            // housing - the same silver shell its item icon wears, animated the same twelve frames.
+            ECOCellModels.register(Registration.ALL_ITEMS_CREATIVE_CELL.get(), cellModel(CREATIVE_RUNG));
             // Empty without arseng, same shape as the omni list above.
             registerLadder(cn.dancingsnow.neoecoprototype1201.integration.arseng
                     .SourceIntegration.CELLS, SOURCE_RUNGS);

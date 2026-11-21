@@ -731,6 +731,36 @@ def check_blockstates():
           f"controller offers {len(shaped)} shapes x {len(faces)} face rows")
 
 
+def check_texture_frames():
+    """Every multi-frame-shaped png carries a .mcmeta, because a sprite sheet without one renders
+    as all its frames squeezed into one slot. The shape test is h > w with h a multiple of w - the
+    drive's level/type strips are square and pass; three deliveries already lost their mcmeta on
+    the way over (singularity item, singularity drive housing, quantum omni layer) and each bug
+    was a player-visible squeezed carousel. 1.21.1 is the mcmeta authority: a png this flag names
+    gets its sidecar copied from there, byte for byte.
+    """
+    count = 0
+    for here, _, files in os.walk(TEXTURE_DIR):
+        for name in sorted(files):
+            if not name.endswith(".png"):
+                continue
+            path = os.path.join(here, name)
+            try:
+                from PIL import Image
+                width, height = Image.open(path).size
+            except Exception:
+                continue
+            if height <= width or height % width or height // width < 2:
+                continue
+            count += 1
+            if not os.path.isfile(path + ".mcmeta"):
+                where = "textures/" + os.path.relpath(path, TEXTURE_DIR).replace(os.sep, "/")
+                problems.append(f"{where}: {height // width} frames in a {width}-wide sheet with no"
+                                " .mcmeta - the game renders every frame squeezed into one slot")
+    print(f"textures: {count} multi-frame pngs, every one with a sidecar mcmeta" if not problems
+          else f"textures: {count} multi-frame pngs")
+
+
 def main():
     if not os.path.isdir(ADV_DIR):
         print(f"no advancements at {ADV_DIR}")
@@ -739,6 +769,7 @@ def main():
     check_recipes()
     check_data_ids()
     check_models()
+    check_texture_frames()
     check_blockstates()
     check_jade_keys()
     check_slot_count()
