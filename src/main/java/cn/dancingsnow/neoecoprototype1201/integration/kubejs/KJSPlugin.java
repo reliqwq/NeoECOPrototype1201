@@ -16,8 +16,9 @@ import net.minecraft.world.item.Item;
  *
  * <p>形状差（对着 kubejs-forge-2001.6.5-build.26 量的，见 AGENTS §4.7）：2001.6.x 的
  * 插件是**类**（本类 {@code extends} 它），1.21.1 的 {@code plugin.KubeJSPlugin} 是接口；
- * builder 类型注册走 {@code RegistryInfo.of(...).addType(...)}（{@code init()} 里调，
- * 与 BuiltinKubeJSPlugin.init 的字节码同型）；schema 注册走
+ * builder 类型注册走静态字段 {@code RegistryInfo.ITEM.addType(...)}（{@code init()} 里调，
+ * 与 BuiltinKubeJSPlugin.init 的字节码同型——{@code RegistryInfo.of(...)} 建的是一张没人查的
+ * 表，眼验实测）；schema 注册走
  * {@code registerRecipeSchemas(RegisterRecipeSchemasEvent)}。
  *
  * <p>注册三个物品 builder 类型，脚本即可创建存储矩阵与 eco 供能元件：
@@ -33,13 +34,20 @@ public class KJSPlugin extends KubeJSPlugin {
 
     @Override
     public void init() {
-        var items = RegistryInfo.of(Registries.ITEM, Item.class);
-        // Registered unconditionally: the two optional backends this builder can reach for live
-        // behind their own classes (ChemicalMatrixSupport, OmniMatrixSupport), so naming the
-        // builder no longer pulls Mekanism or Omni Cells into a pack that lacks them.
-        items.addType("infinite_storage_matrix", InfiniteMatrixBuilder.class, InfiniteMatrixBuilder::new);
-        items.addType("storage_matrix", StorageMatrixBuilder.class, StorageMatrixBuilder::new);
-        items.addType("eco_supply_cell", EcoSupplyCellBuilder.class, EcoSupplyCellBuilder::new);
+        // The door is the ITEM static field - RegistryInfo.of(...) builds a lookup nobody consults,
+        // and the 2026-11-22 eyecheck run proved it: the script's event.create answered
+        // "Unknown type" with the three types sitting in the wrong table. Same call shape as
+        // BuiltinKubeJSPlugin.init's bytecode (getstatic ITEM, then addType).
+        // KubeJS 6 matches the type string EXACTLY. The family allocation follows the 1.21.1 line
+        // verbatim: the types are the neoecoprototype:* names (the 1.21.1 docs and pack scripts),
+        // so a script written for the other line runs here unchanged. No 1201-prefixed alias: the
+        // family split is a contract shared with the 1.21.1 line, not a per-line naming choice.
+        RegistryInfo.ITEM.addType("neoecoprototype:infinite_storage_matrix",
+                InfiniteMatrixBuilder.class, InfiniteMatrixBuilder::new);
+        RegistryInfo.ITEM.addType("neoecoprototype:storage_matrix",
+                StorageMatrixBuilder.class, StorageMatrixBuilder::new);
+        RegistryInfo.ITEM.addType("neoecoprototype:eco_supply_cell",
+                EcoSupplyCellBuilder.class, EcoSupplyCellBuilder::new);
     }
 
     @Override

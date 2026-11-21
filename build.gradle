@@ -219,6 +219,15 @@ dependencies {
     // interface, so javac has to see the type. CompileOnly, same reasoning as above.
     // (Modrinth rhino forge 2001.2.3-build.10, sha1-verified at download.)
     compileOnly files("libs/rhino-forge-2001.2.3-build.10.jar")
+    // The 2026-11-22 eyecheck run: the production jars dropped into run/mods CRASH the dev client
+    // (kubejs's own mixin fails on the official channel - the same route §5 documents for JEI), so
+    // the runtime route is fg.deobf with maven coordinates, one Modrinth version that carries a
+    // single file each. Kept as runtimeOnly now that the no-KubeJS boot has its recorded read
+    // (2026-11-21 12:58): a dev run carries KubeJS by default and the startup eyecheck script in
+    // run/kubejs/startup_scripts/ is the reproducible verification.
+    runtimeOnly fg.deobf("maven.modrinth:kubejs:2001.6.5-build.26+forge")
+    runtimeOnly fg.deobf("maven.modrinth:rhino:2001.2.3-build.10+forge")
+    runtimeOnly fg.deobf("maven.modrinth:architectury-api:9.2.14+forge")
 
 }
 

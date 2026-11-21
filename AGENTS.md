@@ -87,8 +87,8 @@ false 都会让这一行偏掉，照着查即可。
 面（AE2 自家 energy_cell 同款形状），旧的一档一张脉冲贴图按 README 自己的要求删除。交付包里三张物品贴图
 （pattern_generator/backup_drive/扩容卡）与两线现行逐字节相同（那包本来就是它们的出处）；**未迁内容的美术
 （寒冰冰淇淋 ×3、工作站卡、工作站 colormap）留在交付包里不进 assets**，随各族代码迁移时再走（colormap 那张
-还依赖 21.2.19 的 `WorkstationSpriteSource`，20.5.3 没有这个门，先做也没用）。1.21.1 那条线同样没整合过这包
-的盈能分档面——那边动资产时照这份形状抄。坑：闭包遍历贴图要用**替换命名空间之前**的模型 JSON（替换后的
+还依赖 21.2.19 的 `WorkstationSpriteSource`，20.5.3 没有这个门，先做也没用）。（1.21.1 那条线的分档面
+早已自己整合过——reliqwq 2026-11-22 指正，本行记录原写反了。）坑：闭包遍历贴图要用**替换命名空间之前**的模型 JSON（替换后的
 `neoecoprototype1201:` 前缀永远匹配不上 `neoecoprototype:` 的判定）。
 
 **计算主机那对线缆（`ComputationCableModels`）在这条线上换了拆法。** 1.21.1 用 eco 的**双参**查表

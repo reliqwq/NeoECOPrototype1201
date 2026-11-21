@@ -139,8 +139,8 @@ This split is intentional. A script can safely choose what content exists and ho
 
 ## 自定义无限存储矩阵
 
-KubeJS 在场时可以通过自定义 builder 类型 `neoecoprototype1201:infinite_storage_matrix`
-创建任意「无限」矩阵：绑定的物品/流体存入即融入、无限取出、优先路由，
+KubeJS 在场时可以通过自定义 builder 类型 `neoecoprototype:infinite_storage_matrix`
+（别名 `neoecoprototype:infinite_storage_matrix`）创建任意「无限」矩阵：绑定的物品/流体存入即融入、无限取出、优先路由，
 与无限混凝土矩阵同一套行为（L1 等级、8 AE/t 待机、不可拆卸）。
 
 在 `kubejs/startup_scripts` 中注册（需重启游戏生效）：
@@ -148,12 +148,12 @@ KubeJS 在场时可以通过自定义 builder 类型 `neoecoprototype1201:infini
 ```js
 StartupEvents.registry('item', event => {
   // 绑定单个物品
-  event.create('infinite_dirt', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_dirt', 'neoecoprototype:infinite_storage_matrix')
        .itemType('minecraft:dirt')
        .displayName('无限泥土存储矩阵')
 
   // 绑定单个流体
-  event.create('infinite_water', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_water', 'neoecoprototype:infinite_storage_matrix')
        .fluidType('minecraft:water')
        .displayName('无限水存储矩阵')
 })
@@ -179,7 +179,7 @@ StartupEvents.registry('item', event => {
 
 ```js
 StartupEvents.registry('item', event => {
-  event.create('infinite_oak_log', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_oak_log', 'neoecoprototype:infinite_storage_matrix')
        .itemType('minecraft:oak_log')
        .size('infinite')
        .tier('l1')
@@ -193,22 +193,25 @@ StartupEvents.registry('item', event => {
 
 ## 通用存储矩阵注册
 
-使用 `neoecoprototype1201:storage_matrix` 可以注册新的物品、流体或化学品矩阵：
+使用 `neoecoprototype:storage_matrix` 可以注册新的物品、流体或化学品矩阵
+（从 1.21.1 线的文档抄来的脚本写 `neoecoprototype:storage_matrix` 也照常工作：两种命名空间
+形式都注册了；裸名 `storage_matrix` 同样可用——KubeJS 6 对 type 字符串是精确匹配）：
+
 
 ```js
 StartupEvents.registry('item', event => {
-  event.create('hydrogen_matrix_4k', 'neoecoprototype1201:storage_matrix')
+  event.create('hydrogen_matrix_4k', 'neoecoprototype:storage_matrix')
        .chemicalType('mekanism:hydrogen')
        .size('4k')
        .displayName('4K 氢气存储矩阵')
 
-  event.create('oak_matrix_16k', 'neoecoprototype1201:storage_matrix')
+  event.create('oak_matrix_16k', 'neoecoprototype:storage_matrix')
        .itemType('minecraft:oak_log')
        .size('16k')
        // 注意：这一档是通用物品矩阵，上面绑的 oak_log 不会生效；
        // 要一台只装 oak_log 的矩阵就别写 size，用默认的 infinite。
 
-  event.create('water_matrix_1m', 'neoecoprototype1201:storage_matrix')
+  event.create('water_matrix_1m', 'neoecoprototype:storage_matrix')
        .fluidType('minecraft:water')
        .size('1m')
 })
@@ -270,10 +273,10 @@ StartupEvents.registry('item', event => {
 
 ```js
 StartupEvents.registry('item', event => {
-  event.create('stone_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  event.create('stone_matrix_1k', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:stone').size('1k').displayName('石头存储矩阵')
 
-  event.create('other_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  event.create('other_matrix_1k', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:gold_ingot').size('1k').material('other').displayName('其他材质矩阵')
 })
 ```
@@ -284,7 +287,7 @@ StartupEvents.registry('item', event => {
 
 ```js
 StartupEvents.registry('item', event => {
-  const matrix = event.create('custom_item_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  const matrix = event.create('custom_item_matrix_1k', 'neoecoprototype:storage_matrix')
   matrix.itemType('minecraft:stone')
   matrix.size('1k')
   matrix.parentModel('minecraft:item/generated')
@@ -304,18 +307,18 @@ StartupEvents.registry('item', event => {
 
 ```js
 StartupEvents.registry('item', event => {
-  event.create('lava_grower', 'neoecoprototype1201:storage_matrix')
+  event.create('lava_grower', 'neoecoprototype:storage_matrix')
        .fluidType('minecraft:lava')
        .grows(128, 600)
        .displayName('熔岩自产矩阵')
 
-  event.create('hydrogen_grower', 'neoecoprototype1201:storage_matrix')
+  event.create('hydrogen_grower', 'neoecoprototype:storage_matrix')
        .chemicalType('mekanism:hydrogen')
        .grows(1, 1200)
        .displayName('氢气自产矩阵')
 
   // 非物品/流体键（例如魔源）：键对象由那个模组的 API 提供
-  event.create('source_grower', 'neoecoprototype1201:storage_matrix')
+  event.create('source_grower', 'neoecoprototype:storage_matrix')
        .keyType(() => sourceKey)
        .grows(100, 200)
        .displayName('魔源自产矩阵')
@@ -344,7 +347,7 @@ StartupEvents.registry('item', event => {
 
 ## 无限供给矩阵 eco_supply_cell
 
-`neoecoprototype1201:eco_supply_cell` 造的**不是本模组的无限矩阵**，而是 eco 那族无限基础资源存储矩阵：
+`neoecoprototype:eco_supply_cell` 造的**不是本模组的无限矩阵**，而是 eco 那族无限基础资源存储矩阵：
 引擎是 eco 的 `ECOInfiniteResourceCell`，参数（每类型成本、待机耗电、EPIC、堆叠 1）
 全部取自 eco 的档位，只有「锁哪几个键」由脚本给。绑定的键由 ME 网络直接无限抽取；
 推进来的同类资源被直接销毁；别的键一律不收。
@@ -362,7 +365,7 @@ const MekanismKey = Java.loadClass('me.ramidzkh.mekae2.ae2.MekanismKey')
 const gasRegistry = BuiltInRegistries.REGISTRY.get(MekanismAPI.GAS_REGISTRY_NAME)
 
 StartupEvents.registry('item', event => {
-  event.create('base_resources', 'neoecoprototype1201:eco_supply_cell')
+  event.create('base_resources', 'neoecoprototype:eco_supply_cell')
     .supplies('minecraft:redstone')
     .suppliesFluid('minecraft:milk')
     .suppliesKey(() => MekanismKey.of(gasRegistry.get(

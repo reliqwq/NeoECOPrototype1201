@@ -276,7 +276,12 @@ def check_pages():
                 target = parent.group(1).rsplit("/", 1)[-1]
                 if target != "index.md" and target not in langs[sub]:
                     problems.append(f"{where}: navigation.parent page not shipped: {target}")
-            for leak in FOREIGN_NS.findall(text):
+            # The three KubeJS builder types are deliberately named neoecoprototype:* on both lines
+            # (the 1.21.1 family allocation, per reliqwq 2026-11-22): a script written against the
+            # 1.21.1 docs runs unchanged here. Strip them before the foreign-namespace scan.
+            scan = re.sub(r"neoecoprototype:(?:storage_matrix|infinite_storage_matrix|eco_supply_cell)",
+                          "", text)
+            for leak in FOREIGN_NS.findall(scan):
                 problems.append(f"{where}: still names the other line's namespace")
     for sub, per_page in sorted(claims.items()):
         label = "guide/" + (sub or "en")

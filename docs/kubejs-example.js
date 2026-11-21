@@ -22,41 +22,41 @@
 StartupEvents.registry('item', event => {
   // ---------- 1. 最常用：有限物品 / 流体矩阵 ----------
   // 外壳、驱动器内模型、类型数都按类型自动决定，不用手写贴图。
-  event.create('stone_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  event.create('stone_matrix_1k', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:stone')
     .size('1k')
     .displayName('1K 石头存储矩阵')
 
-  event.create('water_matrix_4k', 'neoecoprototype1201:storage_matrix')
+  event.create('water_matrix_4k', 'neoecoprototype:storage_matrix')
     .fluidType('minecraft:water')
     .size('4k')
     .displayName('4K 水存储矩阵')
 
   // ---------- 2. 化学品矩阵（需要 Mekanism + Applied Mekanistics）----------
-  event.create('hydrogen_matrix_4k', 'neoecoprototype1201:storage_matrix')
+  event.create('hydrogen_matrix_4k', 'neoecoprototype:storage_matrix')
     .chemicalType('mekanism:hydrogen')
     .size('4k')
     .displayName('4K 氢气存储矩阵')
 
   // ---------- 3. 无限矩阵：绑定一个物品，存入即吸收、无限取出 ----------
-  event.create('infinite_glass', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_glass', 'neoecoprototype:infinite_storage_matrix')
     .itemType('minecraft:glass')
     .displayName('无限玻璃存储矩阵')
 
-  event.create('infinite_water', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_water', 'neoecoprototype:infinite_storage_matrix')
     .fluidType('minecraft:water')
     .displayName('无限水存储矩阵')
 
   // 无限矩阵可以用别的家族的「格子芯片规格」模型当驱动器内外观。
   // 注意：cellModel 必须是 6x12x2 的格子芯片模型，传整方块模型会在驱动器里穿模。
-  event.create('infinite_wool', 'neoecoprototype1201:infinite_storage_matrix')
+  event.create('infinite_wool', 'neoecoprototype:infinite_storage_matrix')
     .itemType('minecraft:white_wool')
     .cellModel('neoecoprototype1201:block/cell/storage_cell_l1_pigmee')
     .displayName('无限羊毛存储矩阵')
 
   // ---------- 4. 自定义容量与类型数（不走固定档位）----------
   // bytes(...) / totalTypes(...) 会给定义打上 CUSTOM，不受 1k/4k/1m 档位约束。
-  event.create('pigmee_400_matrix', 'neoecoprototype1201:storage_matrix')
+  event.create('pigmee_400_matrix', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:gold_ingot')
     .material('pigmee')
     .bytes(256)
@@ -67,13 +67,13 @@ StartupEvents.registry('item', event => {
   // 给 type(...) 传家族名会同时切换后端与外观：
   //   universal = 全能后端，本线默认 512 类型
   //   quantum   = 量子后端，无限类型，不要写 totalTypes(...)
-  event.create('universal_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  event.create('universal_matrix_1k', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:gold_ingot')
     .type('universal')
     .size('1k')
     .displayName('1K 全能矩阵')
 
-  event.create('quantum_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  event.create('quantum_matrix_1k', 'neoecoprototype:storage_matrix')
     .itemType('minecraft:gold_ingot')
     .type('quantum')
     .size('1k')
@@ -82,7 +82,7 @@ StartupEvents.registry('item', event => {
   // ---------- 6. 完全接管物品栏外观 ----------
   // 本线是 KubeJS 6：多张贴图用 .texture(槽位, id) 逐张给；
   // 设了 texture/parentModel 后，builder 不再套用默认矩阵模型。
-  const custom = event.create('custom_look_matrix_1k', 'neoecoprototype1201:storage_matrix')
+  const custom = event.create('custom_look_matrix_1k', 'neoecoprototype:storage_matrix')
   custom.itemType('minecraft:diamond')
   custom.size('1k')
   custom.parentModel('minecraft:item/generated')
@@ -96,14 +96,14 @@ StartupEvents.registry('item', event => {
   // 内容就是 itemType/fluidType/chemicalType 绑的那一个 key，任意 mod 的都可以。
   // 两个数都必须为正且不读服务端配置；往它推东西一律拒收。
   // 插进驱动器、被网络问过库存才开始计时，放在身上不算。
-  event.create('lava_grower', 'neoecoprototype1201:storage_matrix')
+  event.create('lava_grower', 'neoecoprototype:storage_matrix')
     .fluidType('minecraft:lava')
     .grows(128, 600)
     .displayName('熔岩自产矩阵 | 每 600 刻 128')
 
   // 不写数量档位：bytes(...) / totalTypes(...) / size(...) 会被拒绝，它没有字节预算可描述。
   // 外观默认走无限家族（银灰混凝土外壳 + 无限那枚驱动器芯片），要换用 material(...)。
-  event.create('hydrogen_grower', 'neoecoprototype1201:storage_matrix')
+  event.create('hydrogen_grower', 'neoecoprototype:storage_matrix')
     .chemicalType('mekanism:hydrogen')
     .grows(1, 1200)
     .displayName('氢气自产矩阵 | 每 1200 刻 1')
@@ -113,14 +113,14 @@ StartupEvents.registry('item', event => {
   // （ECOInfiniteResourceCell），绑定的键由 ME 网络直接无限抽取，推进来的
   // 同类资源被直接销毁，别的键一律不收。
   // 至少绑一个键；supplies / suppliesFluid 可以写任意多个，顺序就是 tooltip 的顺序。
-  event.create('infinite_base_resources', 'neoecoprototype1201:eco_supply_cell')
+  event.create('infinite_base_resources', 'neoecoprototype:eco_supply_cell')
     .suppliesFluid('minecraft:water')
     .supplies('minecraft:cobblestone')
     .suppliesFluid('minecraft:lava')
     .displayName('无限基础资源矩阵')
 
   // 档位是 eco 的 l4 / l6 / l9（默认 l9），决定每类型成本与待机耗电。
-  event.create('infinite_certus', 'neoecoprototype1201:eco_supply_cell')
+  event.create('infinite_certus', 'neoecoprototype:eco_supply_cell')
     .supplies('ae2:certus_quartz_crystal')
     .tier('l4')
     .displayName('无限赛特斯石英矩阵')

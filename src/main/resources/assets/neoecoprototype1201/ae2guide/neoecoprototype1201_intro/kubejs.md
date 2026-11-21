@@ -12,7 +12,7 @@ KubeJS is optional; these exist only when it is installed.
 
 | What you can do | Where |
 |-----------------|-------|
-| Register custom storage matrices | Startup scripts, two builder types: `neoecoprototype1201:storage_matrix` and `neoecoprototype1201:infinite_storage_matrix` - capacity, type limit, material and bound resource are all settable |
+| Register custom storage matrices | Startup scripts, two builder types: `neoecoprototype:storage_matrix` and `neoecoprototype:infinite_storage_matrix` - capacity, type limit, material and bound resource are all settable |
 | Make a cell that grows its own stock | Same builder, `.grows(perBatch, ticksPerBatch)`: it hands out the bound item/fluid/chemical every `ticksPerBatch` world ticks and takes nothing in |
 | Add, change or remove this addon's recipes | Server scripts; the processor assembler's recipes can be removed by field or added as raw JSON |
 
