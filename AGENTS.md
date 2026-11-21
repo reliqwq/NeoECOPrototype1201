@@ -265,13 +265,13 @@ EC9 的常量（本线无 config）：batch cap 64、升级栏 6 格、`l1Name` 
 5. lang 双文件 16 键（卡+desc、backup_drive+desc、12 工单）+ `matrix_types.md` 或 assembler 页 claim + 创造栏 accepts；
 6. 工单的 12 键名照 1.21.1（扩容/升级 + 上游措辞）。
 
-**核对过的既有事实**：卡片 useOn→grow/upgradeTier 的三参形状与 1.21.1 一致；`MigrationDriveItem extends SimplifyStructureExpansionCardItem` 在两线同构；本线无 config（1.21.1 的 CARD_CONSUMES_ITEMS 配置项 → 常量 true，字段已在）。### 4.7 杂项（⑧）的移植面量化（11-21 夜，未开工）
+**核对过的既有事实**：卡片 useOn→grow/upgradeTier 的三参形状与 1.21.1 一致；`MigrationDriveItem extends SimplifyStructureExpansionCardItem` 在两线同构；本线无 config（1.21.1 的 CARD_CONSUMES_ITEMS 配置项 → 常量 true，字段已在）。### 4.7 杂项（⑧）的移植面量化（11-21 夜；创意件已落地）
 
 - **KubeJS 集成**（最大件）：1.21.1 侧 1029 行（`StorageMatrixBuilder` 414 + `InfiniteMatrixBuilder` 184 + KJSPlugin/Schema/两枚 Support + `api/StorageMatrixRegistration` 47）。依赖 KubeJS-for-NeoForge-21.x 的插件 API；1.20.1 Forge 线是 **KubeJS 2001.6.x**（Modrinth 上 2101.x/26.1.x 全是 NeoForge 件，CurseForge 是主仓）——**不是照搬，是按 2001.x 插件 API 重写**，脚本面（`docs/kubejs.md` 的 StorageMatrixRegistration 公开承诺）要保形。**reliqwq 已拍（11-21）：目标包跑 KubeJS，此块要做**。开工前两件：① 确定具体 2001.x 版本号（整合包在用什么）+ 它的插件注册形状（`PluginBase` 子类 + `RegisterRecipeSchemasEvent` 的 2001.x 等价物）；② Forge 1.20.1 的配方 builder 接口与 NeoForge 的差异清单（SizedIngredient/FluidIngredient 的 Forge 等价物在 §4.5 已记一半）。
-- **创意三件**：`PatternGeneratorItem`（389 行，纯 AE2 API + 配方扫描，可直移）、`all_items_creative_cell`（注册点在 1.21.1 的 gregtech/创意条件段，1.20.1 需要自己的创意条件形状）、`workstation_preview` 方块（1.21.1 的注册点 + 一只 BE/块——量完再定）。三件都是 creative-only，无生存配方。
-- **成就族**：本线**已有 19 个成就文件**且 lang 齐（数据闸绿）——1.21.1 的 `assembler_built` 等十个新 id 是新内容。补 = 每个一份 json + 双语 lang + 触发条件核对（EC9/omni/魔源/扩容卡这些新件恰好是新成就的合理触发物）。
+- **创意三件：两件已落地（11-21），一件推退**。`all_items_creative_cell` + `pattern_generator` 按 1.21.1 注册点直移（Registration 的 concrete 元件段 + 创造栏两项 + `AllItemsCreativeCellHandler::register` 走 `enqueueWork`，与 InfiniteConcreteCellHandler 同位）。本线量的形状差，逐条对过 jar：1.20.1 无 `RecipeHolder`（配方自己带 `getId`）；AE2 15.4.10 的 `encodeProcessingPattern` 收 **GenericStack 数组**不是 List；eco 20.5.3 的工作站配方读**自己的** `platform.recipe.SizedIngredient`（本线不得引 Forge 的同名类）；`LargeIntegratedWorkingStationRecipe` 没有 `id()` 分量——它的 `getId` 继承自 `Recipe` 接口，小型那族才覆写 `id()`；20.5.3 的 `IECOStorageCell` 上**没有** 1.21.1 的 `visitExactAmounts`/`hasSaturatingListing`/`ExactAmountSource`，所以全物品元件的"无限"只到列出量为止，eco 按"很大的有限数"计费（指南页写明）。描述行走本线的 per-item `appendHoverText` 形状（扩容卡同款），不走 1.21.1 的 tooltip 事件。指南新增 `creative_helpers.md` 双语页，认领两只 id；数据闸 123→**125 of 125**。**`workstation_preview` 推退**：它唯一的存在理由是给工作站卡的指南页展示"装上后的外观"，而工作站卡在本线未移植（§4.5——20.5.3 缺两个 addon 口子），先没东西可展示；跟工作站卡一起开。
+- **成就族：不需要移植（11-21 核对，推翻本节原判断）。** 原记录说"1.21.1 的 `assembler_built` 等十个新 id 是新内容"——那是把 1.21.1 的成就目录 `ls | head` 截在十个的误读。实量：1.21.1 共 **16** 个成就 id，1.20.1 有 **19** 个，是 1.21.1 的**超集**（多 `fluid_matrix`/`infinite_matrix`/`pigmee_matrix` 三件本线独有）；16 个共享 id 一份不少，且 1.20.1 的文件已经换过形状（`icon.id`→`icon.item`、命名空间 1201、触发物改成本线已注册的 id——`migration_drive` 触发四只梯级、`chemical_matrix` 触发 appmek 细胞、`fe_matrix` 触发 appflux 细胞），lang 齐、数据闸绿。触发物核对也过：EC9（`simplify_stonecutting_assembler` 本线 id）与迁移驱动在列；omni/魔源/扩容卡没有成就节点，本线与 1.21.1 都没有，不算缺。**这条线的成就面无事可做，除非 1.21.1 将来新增成就 id。**
 
-**顺序建议**：创意三件（最便宜）→ 成就十个（纯数据）→ KubeJS（最重，先答"跑不跑"）。
+**顺序建议（11-21 更新）**：~~创意三件~~已结（两落地一推退）→ ~~成就十个~~已结（无事可做）→ **KubeJS 是剩下唯一一块**：先量整合包的 2001.x 具体版本（`F:/1201prod/mods/` 里没有 KubeJS jar，版本要从真实整合包拿）+ 插件 API 形状，再按 1029 行保形重写。
 
 ## 5. 测试与验证
 
