@@ -171,8 +171,15 @@ dependencies {
     // javac at "class file has wrong version 65.0, should be 61.0"). Its hard dependency Ars Nouveau
     // is already on this line's runtime (the gtceu branch pulls it), so the dev client finds the key
     // type without anything new.
+    //
+    // Deliberately NOT runtimeOnly (measured 2026-11-21 boot): the earlier comment claimed Ars
+    // Nouveau was already on the dev runtime - it is not, and arseng 1.2.0 in a dev run without it
+    // crashes FML with NoClassDefFoundError on arsnouveau's ISourceTile before the dependency screen
+    // can even appear (the same event-table force-load that killed our omni classes on 2026-11-02,
+    // on arseng's own side). The source family is isLoaded-gated, so a dev run without arseng boots
+    // clean with the family simply absent; testing the family needs Ars Nouveau (+ its own deps)
+    // added to the runtime by hand.
     compileOnly fg.deobf("IJI3QuK8:arseng-1.2.0:xpgyRm6m")
-    runtimeOnly fg.deobf("IJI3QuK8:arseng-1.2.0:xpgyRm6m")
 
     // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
     // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's
