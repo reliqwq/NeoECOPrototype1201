@@ -175,6 +175,12 @@ public final class ModRegistration {
                             // not occlude. Same rule the computation and crafting helpers already follow.
                             .SimplifyStonecuttingAssemblerBlock(metal().noOcclusion()));
 
+    /** The family's volume half: declared and inscriber-derived recipes alike, on its own block. */
+    public static final RegistryObject<Block> EC9_PROCESSOR_ASSEMBLER_BLOCK =
+            registerBlock("ec9_processor_assembler",
+                    () -> new cn.dancingsnow.neoecoprototype1201.block.crafting
+                            .SimplifyStonecuttingAssemblerBlock(metal().noOcclusion()));
+
     /**
      * The L1 shell material, and the thing the assembler is built from. Plain block on purpose: eco's own
      * {@code ECOMachineCasing} is a multiblock member, and a crafting material that can complete a machine

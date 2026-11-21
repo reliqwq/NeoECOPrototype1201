@@ -185,5 +185,6 @@
   "eco_cell_type.neoecoprototype1201.singularity": "Singularity Cell",
   "eco_cell_type.neoecoprototype1201.sky_stone_dust": "Sky Stone Dust Cell",
   "eco_cell_type.neoecoprototype1201.source": "Source Cell",
-  "tooltip.neoecoprototype1201.singularity_stock": "Grown stock: %2$s × %1$s"
+  "tooltip.neoecoprototype1201.singularity_stock": "Grown stock: %2$s × %1$s",
+  "block.neoecoprototype1201.ec9_processor_assembler": "L1-EC9 Processor Assembler"
 }

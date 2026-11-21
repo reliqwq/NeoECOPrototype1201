@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+    },
+    "A": {
+      "item": "neoecoprototype1201:simplify_stonecutting_assembler"
+    },
+    "C": {
+      "item": "neoecoprototype1201:energized_computation_cell_4m"
+    }
+  },
+  "pattern": [
+    "GAG",
+    "GCG",
+    "GCG"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:ec9_processor_assembler",
+    "count": 1
+  }
+}

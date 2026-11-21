@@ -8,6 +8,7 @@ item_ids:
   - neoecoprototype1201:simplify_stonecutting_assembler
   - neoecoprototype1201:simplify_pattern_provider
   - neoecoprototype1201:cable_pattern_provider
+  - neoecoprototype1201:ec9_processor_assembler
 ---
 
 # L1 Processor Assembler
@@ -67,3 +68,14 @@ Processor recipes beyond those three are derived live from the inscriber's recip
 
 However many complete sets a push carries, they finish in a **single** cycle - output scales with the multiplier, time does not - so more cards are the only way to go faster. The assembler has a nine-slot grid, and one batch has to fit into those nine slots at its own stack sizes; a pattern that needs **more than nine slots** is refused - the materials go back to the network and the log names the offending line. For a processor the ceiling is 3 ingredients x 64 per stack = **192×**. One stack of the output reaches the machine per round; the rest is inserted into the network rather than lost.
 
+## The EC9: the family's volume half
+
+The <ItemLink id="neoecoprototype1201:ec9_processor_assembler" /> is the same machine on a bigger
+behalf: it also takes the **inscriber-derived** recipes - the fallback that lets other packs' press
+recipes work without a data file - while the basic assembler keeps to the curated declared list above.
+Both machines refuse ordinary molecular-assembly patterns the same way; the difference is only which
+half of the processor recipe family each answers.
+
+It is built from a basic assembler, six green crystal matrices and a CE1R flash crystal array.
+
+<RecipeFor id="neoecoprototype1201:ec9_processor_assembler" />

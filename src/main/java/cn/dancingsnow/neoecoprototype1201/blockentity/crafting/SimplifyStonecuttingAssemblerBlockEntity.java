@@ -37,8 +37,25 @@ public class SimplifyStonecuttingAssemblerBlockEntity extends MolecularAssembler
     @Nullable
     private AEItemKey refusedOutput;
 
+    /**
+     * Which half of the split recipe family this machine answers. {@code L1} is the basic machine:
+     * curated declared recipes only, the inscriber-derived fallback is dead. {@code EC9} is the
+     * family's volume half - declared and derived alike - on its own block and tile.
+     */
+    public enum Family {
+        L1, EC9
+    }
+
+    private final Family family;
+
     public SimplifyStonecuttingAssemblerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        this(type, pos, state, Family.L1);
+    }
+
+    public SimplifyStonecuttingAssemblerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state,
+                                                    Family family) {
         super(type, pos, state);
+        this.family = family;
     }
 
     /**
@@ -161,6 +178,7 @@ public class SimplifyStonecuttingAssemblerBlockEntity extends MolecularAssembler
         if (outputs.length != 1 || !(outputs[0].what() instanceof AEItemKey outputKey)) {
             return null;
         }
-        return ProcessorAssemblerRecipes.resolve(level, pattern, outputKey.getItem());
+        return ProcessorAssemblerRecipes.resolve(level, pattern, outputKey.getItem(),
+                family == Family.EC9);
     }
 }

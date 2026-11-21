@@ -185,5 +185,6 @@
   "eco_cell_type.neoecoprototype1201.singularity": "奇点元件",
   "eco_cell_type.neoecoprototype1201.sky_stone_dust": "陨石粉元件",
   "eco_cell_type.neoecoprototype1201.source": "魔源单元",
-  "tooltip.neoecoprototype1201.singularity_stock": "自产库存：%2$s × %1$s"
+  "tooltip.neoecoprototype1201.singularity_stock": "自产库存：%2$s × %1$s",
+  "block.neoecoprototype1201.ec9_processor_assembler": "L1-EC9 处理器装配室"
 }

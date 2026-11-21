@@ -89,6 +89,18 @@ public final class ProcessorAssemblerRecipes {
      */
     @Nullable
     public static ProcessorAssemblerRecipe resolve(Level level, IPatternDetails pattern, Item output) {
+        return resolve(level, pattern, output, true);
+    }
+
+    /**
+     * The family split, machine side: the basic L1 assembler answers curated declared recipes only,
+     * while the EC9 machine also takes the inscriber-derived fallback. {@code includeDerived} is what
+     * the caller's family turns into policy; {@code false} makes the derived loop dead without deleting
+     * it, so the EC9 shares the same matching code.
+     */
+    @Nullable
+    public static ProcessorAssemblerRecipe resolve(Level level, IPatternDetails pattern, Item output,
+                                                   boolean includeDerived) {
         GenericStack[] outputs = pattern.getOutputs();
         if (outputs.length != 1 || !(outputs[0].what() instanceof AEItemKey)) {
             return null;
@@ -104,6 +116,9 @@ public final class ProcessorAssemblerRecipes {
             if (matchesPattern(recipe, demands, outputAmount, output)) {
                 return recipe;
             }
+        }
+        if (!includeDerived) {
+            return null;
         }
         for (ProcessorAssemblerRecipe recipe : derived(level, declared)) {
             if (matchesPattern(recipe, demands, outputAmount, output)) {

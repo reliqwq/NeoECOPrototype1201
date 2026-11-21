@@ -227,6 +227,14 @@ public final class ModBlockEntities {
             SimplifyStonecuttingAssemblerBlockEntity.class, SimplifyStonecuttingAssemblerBlockEntity::new,
             () -> ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get());
 
+    /** The EC9 half of the family: same class, {@code Family.EC9}, its own block and identity. */
+    public static final RegistryObject<BlockEntityType<SimplifyStonecuttingAssemblerBlockEntity>>
+            EC9_ASSEMBLER = registerType("ec9_processor_assembler",
+            SimplifyStonecuttingAssemblerBlockEntity.class,
+            (type, pos, state) -> new SimplifyStonecuttingAssemblerBlockEntity(
+                    type, pos, state, SimplifyStonecuttingAssemblerBlockEntity.Family.EC9),
+            () -> ModRegistration.EC9_PROCESSOR_ASSEMBLER_BLOCK.get());
+
     // ============================ L1 computation ============================
 
     /**

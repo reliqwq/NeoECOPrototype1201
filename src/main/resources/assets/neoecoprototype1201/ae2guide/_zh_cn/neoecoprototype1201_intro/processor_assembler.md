@@ -8,6 +8,7 @@ item_ids:
   - neoecoprototype1201:simplify_stonecutting_assembler
   - neoecoprototype1201:simplify_pattern_provider
   - neoecoprototype1201:cable_pattern_provider
+  - neoecoprototype1201:ec9_processor_assembler
 ---
 
 # L1 处理器装配室
@@ -62,3 +63,12 @@ item_ids:
 
 一次推送带几份完整材料就在**一个**周期里做完，产出按份数翻倍而耗时不变，所以想更快只能继续加卡。上限是工作台那 9 格：一批原料要按各自一组的数量摆进去，**摆不下这张样板就被整张拒收**、原料退回网络。以处理器为例，三种原料各一组 64 个，3 × 64 = **192 份**就是上限。一轮只有一组产出送到机器前面，交不下的那部分直接进网络，不会消失。
 
+## EC9：家族的量产半
+
+<ItemLink id="neoecoprototype1201:ec9_processor_assembler" /> 是同一种机器的量产半：它还接受
+**压印推导**配方——让别的整合包的压印配方在没有数据文件时也能用的兜底；基础装配室仍只走上面那份
+精选声明清单。两台机器对普通分子装配样板的拒绝方式一致，差别只在各自回答处理器配方家族的哪一半。
+
+它由一台基础装配室、六块绿晶晶格与一颗 CE1R 闪存晶阵合成。
+
+<RecipeFor id="neoecoprototype1201:ec9_processor_assembler" />
