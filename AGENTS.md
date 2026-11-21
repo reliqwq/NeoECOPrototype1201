@@ -242,6 +242,18 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 - 配方 8 份从 1.21.1 转换（`neoforge:conditions`→`forge:conditions`、result `id`→`item`、命名空间 1201），lang 双文件 7 键，`matrix_types.md` 补 source 段并 claim 全部 id（`check_data_sync.py` 的认领闸会拦）。
 - 奇点单元自己的 lang 键与 `eco_cell_type.neoecoprototype.singularity/sky_stone_dust/source` 三条一起进。
 
+### 4.5 EC9 与工作站卡的移植侦察（11-21，未开工——这是一张设计单，不是机械移植单）
+
+**机器模型不同源，不是家族拆分小手术。** 1.20.1 的装配室 BE 只有 166 行（旧轻量形状，`resolve(level, pattern, output)` 三参签名），而 1.21.1 的独立机器引擎（638 行：pattern push、批量周期、流体产出、升级栏）整个建在 AE2 19.2 的 API 上（IUpgradeableObject / IGridTickable / ICraftingMachine）。搬 EC9 的家族拆分 = 先搞清 1.20.1 装配室靠什么驱动（eco 加工路径？AE2 压印路径？），再把"家族/批量/派生"三个概念适配到那套模型上。三把前置量：
+
+1. 1.20.1 BE 的驱动源：它实现什么接口、谁调它的 tick（读 166 行全文）；
+2. `ProcessorAssemblerRecipes` 的派生机制现状（有 `InscriberRecipe` import，但 11-09 的 count==1 修复在不在、resolve 有没有 includeDerived 形状）；
+3. 工作站卡的两扇门（`ECOWorkstationModules.register` / `ECOWorkstationRecipeAdapters.register`）在 eco 20.5.3 上存不存在（javap `cn.dancingsnow.neoecoae.api.workstation.*`），以及 Forge 1.20.1 的 SizedIngredient/流体成分类形状（NeoForge 包名不同）。
+
+EC9 的常量（本线无 config）：batch cap 64、升级栏 6 格、`l1Name` 绿名照 1.21.1。资产四件（blockstate/model/贴图 `ec9_processor_assembler.png`/配方）照 §4.1 三转换从 1.21.1 抄。JEI：本线已有 jei 包，加第二 catalyst 一处。
+
+**工作站卡**（170 行）：机制 = eco 大型工作站两扇门 + 把我们的配方类型从 eco 的 catch-all（OTHER 分类）里摘出来。上有双前置：eco 20.5.3 的两扇门 API 存在性 + Forge 成分类适配。门不存在则卡片降级为"注册但不进栏"（grette 先例）或跳过。
+
 ## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
