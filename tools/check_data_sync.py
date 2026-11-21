@@ -670,6 +670,50 @@ def naked_ids(node, key=None):
     return []
 
 
+HAND_MINED_BLOCKS = {NS + ":fumo_doll_kouooki", NS + ":fumo_doll_reliqwq", NS + ":fumo_doll_tedxenon",
+                     NS + ":fumo_doll_yang120", NS + ":fumo_doll_yang120_cpu", NS + ":fumo_doll_yang120_giant"}
+# Our blocks whose Properties come from an AE2 constructor: the tool flag is not ours to set, so they
+# carry the pickaxe entry (a tool-type declaration) but never the stone rung (a demand the flag would
+# have to back). 1.21.1's guard keeps the same shape with its own three; the energized batteries are
+# on this list HERE because this line's AE2 15.4.10 EnergyCellBlock ctor builds glassProps() itself.
+AE2_OWNED_PROPS_BLOCKS = {NS + ":energized_energy_cell_16g", NS + ":energized_energy_cell_512g",
+                          NS + ":simplify_pattern_provider", NS + ":simplify_powered_me_interface",
+                          NS + ":superconductive_interface"}
+
+
+def check_block_tags():
+    """The 1.21.1 guard everyPlacedBlockIsStonePickaxeGated, as a data check.
+
+    Every blockstate-registered block is stone-pickaxe gated unless it is hand-mined (the plushies)
+    or its properties are AE2's: needs_stone_tool is the block list minus both exemptions, and
+    mineable/pickaxe is the stone rung plus the AE2-owned set - a stone entry without the pickaxe
+    entry is not a pickaxe block at all, and a pickaxe entry for a hand-mined plushie would make the
+    wool demand a tool. The requiresCorrectToolForDrops flag that makes the stone rung bite lives in
+    metal()'s copy(Blocks.IRON_BLOCK); blocks built from AE2 constructors cannot carry it, which is
+    exactly why they are exempted instead of tagged.
+    """
+    blocks = {NS + ":" + name[:-5] for name in os.listdir(BLOCKSTATE_DIR) if name.endswith(".json")}
+    # Vanilla tool tags live in the MINECRAFT namespace - extending #minecraft:needs_stone_tool means
+    # a file under data/minecraft/, not under the mod's own namespace.
+    mc_tags = os.path.join(RES, "data", "minecraft", "tags", "blocks")
+    pick = set(json.load(open(os.path.join(mc_tags, "mineable", "pickaxe.json"),
+                               encoding="utf-8")).get("values", []))
+    stone = set(json.load(open(os.path.join(mc_tags, "needs_stone_tool.json"),
+                               encoding="utf-8")).get("values", []))
+    expected_stone = blocks - HAND_MINED_BLOCKS - AE2_OWNED_PROPS_BLOCKS
+    if expected_stone != stone:
+        problems.append("tags/blocks/needs_stone_tool is not our gated block list: missing="
+                        + sorted(expected_stone - stone) + " extra=" + sorted(stone - expected_stone))
+    if not stone <= pick:
+        problems.append("tags/blocks/needs_stone_tool entries missing from mineable/pickaxe: "
+                        + sorted(stone - pick) + " - eco keeps stone as a subset of pickaxe")
+    expected_pick = stone | AE2_OWNED_PROPS_BLOCKS
+    if expected_pick != pick:
+        problems.append("tags/blocks/mineable/pickaxe should be the stone rung plus the AE2-owned set:"
+                        " missing=" + sorted(expected_pick - pick) + " extra=" + sorted(pick - expected_pick)
+                        + " - a hand-mined plushie in the pickaxe tag would demand a tool for wool")
+
+
 def check_blockstates():
     """Two silent failures a blockstate can hold: a model nothing bakes, and a face nothing selects.
 
@@ -770,6 +814,7 @@ def main():
     check_data_ids()
     check_models()
     check_texture_frames()
+    check_block_tags()
     check_blockstates()
     check_jade_keys()
     check_slot_count()
