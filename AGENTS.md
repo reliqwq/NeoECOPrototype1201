@@ -9,8 +9,14 @@
 ## 1. 环境锁定（今天量过的，别再从记忆读）
 
 MinecraftForge **47.4.20** / Minecraft **1.20.1** / **JDK 17**（`gradle.properties` 用绝对路径点名
-`F:/jdk17`，因为日常 JDK 是 21）；AE2 **15.4.10**；eco **20.5.3**（Modrinth 上发布的 1.20.1 构建，
-经 `fg.deobf`）—— **编译基线 = 玩家运行下限**，`mods.toml` 里就是 `[20.5.3,)`。
+`F:/jdk17`，因为日常 JDK 是 21）；AE2 **15.4.10**；eco **20.5.10**（2026-11-21 从 20.5.3 抬级，Modrinth
+上发布的 1.20.1 构建，经 `fg.deobf`；交付件 sha1 `380ee954…e689`，deobf 产物 `f7c54a54…44f1`——两颗不同
+是因为 FG 通道只认 name+CRC+length，md5 会因 zip 时间戳假报）—— **编译基线 = 玩家运行下限**，`mods.toml`
+里就是 `[20.5.10,)`。抬级整线重编 0 错（100+ 个被点名的 eco 类逐一还在）、三只 mixin 全绑 AE2 类不受影响、
+客户端 20.5.10 起到主菜单缺模型 0 条。**工作站卡仍然被锁**：`api.workstation` 两个门是 21.2.x 的，
+20.5.10 的 `LargeWorkstationModule` 还是硬编码枚举、适配器是静态内建（§4.5 不变）。20.5.10 带来的：
+`api/me/diagnostics` 机器状态 Reader、`WorkstationSpriteSource` colormap 门、`api/me/ECOExternalCrafting`
+大单分发——都有门了但本线暂时没人用。
 Gradle **8.12.1** + ForgeGradle **6.0.54**，`mappings channel: 'official'`。
 
 dev 侧还有三颗"看得见"的依赖：Mekanism `10.4.16.80`、Applied Mekanistics、JEI `15.59.0.212` ——

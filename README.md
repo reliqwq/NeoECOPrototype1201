@@ -10,17 +10,18 @@ A separate project for Minecraft **1.20.1 / MinecraftForge 47.4.20**. It is a tr
 | Loader | MinecraftForge 47.4.20 | NeoForge 21.1.251 |
 | Minecraft / Java | 1.20.1 / 17 | 1.21.1 / 21 |
 | AE2 | 15.4.10 | 19.2.17 |
-| eco (Neo ECO AE Extension) | 20.5.3, the published 1.20.1 build (Modrinth) | 21.2.13 (compile baseline = runtime floor) |
+| eco (Neo ECO AE Extension) | 20.5.10, the published 1.20.1 build (Modrinth) | 21.2.13 (compile baseline = runtime floor) |
 | GuideME | 20.1.14 | 21.1.1 |
 
 Gradle 8.12.1 + ForgeGradle 6.0.54, `mappings channel: 'official'`. The JDK 17 lives outside the
 checkout (`gradle.properties` points at it by absolute path), and no jar is tracked: `.gitignore`
 drops every `*.jar` except the Gradle wrapper.
 
-**This line compiles against eco's published 1.20.1 build**, `maven.modrinth:neoecoae:20.5.3`,
-resolved by Gradle and passed through `fg.deobf` because the published jar is reobfuscated for
-production. `mods.toml` floors eco at `[20.5.3,)`: the compile baseline is also what players must
-have. A fresh clone needs no manual jar step.
+**This line compiles against eco's published 1.20.1 build**, `maven.modrinth:neoecoae:20.5.10`
+(bumped from 20.5.3 on 2026-11-21 - the whole line recompiled clean against it and the dev client
+boots to the main menu on it), resolved by Gradle and passed through `fg.deobf` because the
+published jar is reobfuscated for production. `mods.toml` floors eco at `[20.5.10,)`: the compile
+baseline is also what players must have. A fresh clone needs no manual jar step.
 
 Two details of that baseline: eco's own `mods.toml` makes LDLib v1 mandatory, so LDLib is a
 runtime-only dependency here; and Registrate must **not** be added - the published eco jar already
