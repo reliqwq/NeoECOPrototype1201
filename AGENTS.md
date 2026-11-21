@@ -254,7 +254,18 @@ EC9 的常量（本线无 config）：batch cap 64、升级栏 6 格、`l1Name` 
 
 **工作站卡**（170 行）：机制 = eco 大型工作站两扇门 + 把我们的配方类型从 eco 的 catch-all（OTHER 分类）里摘出来。上有双前置：eco 20.5.3 的两扇门 API 存在性 + Forge 成分类适配。门不存在则卡片降级为"注册但不进栏"（grette 先例）或跳过。
 
-## 5. 测试与验证
+### 4.6 扩容卡系统：剩余工作清单（11-21 侦察——比预想小得多）
+
+**卡片本体已在本线**：`items/SimplifyStructureExpansionCardItem.java` 997 行（1.21.1 为 1333 行），grow/upgradeTier/swapInPlace/工单票据系统/handOverTicket 全在——上一轮移植迁移驱动器时把基类完整带过来了。两个 lookup（growWorkOrder/upgradeWorkOrder）**故意答 null**，javadoc 写明"this line does not ship the card family"。⑦ 剩的全是注册面：
+
+1. `BackupDriveItem.java`（1.21.1 为 251 行）——载物大概走 DataComponent，1.20.1 要改 NBT 或能力（先读再定）；
+2. 注册四件：卡片（带 `nameColor` 染名的构造子）、backup drive、12 张工单（plain Item，stacksTo(16)）——1.21.1 的注册块在 ModRegistration 1183-1250，逐行可抄；
+3. 两个 lookup 接线：映射到本线存在的定义——`SimplifyStorageDefinition.L1`/`SimplifyCraftingDefinition.L1`（本线有）+ `NEMultiBlocks.STORAGE_SYSTEM_L4/L6/L9`、`COMPUTATION_SYSTEM_L4/L6/L9`、`CRAFTING_SYSTEM_L4/L6/L9`（eco 20.5.3 有，javap 待验）。**Trinity 行跳过**（本线未移植 Trinity）；
+4. 配方两份：`structure_expansion_card.json` + `structure_expansion_card_from_backup_drive.json`（1.21.1 原文转换）；
+5. lang 双文件 16 键（卡+desc、backup_drive+desc、12 工单）+ `matrix_types.md` 或 assembler 页 claim + 创造栏 accepts；
+6. 工单的 12 键名照 1.21.1（扩容/升级 + 上游措辞）。
+
+**核对过的既有事实**：卡片 useOn→grow/upgradeTier 的三参形状与 1.21.1 一致；`MigrationDriveItem extends SimplifyStructureExpansionCardItem` 在两线同构；本线无 config（1.21.1 的 CARD_CONSUMES_ITEMS 配置项 → 常量 true，字段已在）。## 5. 测试与验证
 
 - `./gradlew compileJava` 一次约 **24 s**（`--no-daemon` 更稳：这台机器上 daemon 池会互相挤，
   2026-11-01 有一次 `compileJava` 排了 26 分钟没启动）。**别拿 `build/classes` 的旧 class 当"我编过了"。**
