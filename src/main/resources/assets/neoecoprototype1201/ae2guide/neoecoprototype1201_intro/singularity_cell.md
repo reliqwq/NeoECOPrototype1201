@@ -50,20 +50,16 @@ It holds one content type, so it cannot be partitioned in a cell workbench and c
 
 <RecipeFor id="neoecoprototype1201:simplify_singularity_cell" />
 
-A disassembly recipe returns the four materials.
-
 ## The other member: sky stone dust cell
 
 The same engine, the same tile and the same default pace (120 per 600 ticks) - it grows **sky stone dust** (`ae2:sky_dust`, AE2's own) instead of singularities.
 
 <RecipeFor id="neoecoprototype1201:simplify_sky_stone_dust_cell" />
 
-Its bill differs from the singularity cell's only in the last ingredient: infinite matrix housing + 64M ECO storage component + green crystal lattice + one sky stone dust. A disassembly recipe returns the same four.
-
-## The third member: source cell
+Its bill differs from the singularity cell's only in the last ingredient: infinite matrix housing + 64M ECO storage component + green crystal lattice + one sky stone dust. ## The third member: source cell
 
 It needs Ars Énergistique (that mod supplies the source medium; Ars Nouveau is its own hard dependency). Same engine, same tile, same default pace - it grows **source** instead.
 
 > This member is **only registered when Ars Énergistique is installed**, so this page carries no icon or recipe box for it: a tag that cannot resolve an item writes a line of red text onto the page. With Ars Énergistique installed it is in JEI.
 
-Its bill is not the component one: infinite matrix housing + Alakarkinos token + source gem block + magebloom and three essences, via Ars Nouveau's enchanting apparatus. A disassembly recipe returns the same eight.
+Its bill is not the component one: infinite matrix housing + Alakarkinos token + source gem block + magebloom and three essences, via Ars Nouveau's enchanting apparatus. 

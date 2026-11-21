@@ -50,20 +50,16 @@ item_ids:
 
 <RecipeFor id="neoecoprototype1201:simplify_singularity_cell" />
 
-拆解表会原样返还四种材料。
-
 ## 同一族的另一台：陨石粉矩阵
 
 <ItemLink id="neoecoprototype1201:simplify_sky_stone_dust_cell" /> 是同一套引擎的第二台，产出的是 AE2 自己的陨石粉（`ae2:sky_dust`）：默认也是**每 30 秒产出 120 个**，同样什么都不吃，库存按世界时间自己长。
 
 <RecipeFor id="neoecoprototype1201:simplify_sky_stone_dust_cell" />
 
-账单与奇点那只只差最后一位：无限矩阵外壳 + 64M ECO 存储组件 + 绿晶矩阵 + 一个陨石粉。拆解表原样返还同样四种。
-
-## 同一族的第三台：魔源矩阵
+账单与奇点那只只差最后一位：无限矩阵外壳 + 64M ECO 存储组件 + 绿晶矩阵 + 一个陨石粉。## 同一族的第三台：魔源矩阵
 
 第三台产出的是魔源：默认同样**每 30 秒产出 120**。
 
 它**只在装了 Ars Energistique（`arseng`，以及它的前置 Ars Nouveau）时才会注册**；没装时这只物品不存在，也不会出现在创造栏里，所以本页不放它的图标和配方框——解析不了的物品会在页面上画一行红字。
 
-它的账单不走组件那套：无限矩阵外壳 + Alakarkinos 神像 + 魔源宝石块 + 魔源花与三种精华，走 Ars Nouveau 的附魔装置合成。拆解表原样返还同样八种。
+它的账单不走组件那套：无限矩阵外壳 + Alakarkinos 神像 + 魔源宝石块 + 魔源花与三种精华，走 Ars Nouveau 的附魔装置合成。

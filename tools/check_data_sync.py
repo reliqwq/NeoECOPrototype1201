@@ -317,10 +317,14 @@ DISASSEMBLY_TYPE = "neoecoae:storage_cell_disassembly"
 # The two small-bulk expansions are the other kind of deliberate: the card is spent turning a base cell
 # into them, and a disassembly back to housing + 1M component would quietly un-spend it. 1.21.1 leaves
 # them un-takable for the same reason, and its guide page warns the player before they craft one.
+# The three growing cells (singularity / sky stone dust / source) are OUT OF CELL_ID on purpose, per
+# reliqwq's call on 2026-11-21: they ship no disassembly here, so the guide pages claim none. 1.21.1
+# DOES ship those three tables - do not re-import them on a sync, and re-extend CELL_ID together with
+# new tables if the design ever changes.
 UNDISASSEMBLABLY = {NS + ":simplify_concrete_storage_cell",
                     NS + ":simplify_small_bulk_storage_cell_expanded",
                     NS + ":simplify_small_bulk_fluid_storage_cell_expanded"}
-CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?|simplify_singularity_cell|simplify_sky_stone_dust_cell|simplify_source_growing_cell)$")
+CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?)$")
 
 
 def member_ids(node):
