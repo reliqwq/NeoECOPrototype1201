@@ -5,12 +5,26 @@ navigation:
   position: 30
   parent: neoecoprototype1201_intro/index.md
 item_ids:
-  - neoecoprototype1201:simplify_stonecutting_assembler
-  - neoecoprototype1201:simplify_pattern_provider
+  - neoecoprototype1201:backup_drive
   - neoecoprototype1201:cable_pattern_provider
   - neoecoprototype1201:ec9_processor_assembler
+  - neoecoprototype1201:simplify_pattern_provider
+  - neoecoprototype1201:simplify_stonecutting_assembler
   - neoecoprototype1201:simplify_structure_expansion_card
-  - neoecoprototype1201:backup_drive
+  - neoecoprototype1201:simplify_work_order_upgrade_computation_l9
+  - neoecoprototype1201:simplify_work_order_upgrade_crafting_l9
+  - neoecoprototype1201:simplify_work_order_upgrade_storage_l9
+  - neoecoprototype1201:simplify_work_order_grow_computation_l4
+  - neoecoprototype1201:simplify_work_order_grow_computation_l6
+  - neoecoprototype1201:simplify_work_order_grow_computation_l9
+  - neoecoprototype1201:simplify_work_order_grow_crafting_l4
+  - neoecoprototype1201:simplify_work_order_grow_crafting_l6
+  - neoecoprototype1201:simplify_work_order_grow_crafting_l9
+  - neoecoprototype1201:simplify_work_order_grow_f1_crafting
+  - neoecoprototype1201:simplify_work_order_grow_l1_storage
+  - neoecoprototype1201:simplify_work_order_grow_storage_l4
+  - neoecoprototype1201:simplify_work_order_grow_storage_l6
+  - neoecoprototype1201:simplify_work_order_grow_storage_l9
 ---
 
 # L1 Processor Assembler
