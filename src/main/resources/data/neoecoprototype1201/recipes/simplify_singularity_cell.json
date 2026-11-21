@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_concrete_storage_matrix_housing"
+    },
+    {
+      "item": "neoecoae:eco_cell_component_64m"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+    },
+    {
+      "item": "ae2:singularity"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_singularity_cell",
+    "count": 1
+  }
+}

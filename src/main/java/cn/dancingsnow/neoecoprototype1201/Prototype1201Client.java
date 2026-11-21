@@ -73,6 +73,12 @@ public final class Prototype1201Client {
             "l0_quantum", "l1_quantum",
             "l0_complex_universal", "l1_complex_universal",
     };
+    /** The source family's five rungs, in {@code SourceIntegration.CELLS} order. The type stripe is
+     *  the last rail of cell_type_lower, free on this line. */
+    private static final String[] SOURCE_RUNGS = {
+            "l0_source_1k", "l0_source_16k", "l0_source_64k", "l1_source", "l1r_source",
+    };
+
 
     private static final String PIGMEE_RUNG = "storage_cell_l1_pigmee";
     private static final String CONCRETE_RUNG = "storage_cell_l1_concrete";
@@ -87,7 +93,7 @@ public final class Prototype1201Client {
     /** Everything the drive can be asked to draw, for the bake pass. */
     private static String[] everyCellModel() {
         String[][] groups = {rungs("item"), rungs("fluid"), rungs("chemical"), FE_RUNGS, SMALL_BULK_RUNGS,
-                OMNI_RUNGS};
+                OMNI_RUNGS, SOURCE_RUNGS};
         java.util.List<String> all = new java.util.ArrayList<>();
         for (String[] group : groups) {
             all.addAll(java.util.List.of(group));
@@ -175,6 +181,11 @@ public final class Prototype1201Client {
             // so the list stays empty and the ladder registers nothing.
             registerLadder(cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
                     .UniversalIntegration.CELLS, OMNI_RUNGS);
+            ECOCellModels.register(Registration.SIMPLIFY_SINGULARITY_CELL.get(), cellModel("l1_singularity"));
+            ECOCellModels.register(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get(), cellModel("l1_singularity"));
+            // Empty without arseng, same shape as the omni list above.
+            registerLadder(cn.dancingsnow.neoecoprototype1201.integration.arseng
+                    .SourceIntegration.CELLS, SOURCE_RUNGS);
             ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
                     cellModel(CONCRETE_RUNG));
@@ -255,6 +266,10 @@ public final class Prototype1201Client {
         FeStorageIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
                 .UniversalIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        tinted.add(Registration.SIMPLIFY_SINGULARITY_CELL.get());
+        tinted.add(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get());
+        cn.dancingsnow.neoecoprototype1201.integration.arseng
+                .SourceIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         cn.dancingsnow.neoecoprototype1201.integration.megacells
                 .SmallBulkIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         // The infinite matrix is not tinted: it reports the same full status forever, so a band that

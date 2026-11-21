@@ -69,14 +69,22 @@ EXACT, PREFIXES = integration_registers()
 
 
 def gated_by(member):
-    """The mod id a member needs, or None when this line registers it unconditionally."""
-    path = member.split(":", 1)[1]
+    """The mod id a member needs, or None when this line registers it unconditionally.
+
+    Two answers, in order: an id this line registers under integration/<modid>/ is gated by that mod,
+    and any id whose NAMESPACE is another mod's needs that mod - Forge 1.20.1 throws on the unknown id
+    whatever namespace it wears, so ars_nouveau:source_gem gates on ars_nouveau exactly the way a
+    mekansim barrel does. The namespaces this line ships unconditionally are the hard trio: ours,
+    minecraft and ae2, plus neoecoae (a hard dependency whose gated items we never name in recipes)."""
+    ns, _, path = member.partition(":")
     if path in EXACT:
         return EXACT[path]
     for prefix, modid in PREFIXES.items():
         if path.startswith(prefix):
             return modid
-    return None
+    if ns in (NS, "minecraft", "ae2", "neoecoae"):
+        return None
+    return ns
 
 
 def is_gated(member):
@@ -336,6 +344,30 @@ def member_ids(node):
     return found
 
 
+def all_ids(node):
+    """Every namespaced id a recipe names, third-party ones included.
+
+    The gating walk uses this: Forge 1.20.1 throws on an unknown id whatever namespace it wears, so
+    ars_nouveau:source_gem inside a pedestal list needs ars_nouveau exactly the way our own gated ids
+    need theirs. The membership test above keeps walking our namespace only - that test is about ids
+    this line registers, not about the whole world's.
+    """
+    found = set()
+    if isinstance(node, dict):
+        for key, item in node.items():
+            if key in ("type", "tag"):
+                # "type" is a serializer id, not an item; "tag" is a tag reference, and forge:* tags
+                # are not mod-gated anything.
+                continue
+            found |= all_ids(item)
+    elif isinstance(node, list):
+        for entry in node:
+            found |= all_ids(entry)
+    elif isinstance(node, str) and re.match(r"^[a-z0-9_]+:[a-z0-9_/.\-]+$", node):
+        found.add(node)
+    return found
+
+
 def check_recipes():
     """Two rules the game never complains about out loud: 联动配方 and 矩阵要能拆.
 
@@ -359,7 +391,7 @@ def check_recipes():
                 if member not in OURS:
                     problems.append(f"{label}/{name}: {member} is not registered on this line"
                                     " - the game throws Unknown item and drops the recipe")
-            mods = {gated_by(member) for member in member_ids(data)}
+            mods = {gated_by(member) for member in all_ids(data)}
             mods.discard(None)
             declared = {c.get("modid") for c in data.get("conditions", [])
                         if c.get("type") == "forge:mod_loaded"}

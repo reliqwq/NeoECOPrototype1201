@@ -53,7 +53,7 @@ repositories {
         url = 'https://cdn.modrinth.com/data'
         patternLayout { artifact '[organisation]/versions/[revision]/[module].[ext]' }
         metadataSources { artifact() }
-        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g'; includeGroup 'RYE1pYyr' }
+        content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g'; includeGroup 'RYE1pYyr'; includeGroup 'IJI3QuK8' }
     }
 }
 
@@ -160,6 +160,19 @@ dependencies {
     // pack without it.
     compileOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
     runtimeOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
+
+    // Ars Energistique is the mod that carries the source medium, and the source family is the one
+    // integration that compiles against it: SourceKey/SourceKeyType are read inside gated method
+    // bodies (safe per AGENTS §4.2), but the item classes' constructor arguments name arseng's key
+    // type, so the jar has to be on the compile classpath. The 1.20.1 build (Modrinth IJI3QuK8
+    // version xpgyRm6m): arseng-1.2.0.jar, 147 418 B, sha1
+    // 0866c840609d8872e84a4d52bbb2542699e88755 - read back equal, and the class files are Java 17
+    // (the first 2.1.1-beta grab turned out to be a 1.21 build with version-65 classes; caught by
+    // javac at "class file has wrong version 65.0, should be 61.0"). Its hard dependency Ars Nouveau
+    // is already on this line's runtime (the gtceu branch pulls it), so the dev client finds the key
+    // type without anything new.
+    compileOnly fg.deobf("IJI3QuK8:arseng-1.2.0:xpgyRm6m")
+    runtimeOnly fg.deobf("IJI3QuK8:arseng-1.2.0:xpgyRm6m")
 
     // AE2 OmniCells is deliberately NOT a dependency of this line. Its cells would have to extend eco's
     // omni adapter, whose own superclass is OmniCells' AEUniversalCellItem, and Forge 1.20.1's

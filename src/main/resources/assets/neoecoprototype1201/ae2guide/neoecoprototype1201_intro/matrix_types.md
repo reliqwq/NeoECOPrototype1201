@@ -42,6 +42,15 @@ item_ids:
   - neoecoprototype1201:simplify_complex_universal_storage_matrix_housing
   - neoecoprototype1201:simplify_complex_universal_storage_cell_1k
   - neoecoprototype1201:simplify_complex_universal_storage_cell_1m
+  - neoecoprototype1201:simplify_singularity_cell
+  - neoecoprototype1201:simplify_sky_stone_dust_cell
+  - neoecoprototype1201:simplify_source_growing_cell
+  - neoecoprototype1201:simplify_source_storage_matrix_housing
+  - neoecoprototype1201:simplify_source_storage_cell_1k
+  - neoecoprototype1201:simplify_source_storage_cell_16k
+  - neoecoprototype1201:simplify_source_storage_cell_64k
+  - neoecoprototype1201:simplify_source_storage_cell_1m
+  - neoecoprototype1201:simplify_source_storage_cell_4m
 ---
 
 # Supported storage matrices
@@ -65,6 +74,10 @@ requires.
 | Quantum | 1K, 1M | unlimited | AE2 Omni Cells |
 | Complex universal | 1K, 1M | 1024 | AE2 Omni Cells |
 | Spent nuclear waste | 1K, 1M | 1 | AE2 Omni Cells + Mekanism + Applied Mekanistics |
+| Singularity (self-growing) | unbounded bytes | 1 | - |
+| Sky stone dust (self-growing) | unbounded bytes | 1 | - |
+| Source (self-growing) | unbounded bytes | 1 | Ars Énergistique (pulls Ars Nouveau) |
+| Source | 1K, 16K, 64K, 1M, 4M | 256 | Ars Énergistique (pulls Ars Nouveau) |
 
 - The 1K / 16K / 64K / 1M / 4M figures count **bytes**, not resources. Each type slot costs 1/256th of
   the cell, so a 1K matrix gives one thing 4 bytes and a 4M matrix gives the same thing 16384 bytes. How
@@ -81,6 +94,12 @@ requires.
 - The Pigmee matrix is a 2,560-byte item cell - smaller than a 1K, on purpose. Its housing is a sword:
   it deals damage, swings at sword speed and reaches two blocks further than your hand.
 - The four **omni families** are this addon's high-capacity step, and they need AE2 Omni Cells: the
+- The **singularity family** and **source** are cells that grow their own stock: the singularity cell
+  produces 120 singularities per 600 ticks, the sky-stone-dust cell grows AE2's sky dust, and the source
+  growing cell produces source - none of them take any input, and the stock is computed from the world
+  clock from the moment the cell is mounted. The five source rungs assemble with AE2's own components -
+  256 types at 1/256 of the capacity each, byte-for-byte the item and fluid ladders. The source family
+  needs Ars Énergistique (which pulls Ars Nouveau); a pack without it never sees these.
   matrices themselves run on eco's own omni storage backend, exactly like eco's LE4/LE6/L9 omni
   matrices, so a pack without that mod simply never sees them. The universal matrix holds 512 things
   at once and the quantum one has no type limit at all - its 1M rung is worth half again the universal

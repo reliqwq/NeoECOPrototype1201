@@ -172,5 +172,18 @@
   "item.neoecoprototype1201.simplify_universal_storage_matrix_housing": "ECO - L1 全能存储矩阵外壳",
   "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1k": "ECO - L1 复合全能 1K 存储矩阵",
   "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1m": "ECO - L1 复合全能 1M 存储矩阵",
-  "item.neoecoprototype1201.simplify_complex_universal_storage_matrix_housing": "ECO - L1 复合全能存储矩阵外壳"
+  "item.neoecoprototype1201.simplify_complex_universal_storage_matrix_housing": "ECO - L1 复合全能存储矩阵外壳",
+  "item.neoecoprototype1201.simplify_singularity_cell": "ECO - L1 奇点元件",
+  "item.neoecoprototype1201.simplify_sky_stone_dust_cell": "ECO - L1 陨石粉元件",
+  "item.neoecoprototype1201.simplify_source_growing_cell": "ECO - L1 魔源单元",
+  "item.neoecoprototype1201.simplify_source_storage_matrix_housing": "ECO - L1 魔源存储矩阵外壳",
+  "item.neoecoprototype1201.simplify_source_storage_cell_1k": "ECO - L1 1K 魔源存储矩阵",
+  "item.neoecoprototype1201.simplify_source_storage_cell_16k": "ECO - L1 16K 魔源存储矩阵",
+  "item.neoecoprototype1201.simplify_source_storage_cell_64k": "ECO - L1 64K 魔源存储矩阵",
+  "item.neoecoprototype1201.simplify_source_storage_cell_1m": "ECO - L1 1M 魔源存储矩阵",
+  "item.neoecoprototype1201.simplify_source_storage_cell_4m": "ECO - L1 4M 魔源存储矩阵",
+  "eco_cell_type.neoecoprototype1201.singularity": "奇点元件",
+  "eco_cell_type.neoecoprototype1201.sky_stone_dust": "陨石粉元件",
+  "eco_cell_type.neoecoprototype1201.source": "魔源单元",
+  "tooltip.neoecoprototype1201.singularity_stock": "自产库存：%2$s × %1$s"
 }

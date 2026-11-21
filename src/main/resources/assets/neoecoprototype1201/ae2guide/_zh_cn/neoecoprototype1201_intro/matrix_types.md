@@ -42,6 +42,15 @@ item_ids:
   - neoecoprototype1201:simplify_complex_universal_storage_matrix_housing
   - neoecoprototype1201:simplify_complex_universal_storage_cell_1k
   - neoecoprototype1201:simplify_complex_universal_storage_cell_1m
+  - neoecoprototype1201:simplify_singularity_cell
+  - neoecoprototype1201:simplify_sky_stone_dust_cell
+  - neoecoprototype1201:simplify_source_growing_cell
+  - neoecoprototype1201:simplify_source_storage_matrix_housing
+  - neoecoprototype1201:simplify_source_storage_cell_1k
+  - neoecoprototype1201:simplify_source_storage_cell_16k
+  - neoecoprototype1201:simplify_source_storage_cell_64k
+  - neoecoprototype1201:simplify_source_storage_cell_1m
+  - neoecoprototype1201:simplify_source_storage_cell_4m
 ---
 
 # 支持的存储矩阵
@@ -64,11 +73,19 @@ item_ids:
 | 量子 | 1K, 1M | 无限 | AE2 Omni Cells |
 | 复合全能 | 1K, 1M | 1024 | AE2 Omni Cells |
 | 乏核废料 | 1K, 1M | 1 | AE2 Omni Cells + Mekanism + Applied Mekanistics |
+| 奇点（自生长） | 无限字节 | 1 | — |
+| 陨石尘（自生长） | 无限字节 | 1 | — |
+| 魔源（自生长） | 无限字节 | 1 | Ars Énergistique（连带 Ars Nouveau） |
+| 魔源 | 1K - 4M | 256 | Ars Énergistique（连带 Ars Nouveau） |
 
 - 1K - 4M 说的是**字节**，不是资源数量：每个类型槽占整只矩阵的 1/256。
 - 化学品的 25 沿用 eco 自己的面板行，不是我们定的。
 - 无限混凝土只存 16 色、而且是表里唯一**拆不回来**的矩阵；猪咪是一档 2,560 字节的物品矩阵。
 - 四支**全能家族**是本附属的高容量档，需要 AE2 Omni Cells：矩阵本体跑在 eco 自己的 omni 存储后端上——
+- **奇点家族**与**魔源**是会自己生长的盘：奇点单元按 600 刻一批产出 120 个奇点，陨石尘盘产 AE2 的陨石粉，
+  魔源生长盘产源质——都不吃任何输入，库存从放进驱动器那一刻起按世界时钟推算。五档魔源盘则用 AE2 自己的
+  组件装配，256 类、每类 1/256 容量，与物品/流体阶梯逐字节对齐。魔源一族需要 Ars Énergistique（连带
+  Ars Nouveau），没装的整合包看不到它们。
   与 eco 的 LE4/LE6/L9 全能矩阵同一套，所以没装那个模组的整合包根本看不到它们。全能矩阵一次可容 512 种，
   量子矩阵无类型上限——它的 1M 档刻意比全能 1M 贵一半。复合全能用类型预算换更大的 1M。乏核废料矩阵只收
   一种物质——Mekanism 的乏核废料——让这种副产物在 L1 也有容身之处；它额外要求 Mekanism 与 Applied

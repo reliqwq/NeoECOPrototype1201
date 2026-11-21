@@ -4,6 +4,7 @@ import appeng.api.stacks.AEKeyType;
 import cn.dancingsnow.neoecoae.all.NERegistries;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
+import cn.dancingsnow.neoecoprototype1201.items.SimplifySingularityCellItem;
 import cn.dancingsnow.neoecoprototype1201.items.Ae2ToL1UpgradeCardItem;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyComputationCellItem;
@@ -258,6 +259,15 @@ public final class Registration {
                     () -> ModRegistration.SIMPLIFY_POWERED_ME_INTERFACE_BLOCK.get(),
                     () -> ModBlockEntities.POWERED_ME_INTERFACE.get(),
                     null));
+    /** The two self-growing cells ship unconditionally; the source member is arseng-gated and lives
+     * in SourceIntegration. The registered handler behind them mounts in {@code Prototype1201}. */
+    public static final RegistryObject<Item> SIMPLIFY_SINGULARITY_CELL =
+            ITEMS.register("simplify_singularity_cell",
+                    () -> new SimplifySingularityCellItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SIMPLIFY_SKY_STONE_DUST_CELL =
+            ITEMS.register("simplify_sky_stone_dust_cell",
+                    () -> new SimplifySingularityCellItem(new Item.Properties().stacksTo(1),
+                            SimplifySingularityCellItem.SKY_STONE_DUST));
     public static final RegistryObject<Item> AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD =
             ITEMS.register("ae2_interface_to_l1_superconductive_card", () -> new Ae2ToL1UpgradeCardItem(
                     new Item.Properties().stacksTo(1),
@@ -304,6 +314,8 @@ public final class Registration {
                         output.accept(SIMPLIFY_COMPUTATION_CELL_1M.get());
                         output.accept(ENERGIZED_COMPUTATION_CELL_4M.get());
                         output.accept(CABLE_PATTERN_PROVIDER.get());
+                        output.accept(SIMPLIFY_SINGULARITY_CELL.get());
+                        output.accept(SIMPLIFY_SKY_STONE_DUST_CELL.get());
                         output.accept(AE2_PATTERN_PROVIDER_TO_L1_CARD.get());
                         output.accept(AE2_INTERFACE_TO_L1_POWERED_CARD.get());
                         output.accept(AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD.get());

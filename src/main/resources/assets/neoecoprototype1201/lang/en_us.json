@@ -172,5 +172,18 @@
   "item.neoecoprototype1201.simplify_universal_storage_matrix_housing": "ECO - L1 Universal Storage Matrix Housing",
   "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1k": "ECO - L1 Complex Universal Storage Matrix (1K)",
   "item.neoecoprototype1201.simplify_complex_universal_storage_cell_1m": "ECO - L1 Complex Universal Storage Matrix 1M",
-  "item.neoecoprototype1201.simplify_complex_universal_storage_matrix_housing": "ECO - L1 Complex Universal Storage Matrix Housing"
+  "item.neoecoprototype1201.simplify_complex_universal_storage_matrix_housing": "ECO - L1 Complex Universal Storage Matrix Housing",
+  "item.neoecoprototype1201.simplify_singularity_cell": "ECO - L1 Singularity Cell",
+  "item.neoecoprototype1201.simplify_sky_stone_dust_cell": "ECO - L1 Sky Stone Dust Cell",
+  "item.neoecoprototype1201.simplify_source_growing_cell": "ECO - L1 Source Cell",
+  "item.neoecoprototype1201.simplify_source_storage_matrix_housing": "ECO - L1 Source Storage Matrix Housing",
+  "item.neoecoprototype1201.simplify_source_storage_cell_1k": "ECO - L1 Source Storage Matrix 1K",
+  "item.neoecoprototype1201.simplify_source_storage_cell_16k": "ECO - L1 Source Storage Matrix 16K",
+  "item.neoecoprototype1201.simplify_source_storage_cell_64k": "ECO - L1 Source Storage Matrix 64K",
+  "item.neoecoprototype1201.simplify_source_storage_cell_1m": "ECO - L1 Source Storage Matrix 1M",
+  "item.neoecoprototype1201.simplify_source_storage_cell_4m": "ECO - L1 Source Storage Matrix 4M",
+  "eco_cell_type.neoecoprototype1201.singularity": "Singularity Cell",
+  "eco_cell_type.neoecoprototype1201.sky_stone_dust": "Sky Stone Dust Cell",
+  "eco_cell_type.neoecoprototype1201.source": "Source Cell",
+  "tooltip.neoecoprototype1201.singularity_stock": "Grown stock: %2$s × %1$s"
 }

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "neoecoprototype1201:simplify_source_storage_matrix_housing"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_storage_component_1m"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_source_storage_cell_1m",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "arseng"
+    }
+  ]
+}

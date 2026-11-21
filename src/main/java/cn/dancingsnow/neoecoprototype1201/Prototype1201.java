@@ -37,6 +37,9 @@ public final class Prototype1201 {
         if (ModList.get().isLoaded("appmek")) {
             AppMekIntegration.register(Registration.ITEMS);
         }
+        // The growing cells' engine registers before anything can ask for a cell: the bank is derived
+        // from the world clock, so there is no setup ordering to respect beyond this list existing.
+        cn.dancingsnow.neoecoprototype1201.items.SingularityCellHandler.register();
         // Same shape as the chemical family above, and the same reason for the branch living here: taking
         // it is what keeps this jar from resolving appflux on a machine that does not have it, because
         // eco's FE cell constructor hands FluxKeyType.TYPE to its own superclass. That is safe only because
