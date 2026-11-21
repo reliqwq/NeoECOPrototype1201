@@ -267,7 +267,7 @@ EC9 的常量（本线无 config）：batch cap 64、升级栏 6 格、`l1Name` 
 
 **核对过的既有事实**：卡片 useOn→grow/upgradeTier 的三参形状与 1.21.1 一致；`MigrationDriveItem extends SimplifyStructureExpansionCardItem` 在两线同构；本线无 config（1.21.1 的 CARD_CONSUMES_ITEMS 配置项 → 常量 true，字段已在）。### 4.7 杂项（⑧）的移植面量化（11-21 夜，未开工）
 
-- **KubeJS 集成**（最大件）：1.21.1 侧 1029 行（`StorageMatrixBuilder` 414 + `InfiniteMatrixBuilder` 184 + KJSPlugin/Schema/两枚 Support + `api/StorageMatrixRegistration` 47）。依赖 KubeJS-for-NeoForge-21.x 的插件 API；1.20.1 Forge 线是 KubeJS 2001.x，插件 API 与注册事件名不同——**不是照搬，是按 1.20.1 KubeJS API 重写**，脚本面（`docs/kubejs.md` 的 StorageMatrixRegistration 公开承诺）要保形。开工前先量：本线的整合包跑不跑 KubeJS（不跑则整块可无限期延后）。
+- **KubeJS 集成**（最大件）：1.21.1 侧 1029 行（`StorageMatrixBuilder` 414 + `InfiniteMatrixBuilder` 184 + KJSPlugin/Schema/两枚 Support + `api/StorageMatrixRegistration` 47）。依赖 KubeJS-for-NeoForge-21.x 的插件 API；1.20.1 Forge 线是 **KubeJS 2001.6.x**（Modrinth 上 2101.x/26.1.x 全是 NeoForge 件，CurseForge 是主仓）——**不是照搬，是按 2001.x 插件 API 重写**，脚本面（`docs/kubejs.md` 的 StorageMatrixRegistration 公开承诺）要保形。**reliqwq 已拍（11-21）：目标包跑 KubeJS，此块要做**。开工前两件：① 确定具体 2001.x 版本号（整合包在用什么）+ 它的插件注册形状（`PluginBase` 子类 + `RegisterRecipeSchemasEvent` 的 2001.x 等价物）；② Forge 1.20.1 的配方 builder 接口与 NeoForge 的差异清单（SizedIngredient/FluidIngredient 的 Forge 等价物在 §4.5 已记一半）。
 - **创意三件**：`PatternGeneratorItem`（389 行，纯 AE2 API + 配方扫描，可直移）、`all_items_creative_cell`（注册点在 1.21.1 的 gregtech/创意条件段，1.20.1 需要自己的创意条件形状）、`workstation_preview` 方块（1.21.1 的注册点 + 一只 BE/块——量完再定）。三件都是 creative-only，无生存配方。
 - **成就族**：本线**已有 19 个成就文件**且 lang 齐（数据闸绿）——1.21.1 的 `assembler_built` 等十个新 id 是新内容。补 = 每个一份 json + 双语 lang + 触发条件核对（EC9/omni/魔源/扩容卡这些新件恰好是新成就的合理触发物）。
 
