@@ -219,13 +219,20 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 
 **它带进来的上游噪声，别判成我们的**：装上 MEGA 之后 dev 日志固定有 1 条 `Couldn't parse element loot_tables:megacells:blocks/mega_emc_interface`、1 条 `Parsing error loading recipe megacells:cells/standard/radioactive_chemical_cell`（`Unknown item mekanismgenerators:reactor_glass`）和 25 条 `Skipping loading recipe megacells:…`——全是 MEGA 在向这包没装的 mana / source / EMC 模组要东西。**所以 §5 那句"0 条 `Parsing error loading recipe`"的口径从今往后按"0 条我们命名空间里的"判。**
 
-### 4.4 omni 四支判死、魔源一族的移植规格（11-21 侦察，未开工）
+### 4.4 omni 四支与魔源的移植规格（11-21 侦察；判死已翻案，跟随 eco）
 
-**omni 四支（量子/全能/复合全能/乏核）在这条线上不可直移**，判据就是本文件 §5 之前那条 + Prototype1201.java 构造器注释里记的实测：物品继承 eco 的 `ECOUniversalStorageCellItem`，父链直通 OmniCells 自己的 `AEUniversalCellItem`，而 Forge 1.20.1 强载全 jar ⇒ 没装 OmniCells 的包启动即崩。eco 20.5.3 自己有全部宿主类（`NEOmniCellTypes` OMNI/COMPLEX_OMNI/QUANTUM_OMNI、`NEOmniWasteCells.SPENT_NUCLEAR_WASTE`、六参构造子带 bytes，javap 现量），缺的从来不是宿主，是父链。要上只有两条路：omnicells 提硬依赖（不可取），或照小宗仓重造 item 基类（第四次引擎级手写 + omni 多介质引擎未知数）。重开前先读这两条记录。
+**omni 四支可移，跟随 eco 自己的集成机制。** 11-21 晚把"不可移"的旧结论翻了案：旧判据是"Forge 1.20.1 强载全 jar ⇒ 父链够到 OmniCells 就崩"，但 eco 20.5.3/20.5.9 自己在 1.20.1 上注册 omni 盘（`eco_omni_cell_*`，父链同样经 `ECOUniversalStorageCellItem` 直通 OmniCells），且 `ae2omnicells` 是它的 optional 依赖——活得好好的，判死不成立。真实机制（javap 现量，20.5.9）：
+
+1. 集成类标注 eco 的 `@Integration("ae2omnicells")`（`api/integration`，CLASS 保留注解，value = modid）；
+2. Forge 的 mod 扫描（`ModFileScanData.getAnnotations()`）覆盖**全包每个 mod jar**——我们的 jar 也在内，扫描只读字节码不加载类；
+3. eco 构造器里 `IntegrationManager.compileContent()` 建表、`loadAllIntegrations()` 按 modid 门后 `newInstance()` + 调 `apply()`/`applyClient()`（dev 日志 "Loading …integration … for …" 的出处）；加载序 eco 先于我们（我们 load-after eco），apply() 里往 `Registration.ITEMS` 添加的条目赶得上我们自己的 `ITEMS.register(modBus)`；
+4. 没装 OmniCells：集成类不实例化 ⇒ 物品类不加载 ⇒ 父链永不解析 ⇒ 不崩。旧会话量到的崩溃多半出在没门或静态引用，等价于"无条件注册"的错，不是父链本身。
+
+形状照抄 `AE2OmniCellsIntegration`：public 无参构造 + `apply()`（注册物品，往 `Registration.ITEMS`）+ `applyClient()`；本线客户端接线保持自家形状（Client 类摸 `Integration.CELLS` 列表，没装时列表为空）。乏核的三重门保持 1.21.1 形状（方法体内 mekanism+appmek 双查）。
 
 **魔源一族可移**（父链停在我们自己的 `PrototypeCellItem`，与 FE 家族同形；`Integration/arseng/` 门 = arseng）。规格：
 
-- arseng 1.20.1：Modrinth IJI3QuK8，forge 1.20.1 最新 `arseng-2.1.1-beta.jar`（123 229 B，sha1 e46e7cf5c4fc5f48d1b1ea025eb59c484811b2c6，2026-11-21 已下载进 libs/ 未接线）；`gripe._90.arseng.me.key.SourceKey/SourceKeyType` 类路径与 1.21.1 一致（jar tf 现量）；硬依赖 Ars Nouveau（TKB6INcv）+ AE2，dev 跑要连 Ars Nouveau 一起进 run/mods。
+- arseng 1.20.1：同走 `@Integration("arseng")`；Modrinth IJI3QuK8，forge 1.20.1 最新 `arseng-2.1.1-beta.jar`（123 229 B，sha1 e46e7cf5c4fc5f48d1b1ea025eb59c484811b2c6，2026-11-21 已下载进 libs/ 未接线）；`gripe._90.arseng.me.key.SourceKey/SourceKeyType` 类路径与 1.21.1 一致（jar tf 现量）；硬依赖 Ars Nouveau（TKB6INcv）+ AE2，dev 跑要连 Ars Nouveau 一起进 run/mods。
 - eco 20.5.3 有 L4/L6/L9 魔源盘 ⇒ `neoecoae:source` cell type 在；`EcoCellTypes.require("source")` 问的是 eco 自己的 `NERegistries.CELL_TYPE`，同一口可用。
 - 前置件：`SimplifySingularityCellItem`（470 行）+ `SingularityCellHandler`（218 行）必须先搬——魔源的五档盘、growing cell、面板行三处都踩在这两个类上。1.21.1 的 Bank 走 **DataComponent**，1.20.1 没有这条机制 ⇒ 改物品 stack NBT（两个 long），`SINGULARITY_CELL_BANK` 的注册不存在也不需要。
 - AE2 15.4.10 差异两处未验：`StorageCellTooltipComponent`（预览图那条）与 `AEConfig.isTooltipShowCellContent()` 方法名，javap 后照实改；没有就把 `getTooltipImage` 答 empty，预览是便宜的一半。
