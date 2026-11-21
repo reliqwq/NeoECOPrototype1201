@@ -13,7 +13,7 @@
     "item": "neoecoprototype1201:simplify_source_storage_cell_16k",
     "count": 1
   },
-  "conditions": [
+  "forge:conditions": [
     {
       "type": "forge:mod_loaded",
       "modid": "arseng"

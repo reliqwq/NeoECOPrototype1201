@@ -154,7 +154,7 @@ gzip 体）；③把我们的命名空间前缀换成一个没人注册的 20 �
 | 东西 | 1.21.1 写法 | Forge 1.20.1 现实 | 抄错的后果 |
 |---|---|---|---|
 | 成就的条件 | 顶层 `"neoforge:conditions": [...]` | **只认包装形状** `{"advancements":[{"conditions":[…],"advancement":{…}}]}`（`ConditionalAdvancement.processConditional`） | 顶层键被当未知字段忽略 → 节点**无条件加载**，缺模组时判据点名的物品不存在，树里多一颗永远点不亮的洞，0 条日志抱怨 |
-| 配方的条件 | `"neoforge:conditions"` | 裸键 `"conditions"` + `forge:mod_loaded` | 我们 18 份条件配方本来就是对的；**别把成就那套写法搬过来** |
+| 配方的条件 | `"neoforge:conditions"` | **`forge:conditions`**（1.19 起键名带了前缀；裸键 `"conditions"` 是死键，加载器不读） | **2026-11-21 发现并修掉**：54 份条件配方全部用的是死键——条件从未生效，生产包（无 appmek/omnicells/appflux）里这批配方走 `Parsing error loading recipe` 被丢，§5 那个"Loaded 43 条 ≠ 88 份文件"的悬案就是它。已整批改名 + 数据闸现在读 `forge:conditions` 并对死键直接红；闸的 CELL_ID 也补了三只自产细胞（奇点/陨石粉/源） |
 | 成就的图标 | `{"id": "ns:item"}` | `{"item": "ns:item"}` | 守卫已拦（`display.icon still uses 1.21's 'id'`） |
 | 配方的原料/产物 id | 一样 | **必须带命名空间** | 少写 `neoecoprototype1201:` 的那一格被读成 `minecraft:simplify_storage_controller` ⇒ `ShapedRecipe.itemFromJson` 抛 `Unknown item`，**整条配方被丢弃**，日志里只有一行 `Parsing error loading recipe …`（现量：玩偶那只就这么丢的，其余 4 条没事） |
 | 模型的面级光照 | `"neoforge_data"` | `"forge_data"` | 发光层不再是全亮烘焙光 → 整张面板像被乘 0.05（见 §3 那条例外） |

@@ -1,0 +1,48 @@
+{
+  "type": "neoecoae:storage_cell_disassembly",
+  "cell": "neoecoprototype1201:simplify_source_growing_cell",
+  "cell_disassembly_items": [
+    {
+      "count": 1,
+      "item": "neoecoprototype1201:simplify_concrete_storage_matrix_housing"
+    },
+    {
+      "count": 1,
+      "item": "neoecoae:energized_superconductive_ingot"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:alakarkinos_token"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:source_gem_block"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:magebloom_crop"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:water_essence"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:fire_essence"
+    },
+    {
+      "count": 1,
+      "item": "ars_nouveau:earth_essence"
+    }
+  ],
+  "forge:conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "arseng"
+    },
+    {
+      "type": "forge:mod_loaded",
+      "modid": "ars_nouveau"
+    }
+  ]
+}

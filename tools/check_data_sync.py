@@ -320,7 +320,7 @@ DISASSEMBLY_TYPE = "neoecoae:storage_cell_disassembly"
 UNDISASSEMBLABLY = {NS + ":simplify_concrete_storage_cell",
                     NS + ":simplify_small_bulk_storage_cell_expanded",
                     NS + ":simplify_small_bulk_fluid_storage_cell_expanded"}
-CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?)$")
+CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?|simplify_singularity_cell|simplify_sky_stone_dust_cell|simplify_source_growing_cell)$")
 
 
 def member_ids(node):
@@ -393,10 +393,13 @@ def check_recipes():
                                     " - the game throws Unknown item and drops the recipe")
             mods = {gated_by(member) for member in all_ids(data)}
             mods.discard(None)
-            declared = {c.get("modid") for c in data.get("conditions", [])
+            declared = {c.get("modid") for c in data.get("forge:conditions", [])
                         if c.get("type") == "forge:mod_loaded"}
-            if data.get("conditions") and not declared:
-                problems.append(f"{label}/{name}: conditions present but no forge:mod_loaded among them")
+            # "conditions" (without the forge: prefix) is a dead key on Forge 1.20.1 - the loader
+            # only reads forge:conditions, so a file carrying the bare key ships unconditionally.
+            if data.get("conditions"):
+                problems.append(f"{label}/{name}: uses the dead \"conditions\" key - rename it to"
+                                " \"forge:conditions\" or the conditions never apply")
             if mods - declared:
                 problems.append(f"{label}/{name}: names gated ids {sorted(mods - declared)} without"
                                 f" a mod_loaded condition - Forge 1.20.1 throws on the unknown item")

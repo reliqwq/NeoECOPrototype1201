@@ -13,7 +13,7 @@
     "count": 1,
     "item": "neoecoprototype1201:simplify_chemical_storage_cell_1m"
   },
-  "conditions": [
+  "forge:conditions": [
     {
       "type": "forge:mod_loaded",
       "modid": "appmek"

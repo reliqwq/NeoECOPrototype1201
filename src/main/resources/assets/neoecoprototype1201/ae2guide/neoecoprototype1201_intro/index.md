@@ -3,11 +3,8 @@ navigation:
   title: Neo ECO Prototype
   position: 200
 item_ids:
-  - neoecoprototype1201:simplify_storage_controller
   - neoecoprototype1201:simplify_storage_casing
   - neoecoprototype1201:simplify_storage_vent
-  - neoecoprototype1201:simplify_drive
-  - neoecoprototype1201:simplify_energy_cell
   - neoecoprototype1201:simplify_storage_interface
   - neoecoprototype1201:simplify_storage_network_interface
   - neoecoprototype1201:simplify_green_crystal_matrix
@@ -31,6 +28,8 @@ A formed L1 storage subsystem, as one shape: controller at one end, drive, energ
 |---------------|----------------|
 | Automating processors from patterns | [L1 Processor Assembler](processor_assembler.md) - processors before you have an inscriber |
 | Which matrix stores what | [Supported storage matrices](matrix_types.md) |
+| The full storage multiblock | [L1 Storage System](storage_system.md) - parts, idle draw, build order |
+| Singularities without a condenser | [L1 Singularity Cell](singularity_cell.md) - it grows its own stock |
 | Few types, nearly unlimited amounts | [Small Bulk Matrices](small_bulk_matrices.md) - needs MEGA Cells, 3 types or 10 |
 | Upgrade AE2 blocks to L1 in place | [AE2 to L1 Upgrade Cards](ae2_upgrade_cards.md) - patterns come along |
 | A plushie of someone you know | [Fumo Dolls](fumo_dolls.md) - worn Night Vision, and creepers keep their distance |

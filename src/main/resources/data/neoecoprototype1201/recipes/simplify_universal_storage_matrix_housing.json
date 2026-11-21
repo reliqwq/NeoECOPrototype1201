@@ -24,7 +24,7 @@
     "item": "neoecoprototype1201:simplify_universal_storage_matrix_housing",
     "count": 1
   },
-  "conditions": [
+  "forge:conditions": [
     {
       "type": "forge:mod_loaded",
       "modid": "ae2omnicells"
