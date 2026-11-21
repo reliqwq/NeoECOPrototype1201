@@ -1,0 +1,18 @@
+{
+  "type": "neoecoprototype1201:processor_assembler",
+  "ingredients": [
+    {
+      "item": "ae2:memory_card"
+    },
+    {
+      "item": "neoecoae:aluminum_ingot"
+    },
+    {
+      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+    }
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_structure_expansion_card",
+    "count": 1
+  }
+}

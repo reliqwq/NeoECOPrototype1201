@@ -571,6 +571,41 @@ public class SimplifyStructureExpansionCardItem extends Item {
      * need it.
      */
     private static @Nullable Item growWorkOrder(MultiBlockDefinition definition) {
+        // Trinity stays unported on this line, so its row is absent here; everything else the 1.21.1
+        // card answers is answered the same way.
+        if (definition == cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyStorageDefinition.L1) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_L1_STORAGE.get();
+        }
+        if (definition == cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyCraftingDefinition.L1) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_F1_CRAFTING.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.STORAGE_SYSTEM_L4) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_STORAGE_L4.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.STORAGE_SYSTEM_L6) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_STORAGE_L6.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.STORAGE_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_STORAGE_L9.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.COMPUTATION_SYSTEM_L4) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L4.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.COMPUTATION_SYSTEM_L6) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L6.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.COMPUTATION_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L9.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.CRAFTING_SYSTEM_L4) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L4.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.CRAFTING_SYSTEM_L6) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L6.get();
+        }
+        if (definition == cn.dancingsnow.neoecoae.all.NEMultiBlocks.CRAFTING_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L9.get();
+        }
         return null;
     }
 
@@ -581,6 +616,16 @@ public class SimplifyStructureExpansionCardItem extends Item {
      * rather than filing a ticket for one - so the swap path stays whole either way.
      */
     private static @Nullable Item upgradeWorkOrder(MultiBlockDefinition target) {
+        // The L9 upgrade tickets: same rows the 1.21.1 card answers minus Trinity, which is not here.
+        if (target == cn.dancingsnow.neoecoae.all.NEMultiBlocks.STORAGE_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_UPGRADE_STORAGE_L9.get();
+        }
+        if (target == cn.dancingsnow.neoecoae.all.NEMultiBlocks.COMPUTATION_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_UPGRADE_COMPUTATION_L9.get();
+        }
+        if (target == cn.dancingsnow.neoecoae.all.NEMultiBlocks.CRAFTING_SYSTEM_L9) {
+            return Registration.SIMPLIFY_WORK_ORDER_UPGRADE_CRAFTING_L9.get();
+        }
         return null;
     }
 

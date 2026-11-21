@@ -9,6 +9,11 @@ item_ids:
   - neoecoprototype1201:simplify_pattern_provider
   - neoecoprototype1201:cable_pattern_provider
   - neoecoprototype1201:ec9_processor_assembler
+  - neoecoprototype1201:simplify_structure_expansion_card
+  - neoecoprototype1201:backup_drive
+  - neoecoprototype1201:simplify_work_order_upgrade_storage_l9
+  - neoecoprototype1201:simplify_work_order_upgrade_computation_l9
+  - neoecoprototype1201:simplify_work_order_upgrade_crafting_l9
 ---
 
 # L1 处理器装配室

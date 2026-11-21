@@ -5,6 +5,7 @@ import cn.dancingsnow.neoecoae.all.NERegistries;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifySingularityCellItem;
+import cn.dancingsnow.neoecoprototype1201.items.BackupDriveItem;
 import cn.dancingsnow.neoecoprototype1201.items.Ae2ToL1UpgradeCardItem;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifyComputationCellItem;
@@ -268,6 +269,60 @@ public final class Registration {
             ITEMS.register("simplify_sky_stone_dust_cell",
                     () -> new SimplifySingularityCellItem(new Item.Properties().stacksTo(1),
                             SimplifySingularityCellItem.SKY_STONE_DUST));
+
+    /** The structure expansion card: grow a machine along its edge, or swap it up a tier in place. */
+    public static final RegistryObject<Item> SIMPLIFY_STRUCTURE_EXPANSION_CARD =
+            ITEMS.register("simplify_structure_expansion_card",
+                    () -> new cn.dancingsnow.neoecoprototype1201.items.SimplifyStructureExpansionCardItem(
+                            new Item.Properties().stacksTo(1)));
+
+    /** The bag a click hands over instead of ninety loose blocks; right-click pours it out. */
+    public static final RegistryObject<Item> BACKUP_DRIVE =
+            ITEMS.register("backup_drive", () -> new BackupDriveItem(new Item.Properties().stacksTo(1)));
+
+    /** One work order per machine the card can be pointed at; Trinity stays unported on this line. */
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_L1_STORAGE =
+            ITEMS.register("simplify_work_order_grow_l1_storage",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_STORAGE_L4 =
+            ITEMS.register("simplify_work_order_grow_storage_l4",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_STORAGE_L6 =
+            ITEMS.register("simplify_work_order_grow_storage_l6",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_STORAGE_L9 =
+            ITEMS.register("simplify_work_order_grow_storage_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L4 =
+            ITEMS.register("simplify_work_order_grow_computation_l4",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L6 =
+            ITEMS.register("simplify_work_order_grow_computation_l6",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_COMPUTATION_L9 =
+            ITEMS.register("simplify_work_order_grow_computation_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L4 =
+            ITEMS.register("simplify_work_order_grow_crafting_l4",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L6 =
+            ITEMS.register("simplify_work_order_grow_crafting_l6",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_CRAFTING_L9 =
+            ITEMS.register("simplify_work_order_grow_crafting_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_GROW_F1_CRAFTING =
+            ITEMS.register("simplify_work_order_grow_f1_crafting",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_UPGRADE_STORAGE_L9 =
+            ITEMS.register("simplify_work_order_upgrade_storage_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_UPGRADE_COMPUTATION_L9 =
+            ITEMS.register("simplify_work_order_upgrade_computation_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> SIMPLIFY_WORK_ORDER_UPGRADE_CRAFTING_L9 =
+            ITEMS.register("simplify_work_order_upgrade_crafting_l9",
+                    () -> new Item(new Item.Properties().stacksTo(16)));
     public static final RegistryObject<Item> AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD =
             ITEMS.register("ae2_interface_to_l1_superconductive_card", () -> new Ae2ToL1UpgradeCardItem(
                     new Item.Properties().stacksTo(1),
@@ -307,6 +362,8 @@ public final class Registration {
                         cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
                                 .UniversalIntegration.TAB_ITEMS
                                 .forEach(item -> output.accept(item.get()));
+                        output.accept(SIMPLIFY_STRUCTURE_EXPANSION_CARD.get());
+                        output.accept(BACKUP_DRIVE.get());
                         output.accept(PIGMEE_STORAGE_MATRIX_HOUSING.get());
                         output.accept(PIGMEE_STORAGE_CELL.get());
                         output.accept(SIMPLIFY_CONCRETE_STORAGE_MATRIX_HOUSING.get());
