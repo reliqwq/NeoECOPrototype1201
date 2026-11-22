@@ -235,6 +235,11 @@ public final class Registration {
                             cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart.class,
                             cn.dancingsnow.neoecoprototype1201.part.SuperconductiveInterfacePart::new));
 
+    public static final RegistryObject<Item> GRETTE_CRYSTAL =
+            ITEMS.register("grette_crystal", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> GRETTE_CRYSTAL_DUST =
+            ITEMS.register("grette_crystal_dust", () -> new Item(new Item.Properties()));
+
     /**
      * The L1 core material the assembler and the green casing are built from; its name carries the family's
      * green, as on the 1.21.1 line.
@@ -423,6 +428,13 @@ public final class Registration {
                         output.accept(AE2_INTERFACE_TO_L1_POWERED_CARD.get());
                         output.accept(AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD.get());
                         output.accept(GREEN_CRYSTAL_MATRIX.get());
+                        output.accept(GRETTE_CRYSTAL.get());
+                        output.accept(GRETTE_CRYSTAL_DUST.get());
+                        // Match the source policy: only the dessert forms are visible; ores and the
+                        // dissolution bath stay registered for commands/datapacks, outside this tab.
+                        output.accept(cn.dancingsnow.neoecoprototype1201.registration.ColdContent.CRYOTHEUM_ICE_CREAM.get());
+                        output.accept(cn.dancingsnow.neoecoprototype1201.registration.ColdContent.CRYOTHEUM_ICE_CREAM_BLOCK_ITEM.get());
+                        output.accept(cn.dancingsnow.neoecoprototype1201.registration.ColdContent.CRYOTHEUM_ICE_CREAM_BUCKET.get());
                         output.accept(MIGRATION_DRIVE_1_4.get());
                         output.accept(MIGRATION_DRIVE_4_6.get());
                         output.accept(MIGRATION_DRIVE_6_9.get());

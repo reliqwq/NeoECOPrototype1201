@@ -28,13 +28,10 @@ A formed L1 storage subsystem, as one shape: controller at one end, drive, energ
 |---------------|----------------|
 | Automating processors from patterns | [L1 Processor Assembler](processor_assembler.md) - processors before you have an inscriber |
 | Which matrix stores what | [Supported storage matrices](matrix_types.md) |
-| Keeping FE inside the network | [FE Storage Matrices](flux_storage.md) - 1K / 1M / 4M, needs AppliedFlux |
-| Registering matrices and recipes from scripts | [KubeJS support](kubejs.md) |
 | The full storage multiblock | [L1 Storage System](storage_system.md) - parts, idle draw, build order |
 | Singularities without a condenser | [L1 Singularity Cell](singularity_cell.md) - it grows its own stock |
 | Few types, nearly unlimited amounts | [Small Bulk Matrices](small_bulk_matrices.md) - needs MEGA Cells, 3 types or 10 |
 | Upgrade AE2 blocks to L1 in place | [AE2 to L1 Upgrade Cards](ae2_upgrade_cards.md) - patterns come along |
-| A plushie of someone you know | [Fumo Dolls](fumo_dolls.md) - worn Night Vision, and creepers keep their distance |
 | Parking a block of charge in the grid | [Energized Energy Cells](energized_energy_cells.md) |
 | An interface that powers the grid | [L1 Interfaces](interfaces.md) - powered and superconductive, on one page |
 | More crafting throughput | [L1 Computation System](computation_system.md) and [L1 Crafting System](crafting_system.md) |

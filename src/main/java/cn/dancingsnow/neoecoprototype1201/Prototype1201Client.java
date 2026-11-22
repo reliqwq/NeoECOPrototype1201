@@ -186,6 +186,16 @@ public final class Prototype1201Client {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            // Forge 47 keeps fluid render layers in its client table. Both halves need the entry.
+            var translucent = net.minecraft.client.renderer.RenderType.translucent();
+            net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(
+                    cn.dancingsnow.neoecoprototype1201.registration.ColdContent.CRYOTHEUM_ICE_CREAM_FLUID.get(), translucent);
+            net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(
+                    cn.dancingsnow.neoecoprototype1201.registration.ColdContent.FLOWING_CRYOTHEUM_ICE_CREAM.get(), translucent);
+            net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(
+                    cn.dancingsnow.neoecoprototype1201.registration.ColdContent.DISSOLUTION_SOLUTION.get(), translucent);
+            net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(
+                    cn.dancingsnow.neoecoprototype1201.registration.ColdContent.FLOWING_DISSOLUTION_SOLUTION.get(), translucent);
             registerLadder(Registration.CELLS, rungs("item"));
             registerLadder(Registration.FLUID_CELLS, rungs("fluid"));
             // Both of these lists stay empty unless the mod constructor took its branch, so a pack

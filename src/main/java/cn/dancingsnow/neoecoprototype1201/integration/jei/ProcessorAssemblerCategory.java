@@ -22,21 +22,28 @@ public class ProcessorAssemblerCategory implements IRecipeCategory<ProcessorAsse
     public static final RecipeType<ProcessorAssemblerRecipe> TYPE =
             RecipeType.create(Prototype1201.MOD_ID, "processor_assembler", ProcessorAssemblerRecipe.class);
 
+    public static final RecipeType<ProcessorAssemblerRecipe> EC9_TYPE =
+            RecipeType.create(Prototype1201.MOD_ID, "ec9_processor_assembler", ProcessorAssemblerRecipe.class);
+
+    private final boolean ec9;
     private final IDrawable icon;
 
-    public ProcessorAssemblerCategory(IGuiHelper guiHelper) {
+    public ProcessorAssemblerCategory(IGuiHelper guiHelper, boolean ec9) {
+        this.ec9 = ec9;
         icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(
-                ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get().asItem()));
+                (ec9 ? ModRegistration.EC9_PROCESSOR_ASSEMBLER_BLOCK.get()
+                        : ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get()).asItem()));
     }
 
     @Override
     public RecipeType<ProcessorAssemblerRecipe> getRecipeType() {
-        return TYPE;
+        return ec9 ? EC9_TYPE : TYPE;
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("block." + Prototype1201.MOD_ID + ".simplify_stonecutting_assembler");
+        return (ec9 ? ModRegistration.EC9_PROCESSOR_ASSEMBLER_BLOCK.get()
+                : ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get()).getName();
     }
 
     @Override
@@ -47,7 +54,7 @@ public class ProcessorAssemblerCategory implements IRecipeCategory<ProcessorAsse
     /** JEI needs an explicit size whenever the category supplies no background. */
     @Override
     public int getWidth() {
-        return 110;
+        return 128;
     }
 
     @Override

@@ -8,6 +8,7 @@ import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.GenericStack;
 import appeng.api.stacks.KeyCounter;
 import appeng.blockentity.crafting.MolecularAssemblerBlockEntity;
+import cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig;
 import cn.dancingsnow.neoecoprototype1201.recipe.ProcessorAssemblerRecipe;
 import cn.dancingsnow.neoecoprototype1201.recipe.ProcessorAssemblerRecipes;
 import net.minecraft.core.BlockPos;
@@ -80,6 +81,13 @@ public class SimplifyStonecuttingAssemblerBlockEntity extends MolecularAssembler
         ProcessorAssemblerRecipe recipe = matchRecipe(pattern);
         if (recipe == null) {
             logRefusal(pattern, "这台机器只跑处理器装配配方，普通分子装配样板请交给分子装配室");
+            return false;
+        }
+        long runs = requestedRuns(pattern, recipe);
+        int runCap = family == Family.EC9
+                ? NeoECOPrototypeServerConfig.processorAssemblerMaxRunsPerCycle() : 1;
+        if (runs <= 0 || runs > runCap) {
+            logRefusal(pattern, "样板请求 " + runs + " 份，超过本机每周期上限 " + runCap);
             return false;
         }
         ProcessorAssemblyPattern plan = new ProcessorAssemblyPattern(pattern, recipe, this::deliverSurplus);
@@ -169,6 +177,18 @@ public class SimplifyStonecuttingAssemblerBlockEntity extends MolecularAssembler
             }
         }
         return picked.isEmpty() ? "unknown" : String.join(" < ", picked);
+    }
+
+    /** The legacy AE2 completion wrapper is item-only, so only its single item-output pattern is eligible. */
+    private static long requestedRuns(IPatternDetails pattern, ProcessorAssemblerRecipe recipe) {
+        GenericStack[] outputs = pattern.getOutputs();
+        if (outputs.length != 1 || !(outputs[0].what() instanceof AEItemKey output)
+                || !recipe.hasItemOutput() || !output.matches(recipe.output())) {
+            return 0;
+        }
+        int perRun = recipe.output().getCount();
+        long amount = outputs[0].amount();
+        return perRun > 0 && amount > 0 && amount % perRun == 0 ? amount / perRun : 0;
     }
 
     /** What the pattern asks for, or null when no declared or derived recipe covers it. */

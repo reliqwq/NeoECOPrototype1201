@@ -4,6 +4,7 @@ import cn.dancingsnow.neoecoae.integration.jei.NeoECOAEJeiPlugin;
 import cn.dancingsnow.neoecoae.integration.xei.multiblock.MultiBlockInfoWrapper;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
 import cn.dancingsnow.neoecoprototype1201.Registration;
+import cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig;
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyComputationDefinition;
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyCraftingDefinition;
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyStorageDefinition;
@@ -35,8 +36,9 @@ public final class NeoECOPrototype1201JeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(
-                new ProcessorAssemblerCategory(registration.getJeiHelpers().getGuiHelper()));
+        var guiHelper = registration.getJeiHelpers().getGuiHelper();
+        registration.addRecipeCategories(new ProcessorAssemblerCategory(guiHelper, false),
+                new ProcessorAssemblerCategory(guiHelper, true));
     }
 
     /**
@@ -64,9 +66,19 @@ public final class NeoECOPrototype1201JeiPlugin implements IModPlugin {
         }
         List<ProcessorAssemblerRecipe> declared =
                 level.getRecipeManager().getAllRecipesFor(Registration.PROCESSOR_ASSEMBLER_TYPE.get());
-        List<ProcessorAssemblerRecipe> recipes = new ArrayList<>(declared);
-        recipes.addAll(ProcessorAssemblerRecipes.derived(level, declared));
-        registration.addRecipes(ProcessorAssemblerCategory.TYPE, recipes);
+        List<ProcessorAssemblerRecipe> enabledDeclared = declared.stream()
+                .filter(recipe -> !recipe.hasItemOutput()
+                        || !NeoECOPrototypeServerConfig.isProcessorRecipeDisabled(recipe.output().getItem()))
+                .toList();
+        registration.addRecipes(ProcessorAssemblerCategory.TYPE, enabledDeclared);
+        List<ProcessorAssemblerRecipe> ec9Recipes = new ArrayList<>(enabledDeclared);
+        if (NeoECOPrototypeServerConfig.DERIVE_PROCESSOR_RECIPES_FROM_INSCRIBER.get()) {
+            ec9Recipes.addAll(ProcessorAssemblerRecipes.derived(level, declared).stream()
+                    .filter(recipe -> !recipe.hasItemOutput()
+                            || !NeoECOPrototypeServerConfig.isProcessorRecipeDisabled(recipe.output().getItem()))
+                    .toList());
+        }
+        registration.addRecipes(ProcessorAssemblerCategory.EC9_TYPE, ec9Recipes);
         registration.addIngredientInfo(
                 new ItemStack(ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get().asItem()),
                 VanillaTypes.ITEM_STACK,
@@ -79,6 +91,8 @@ public final class NeoECOPrototype1201JeiPlugin implements IModPlugin {
         // JEI 15.59 does not have that overload.
         registration.addRecipeCatalysts(ProcessorAssemblerCategory.TYPE,
                 ModRegistration.SIMPLIFY_STONECUTTING_ASSEMBLER_BLOCK.get());
+        registration.addRecipeCatalysts(ProcessorAssemblerCategory.EC9_TYPE,
+                ModRegistration.EC9_PROCESSOR_ASSEMBLER_BLOCK.get());
         registration.addRecipeCatalysts(NeoECOAEJeiPlugin.MULTIBLOCK_TYPE,
                 ModRegistration.SIMPLIFY_STORAGE_CONTROLLER_BLOCK.get(),
                 ModRegistration.SIMPLIFY_COMPUTATION_SYSTEM_BLOCK.get(),
@@ -88,6 +102,8 @@ public final class NeoECOPrototype1201JeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
         registration.addRecipeTransferHandler(new ProcessorAssemblerTransferHandler(
-                registration.getTransferHelper()), ProcessorAssemblerCategory.TYPE);
+                registration.getTransferHelper(), ProcessorAssemblerCategory.TYPE), ProcessorAssemblerCategory.TYPE);
+        registration.addRecipeTransferHandler(new ProcessorAssemblerTransferHandler(
+                registration.getTransferHelper(), ProcessorAssemblerCategory.EC9_TYPE), ProcessorAssemblerCategory.EC9_TYPE);
     }
 }

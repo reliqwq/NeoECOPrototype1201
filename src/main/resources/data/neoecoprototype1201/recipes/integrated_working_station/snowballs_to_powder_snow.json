@@ -1,0 +1,14 @@
+{
+  "type": "neoecoae:integrated_working_station",
+  "energy": 1000,
+  "inputItems": [
+    {
+      "count": 3,
+      "item": "minecraft:snowball"
+    }
+  ],
+  "fluidOutput": {
+    "amount": 1000,
+    "fluid": "neoecoprototype1201:powder_snow"
+  }
+}

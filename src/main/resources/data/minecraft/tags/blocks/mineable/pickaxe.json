@@ -1,6 +1,15 @@
 {
   "replace": false,
   "values": [
+    "neoecoprototype1201:chipped_budding_grette",
+    "neoecoprototype1201:damaged_budding_grette",
+    "neoecoprototype1201:flawed_budding_grette",
+    "neoecoprototype1201:flawless_budding_grette",
+    "neoecoprototype1201:grette_cluster",
+    "neoecoprototype1201:grette_crystal_block",
+    "neoecoprototype1201:large_grette_bud",
+    "neoecoprototype1201:medium_grette_bud",
+    "neoecoprototype1201:small_grette_bud",
     "neoecoprototype1201:ec9_processor_assembler",
     "neoecoprototype1201:energized_computation_core",
     "neoecoprototype1201:energized_computation_threading_core",
@@ -36,6 +45,9 @@
     "neoecoprototype1201:simplify_storage_interface",
     "neoecoprototype1201:simplify_storage_network_interface",
     "neoecoprototype1201:simplify_storage_vent",
-    "neoecoprototype1201:superconductive_interface"
+    "neoecoprototype1201:superconductive_interface",
+    "neoecoprototype1201:cryotheum_ore",
+    "neoecoprototype1201:nether_cryotheum_ore",
+    "neoecoprototype1201:end_cryotheum_ore"
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "type": "ae2:inscriber",
+  "ingredients": {
+    "middle": {
+      "tag": "forge:gems/grette"
+    }
+  },
+  "mode": "inscribe",
+  "result": {
+    "count": 1,
+    "item": "neoecoprototype1201:grette_crystal_dust"
+  }
+}

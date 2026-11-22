@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "type": "single",
+      "resource": "neoecoprototype1201:block/dissolution_solution_still"
+    },
+    {
+      "type": "single",
+      "resource": "neoecoprototype1201:block/dissolution_solution_flow"
+    },
+    {
+      "type": "single",
+      "resource": "neoecoprototype1201:block/cryotheum_ice_cream_block"
+    },
+    {
+      "type": "single",
+      "resource": "minecraft:block/powder_snow"
+    }
+  ]
+}

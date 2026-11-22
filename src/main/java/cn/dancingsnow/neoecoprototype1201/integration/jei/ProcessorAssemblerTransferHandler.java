@@ -35,9 +35,12 @@ import java.util.Optional;
 public final class ProcessorAssemblerTransferHandler
         implements IRecipeTransferHandler<PatternEncodingTermMenu, ProcessorAssemblerRecipe> {
     private final IRecipeTransferHandlerHelper transferHelper;
+    private final RecipeType<ProcessorAssemblerRecipe> recipeType;
 
-    public ProcessorAssemblerTransferHandler(IRecipeTransferHandlerHelper transferHelper) {
+    public ProcessorAssemblerTransferHandler(IRecipeTransferHandlerHelper transferHelper,
+                                             RecipeType<ProcessorAssemblerRecipe> recipeType) {
         this.transferHelper = transferHelper;
+        this.recipeType = recipeType;
     }
 
     @Override
@@ -52,7 +55,7 @@ public final class ProcessorAssemblerTransferHandler
 
     @Override
     public RecipeType<ProcessorAssemblerRecipe> getRecipeType() {
-        return ProcessorAssemblerCategory.TYPE;
+        return recipeType;
     }
 
     /**

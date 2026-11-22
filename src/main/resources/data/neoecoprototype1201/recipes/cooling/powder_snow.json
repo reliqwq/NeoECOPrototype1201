@@ -1,0 +1,13 @@
+{
+  "type": "neoecoae:cooling",
+  "coolant": 6000,
+  "input": {
+    "amount": 100,
+    "tag": "c:powder_snow"
+  },
+  "max_overclock": 4,
+  "output": {
+    "amount": 100,
+    "fluid": "minecraft:water"
+  }
+}

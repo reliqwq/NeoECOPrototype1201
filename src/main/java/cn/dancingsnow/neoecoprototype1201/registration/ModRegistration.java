@@ -190,6 +190,58 @@ public final class ModRegistration {
             registerBlock("simplify_green_aluminum_casing",
                     () -> new cn.dancingsnow.neoecoprototype1201.block.SimplifyCasingBlock(metal().noOcclusion()));
 
+    // ============================ Grette crystal family ============================
+
+    private static BlockBehaviour.Properties gretteBudProperties() {
+        return BlockBehaviour.Properties.copy(Blocks.SMALL_AMETHYST_BUD)
+                .mapColor(net.minecraft.world.level.material.MapColor.DIAMOND)
+                .noOcclusion().strength(0.5F)
+                .sound(net.minecraft.world.level.block.SoundType.SMALL_AMETHYST_BUD)
+                .requiresCorrectToolForDrops()
+                .lightLevel(state -> state.getValue(net.minecraft.world.level.block.AmethystClusterBlock.FACING)
+                        .getAxis() == net.minecraft.core.Direction.Axis.Y ? 4 : 2);
+    }
+
+    // 1.20.1 takes integer dimensions: the source's 3.5 small-bud inset uses vanilla's 3 here.
+    public static final RegistryObject<Block> SMALL_GRETTE_BUD =
+            registerBlock("small_grette_bud",
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(3, 3, gretteBudProperties()));
+    public static final RegistryObject<Block> MEDIUM_GRETTE_BUD =
+            registerBlock("medium_grette_bud",
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(4, 3, gretteBudProperties()));
+    public static final RegistryObject<Block> LARGE_GRETTE_BUD =
+            registerBlock("large_grette_bud",
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(5, 2, gretteBudProperties()));
+    public static final RegistryObject<Block> GRETTE_CLUSTER =
+            registerBlock("grette_cluster",
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(7, 1, gretteBudProperties()));
+    public static final RegistryObject<Block> GRETTE_CRYSTAL_BLOCK =
+            registerBlock("grette_crystal_block", () -> new Block(BlockBehaviour.Properties.copy(Blocks.AMETHYST_BLOCK)
+                    .mapColor(net.minecraft.world.level.material.MapColor.DIAMOND).strength(1.5F).noOcclusion()
+                    .sound(net.minecraft.world.level.block.SoundType.AMETHYST)
+                    .requiresCorrectToolForDrops().lightLevel(state -> 4)));
+
+    // Worst first so each lazy decay supplier names an already declared registration.
+    public static final RegistryObject<Block> DAMAGED_BUDDING_GRETTE =
+            registerBlock("damaged_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
+                    .GretteBuddingBlock(() -> GRETTE_CRYSTAL_BLOCK.get(), gretteGrowth()));
+    public static final RegistryObject<Block> CHIPPED_BUDDING_GRETTE =
+            registerBlock("chipped_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
+                    .GretteBuddingBlock(() -> DAMAGED_BUDDING_GRETTE.get(), gretteGrowth()));
+    public static final RegistryObject<Block> FLAWED_BUDDING_GRETTE =
+            registerBlock("flawed_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
+                    .GretteBuddingBlock(() -> CHIPPED_BUDDING_GRETTE.get(), gretteGrowth()));
+    public static final RegistryObject<Block> FLAWLESS_BUDDING_GRETTE =
+            registerBlock("flawless_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
+                    .GretteBuddingBlock(gretteGrowth()));
+
+    private static cn.dancingsnow.neoecoprototype1201.block.grette.GretteBuddingBlock.GretteGrowth gretteGrowth() {
+        return new cn.dancingsnow.neoecoprototype1201.block.grette.GretteBuddingBlock.GretteGrowth(
+                SMALL_GRETTE_BUD.get(), MEDIUM_GRETTE_BUD.get(), LARGE_GRETTE_BUD.get(), GRETTE_CLUSTER.get(),
+                net.minecraft.world.level.block.AmethystClusterBlock.FACING,
+                net.minecraft.world.level.block.AmethystClusterBlock.WATERLOGGED);
+    }
+
     // ============================ L1 computation blocks ============================
 
     /**

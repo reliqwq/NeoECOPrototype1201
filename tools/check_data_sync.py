@@ -22,6 +22,18 @@ LANG_DIR = os.path.join(RES, "assets", NS, "lang")
 ASSET_DIR = os.path.join(RES, "assets", NS)
 
 problems = []
+JAVA_DIR = os.path.join(os.path.dirname(RES), "java", "cn", "dancingsnow", NS)
+COLD_JAVA = os.path.join(JAVA_DIR, "registration", "ColdContent.java")
+COLD_TEXT = open(COLD_JAVA, encoding="utf-8").read() if os.path.isfile(COLD_JAVA) else ""
+# Keep the registry spaces distinct: a LiquidBlock has no BlockItem, and source/flowing fluid ids
+# are not items. Translations alone must never manufacture a container or a fluid registration.
+COLD_REGISTRATIONS = {
+    kind: re.findall(r'\b' + kind + r'\.register\(\s*"([a-z0-9_]+)"', COLD_TEXT)
+    for kind in ("BLOCKS", "ITEMS", "FLUIDS", "FLUID_TYPES")
+}
+COLD_BLOCKS = {NS + ":" + name for name in COLD_REGISTRATIONS["BLOCKS"]}
+COLD_ITEMS = {NS + ":" + name for name in COLD_REGISTRATIONS["ITEMS"]}
+FLUID_IDS = {NS + ":" + name for name in COLD_REGISTRATIONS["FLUIDS"]}
 
 
 def registered_ids():
@@ -32,7 +44,7 @@ def registered_ids():
             m = re.match(r"^(?:block|item)\." + NS + r"\.([a-z0-9_]+)$", key)
             if m:
                 ids.add(NS + ":" + m.group(1))
-    return ids
+    return (ids - COLD_BLOCKS) | COLD_ITEMS
 
 
 OURS = registered_ids()
@@ -110,7 +122,7 @@ for loc in ("zh_cn", "en_us"):
 def check_id(where, raw):
     if not re.match(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$", raw):
         problems.append(f"{where}: not an id: {raw!r}")
-    elif raw.startswith(NS + ":") and raw not in OURS and raw not in PROVEN:
+    elif raw.startswith(NS + ":") and raw not in OURS | COLD_BLOCKS | FLUID_IDS and raw not in PROVEN:
         problems.append(f"{where}: {raw} is not registered on this line")
 
 
@@ -314,7 +326,7 @@ def check_pages():
 RECIPE_DIR = os.path.join(RES, "data", NS, "recipes")
 DATA_DIR = os.path.join(RES, "data", NS)
 # Keys whose string value is an item / tag / block id, in the data formats this line ships.
-ID_KEYS = ("item", "tag", "name", "id", "items")
+ID_KEYS = ("item", "tag", "name", "id", "items", "fluid")
 DISASSEMBLY_DIR = os.path.join(RECIPE_DIR, "disassembly")
 DISASSEMBLY_TYPE = "neoecoae:storage_cell_disassembly"
 # The infinite matrix is the punchline of a joke, not an oversight: 1.21.1 ships no disassembly for it
@@ -385,7 +397,8 @@ def check_recipes():
     And every storage cell has to have a disassembly file, because a matrix the player cannot take apart
     is a trap, not a feature.
     """
-    for folder, label in ((RECIPE_DIR, "recipes"), (DISASSEMBLY_DIR, "recipes/disassembly")):
+    for folder, label in ((root, "recipes/" + os.path.relpath(root, RECIPE_DIR).replace(os.sep, "/"))
+                          for root, _, _ in os.walk(RECIPE_DIR)):
         if not os.path.isdir(folder):
             problems.append(f"{label}: folder missing")
             continue
@@ -396,10 +409,14 @@ def check_recipes():
             # Every id in our own namespace inside a recipe has to be an item this line registers with a
             # name. PROVEN is built out of these very files, so it cannot vouch for them: a result that
             # names the other line's id is a parse error in-game and passed this check unnoticed once.
-            for member in sorted(member_ids(data)):
-                if member not in OURS:
-                    problems.append(f"{label}/{name}: {member} is not registered on this line"
-                                    " - the game throws Unknown item and drops the recipe")
+            for key, member in walk_strings(data):
+                if key in ("type", "tag") or not member.startswith(NS + ":"):
+                    continue
+                allowed = FLUID_IDS if key == "fluid" else OURS
+                if member not in allowed:
+                    problems.append(f"{label}/{name}: {member} is not a registered "
+                                    f"{'fluid' if key == 'fluid' else 'item'} on this line"
+                                    " - the game drops the recipe")
             mods = {gated_by(member) for member in all_ids(data)}
             mods.discard(None)
             declared = {c.get("modid") for c in data.get("forge:conditions", [])
@@ -415,7 +432,7 @@ def check_recipes():
             if declared - mods:
                 problems.append(f"{label}/{name}: gated on {sorted(declared - mods)} but every id it"
                                 " names registers unconditionally")
-            if label == "recipes" and DISASSEMBLY_TYPE in text:
+            if folder != DISASSEMBLY_DIR and DISASSEMBLY_TYPE in text:
                 problems.append(f"{label}/{name}: disassembly belongs under recipes/disassembly")
 
     cells = {member for member in OURS if CELL_ID.search(member)}
@@ -688,7 +705,11 @@ def naked_ids(node, key=None):
 
 
 HAND_MINED_BLOCKS = {NS + ":fumo_doll_kouooki", NS + ":fumo_doll_reliqwq", NS + ":fumo_doll_tedxenon",
-                     NS + ":fumo_doll_yang120", NS + ":fumo_doll_yang120_cpu", NS + ":fumo_doll_yang120_giant"}
+                     NS + ":fumo_doll_yang120", NS + ":fumo_doll_yang120_cpu", NS + ":fumo_doll_yang120_giant",
+                     NS + ":cryotheum_ice_cream_block"}
+# LiquidBlocks are placed fluid states, not mineable ore or solid dessert. Their noLootTable properties
+# and lack of BlockItems are checked by the bounded family gate below.
+LIQUID_BLOCKS = {NS + ":cryotheum_ice_cream", NS + ":dissolution_solution"}
 # Our blocks whose Properties come from an AE2 constructor: the tool flag is not ours to set, so they
 # carry the pickaxe entry (a tool-type declaration) but never the stone rung (a demand the flag would
 # have to back). 1.21.1's guard keeps the same shape with its own three; the energized batteries are
@@ -717,17 +738,17 @@ def check_block_tags():
                                encoding="utf-8")).get("values", []))
     stone = set(json.load(open(os.path.join(mc_tags, "needs_stone_tool.json"),
                                encoding="utf-8")).get("values", []))
-    expected_stone = blocks - HAND_MINED_BLOCKS - AE2_OWNED_PROPS_BLOCKS
+    expected_stone = blocks - HAND_MINED_BLOCKS - AE2_OWNED_PROPS_BLOCKS - LIQUID_BLOCKS
     if expected_stone != stone:
         problems.append("tags/blocks/needs_stone_tool is not our gated block list: missing="
-                        + sorted(expected_stone - stone) + " extra=" + sorted(stone - expected_stone))
+                        + str(sorted(expected_stone - stone)) + " extra=" + str(sorted(stone - expected_stone)))
     if not stone <= pick:
         problems.append("tags/blocks/needs_stone_tool entries missing from mineable/pickaxe: "
-                        + sorted(stone - pick) + " - eco keeps stone as a subset of pickaxe")
+                        + str(sorted(stone - pick)) + " - eco keeps stone as a subset of pickaxe")
     expected_pick = stone | AE2_OWNED_PROPS_BLOCKS
     if expected_pick != pick:
         problems.append("tags/blocks/mineable/pickaxe should be the stone rung plus the AE2-owned set:"
-                        " missing=" + sorted(expected_pick - pick) + " extra=" + sorted(pick - expected_pick)
+                        " missing=" + str(sorted(expected_pick - pick)) + " extra=" + str(sorted(pick - expected_pick))
                         + " - a hand-mined plushie in the pickaxe tag would demand a tool for wool")
 
 
@@ -822,6 +843,235 @@ def check_texture_frames():
           else f"textures: {count} multi-frame pngs")
 
 
+def check_grette():
+    """Check this bounded family against actual registrations, not just translated names.
+
+    The general guide gate uses lang as its inventory. Also check the Java declarations here so a
+    copied translation cannot hide a missing block/item. Loot predicates need a separate format check:
+    1.21 component predicates are ignored by 1.20.1 and would make Silk Touch drops unconditional.
+    """
+    blocks = {"small_grette_bud", "medium_grette_bud", "large_grette_bud", "grette_cluster",
+              "grette_crystal_block", "flawless_budding_grette", "flawed_budding_grette",
+              "chipped_budding_grette", "damaged_budding_grette"}
+    materials = {"grette_crystal", "grette_crystal_dust"}
+    java = os.path.join(os.path.dirname(RES), "java", "cn", "dancingsnow", NS)
+    growth_path = os.path.join(java, "block", "grette", "GretteBuddingBlock.java")
+    if not os.path.isfile(growth_path):
+        problems.append("grette: growth class missing from the target package directory")
+    block_java = open(os.path.join(java, "registration", "ModRegistration.java"), encoding="utf-8").read()
+    item_java = open(os.path.join(java, "Registration.java"), encoding="utf-8").read()
+    for names, text, pattern in ((blocks, block_java, r'registerBlock\(\s*"([a-z0-9_]+)"'),
+                                 (materials, item_java, r'ITEMS\.register\(\s*"([a-z0-9_]+)"')):
+        declared = re.findall(pattern, text)
+        for name in sorted(names):
+            if declared.count(name) != 1:
+                problems.append(f"grette: {name} needs exactly one Java registration, got {declared.count(name)}")
+    for loc in ("en_us", "zh_cn"):
+        for name in sorted(blocks | materials):
+            key = ("block." if name in blocks else "item.") + NS + "." + name
+            if key not in LANG_KEYS[loc]:
+                problems.append(f"grette: {loc} is missing {key}")
+    for folder, names in (("blockstates", blocks), ("models/block", blocks),
+                          ("models/item", blocks | materials), ("textures/block", blocks),
+                          ("textures/item", materials)):
+        for name in sorted(names):
+            suffix = ".png" if folder.startswith("textures/") else ".json"
+            path = os.path.join(ASSET_DIR, folder, name + suffix)
+            if not os.path.isfile(path):
+                problems.append(f"grette: missing {folder}/{name}{suffix}")
+    for name in ("small_grette_bud", "medium_grette_bud", "large_grette_bud", "grette_cluster"):
+        path = os.path.join(MODEL_DIR, "block", name + ".json")
+        if os.path.isfile(path) and json.load(open(path, encoding="utf-8")).get("render_type") != "cutout_mipped":
+            problems.append(f"grette: {name} model needs this line's cutout_mipped render type")
+    for name in sorted(blocks):
+        path = os.path.join(DATA_DIR, "loot_tables", "blocks", name + ".json")
+        if not os.path.isfile(path):
+            problems.append(f"grette: missing loot table for {name}")
+            continue
+        loot = json.load(open(path, encoding="utf-8"))
+        if "random_sequence" in loot or any(key == "predicates" for key, _ in walk_strings(loot)):
+            problems.append(f"grette: {name} loot still uses the 1.21 format")
+        predicates = []
+
+        def check_loot(node):
+            if isinstance(node, dict):
+                if node.get("condition") == "minecraft:match_tool":
+                    predicates.append(node.get("predicate", {}).get("enchantments", []))
+                if node.get("type") == "minecraft:item":
+                    check_id("grette loot " + name, node.get("name", ""))
+                for child in node.values():
+                    check_loot(child)
+            elif isinstance(node, list):
+                for child in node:
+                    check_loot(child)
+
+        check_loot(loot)
+        expected = [] if name == "grette_crystal_block" else [[{
+            "enchantment": "minecraft:silk_touch", "levels": {"min": 1}}]]
+        if predicates != expected:
+            problems.append(f"grette: {name} needs the 1.20.1 Silk Touch predicate, got {predicates}")
+    for kind in ("blocks", "items"):
+        groups = {"buds": {"small_grette_bud", "medium_grette_bud", "large_grette_bud"},
+                  "clusters": {"grette_cluster"},
+                  "budding_blocks": {name for name in blocks if "budding" in name}}
+        if kind == "items":
+            groups.update({"gems/grette": {"grette_crystal"}, "dusts/grette": {"grette_crystal_dust"},
+                           "gems": {"#forge:gems/grette"}, "dusts": {"#forge:dusts/grette"}})
+        for tag, names in sorted(groups.items()):
+            path = os.path.join(RES, "data", "forge", "tags", kind, tag + ".json")
+            if not os.path.isfile(path):
+                problems.append(f"grette: missing Forge {kind} tag {tag}")
+                continue
+            values = json.load(open(path, encoding="utf-8")).get("values", [])
+            expected = {name if name.startswith("#") else NS + ":" + name for name in names}
+            if set(values) != expected:
+                problems.append(f"grette: Forge {kind}/{tag} members {values}, expected {sorted(expected)}")
+    recipe = os.path.join(RECIPE_DIR, "inscriber", "grette_crystal_dust.json")
+    if not os.path.isfile(recipe):
+        problems.append("grette: missing inscriber dust recipe")
+    else:
+        data = json.load(open(recipe, encoding="utf-8"))
+        if (data.get("type") != "ae2:inscriber" or data.get("mode") != "inscribe"
+                or data.get("ingredients") != {"middle": {"tag": "forge:gems/grette"}}
+                or data.get("result") != {"item": NS + ":grette_crystal_dust", "count": 1}):
+            problems.append("grette: dust recipe must inscribe forge:gems/grette into one dust (1.20.1 item key)")
+    print("grette: 9 block/item pairs, 2 materials, models, loot predicates and Forge tags checked")
+
+
+def check_cold_content():
+    """Validate the bounded registry spaces, old serializers, loot and fluid-only model roots."""
+    ores = {"cryotheum_ore", "nether_cryotheum_ore", "end_cryotheum_ore"}
+    expected = {
+        "BLOCKS": ores | {"cryotheum_ice_cream", "cryotheum_ice_cream_block", "dissolution_solution"},
+        "ITEMS": ores | {"cryotheum_ice_cream", "cryotheum_ice_cream_block",
+                         "cryotheum_ice_cream_bucket", "dissolution_bucket"},
+        "FLUIDS": {"cryotheum_ice_cream", "flowing_cryotheum_ice_cream",
+                   "dissolution_solution", "flowing_dissolution_solution",
+                   "powder_snow", "flowing_powder_snow"},
+        "FLUID_TYPES": {"cryotheum_ice_cream", "dissolution_solution", "powder_snow"},
+    }
+    for kind, names in expected.items():
+        actual = COLD_REGISTRATIONS[kind]
+        if set(actual) != names or len(actual) != len(names):
+            problems.append(f"cold: {kind} registrations {actual}, expected once each: {sorted(names)}")
+    for loc in ("en_us", "zh_cn"):
+        for kind, names in (("block", expected["BLOCKS"]),
+                            ("item", expected["ITEMS"] - ores - {"cryotheum_ice_cream_block"}),
+                            ("fluid", {"powder_snow"}),
+                            ("fluid_type", expected["FLUID_TYPES"])):
+            for name in names:
+                if f"{kind}.{NS}.{name}" not in LANG_KEYS[loc]:
+                    problems.append(f"cold: {loc} missing {kind}.{NS}.{name}")
+    for name in expected["ITEMS"]:
+        if not os.path.isfile(os.path.join(MODEL_DIR, "item", name + ".json")):
+            problems.append(f"cold: item model missing for {name}")
+    for name in expected["BLOCKS"]:
+        if not os.path.isfile(os.path.join(BLOCKSTATE_DIR, name + ".json")):
+            problems.append(f"cold: blockstate missing for {name}")
+    for name in ores | {"cryotheum_ice_cream_block"}:
+        path = os.path.join(DATA_DIR, "loot_tables", "blocks", name + ".json")
+        if not os.path.isfile(path):
+            problems.append(f"cold: loot table missing for {name}")
+            continue
+        data = json.load(open(path, encoding="utf-8"))
+        if "random_sequence" in data:
+            problems.append(f"cold: {name} still has a 1.21 random_sequence")
+        if name in ores:
+            children = data.get("pools", [{}])[0].get("entries", [{}])[0].get("children", [])
+            predicate = {"enchantments": [{"enchantment": "minecraft:silk_touch", "levels": {"min": 1}}]}
+            if (len(children) != 2 or children[0].get("conditions") != [
+                    {"condition": "minecraft:match_tool", "predicate": predicate}]
+                    or children[0].get("name") != NS + ":" + name
+                    or children[1].get("name") != "neoecoae:cryotheum_crystal"
+                    or children[1].get("functions") != [
+                        {"enchantment": "minecraft:fortune", "formula": "minecraft:ore_drops",
+                         "function": "minecraft:apply_bonus"}, {"function": "minecraft:explosion_decay"}]):
+                problems.append(f"cold: {name} must preserve Silk Touch, Fortune and eco crystal drops")
+        elif data.get("pools", [{}])[0].get("entries") != [
+                {"type": "minecraft:item", "name": NS + ":cryotheum_ice_cream_block"}]:
+            problems.append("cold: solid dessert must drop itself")
+    # The liquid forms intentionally have no loot and no BlockItem. Their source ids overlap a food
+    # or fluid name, so a lang-derived inventory cannot establish this distinction.
+    for name in ("cryotheum_ice_cream", "dissolution_solution"):
+        if os.path.exists(os.path.join(DATA_DIR, "loot_tables", "blocks", name + ".json")):
+            problems.append(f"cold: liquid {name} must not acquire a solid-block loot table")
+    for rel, values in (("ores/cryotheum", {NS + ":" + name for name in ores}),
+                        ("ores", {"#forge:ores/cryotheum"})):
+        path = os.path.join(RES, "data", "forge", "tags", "blocks", rel + ".json")
+        if not os.path.isfile(path) or set(json.load(open(path, encoding="utf-8")).get("values", [])) != values:
+            problems.append(f"cold: Forge block tag {rel} has incorrect members")
+    # Still/flowing sprites are Java-only roots, outside ordinary model closure.
+    sprites = {"block/dissolution_solution_still", "block/dissolution_solution_flow",
+               "block/cryotheum_ice_cream_block"}
+    atlas_path = os.path.join(RES, "assets", "minecraft", "atlases", "blocks.json")
+    atlas = json.load(open(atlas_path, encoding="utf-8")) if os.path.isfile(atlas_path) else {}
+    stitched = {entry.get("resource") for entry in atlas.get("sources", []) if entry.get("type") in ("single", "minecraft:single")}
+    for sprite in sprites:
+        if (NS + ":" + sprite not in stitched or f'id("{sprite}")' not in COLD_TEXT
+                or not os.path.isfile(os.path.join(TEXTURE_DIR, sprite + ".png"))):
+            problems.append(f"cold: fluid sprite {sprite} is missing a Java/atlas/PNG root")
+    if ("minecraft:block/powder_snow" not in stitched
+            or '"minecraft", "block/powder_snow"' not in COLD_TEXT):
+        problems.append("cold: powder snow must reference vanilla's stitched sprite for still and flowing fluid")
+    powder_tag = os.path.join(RES, "data", "c", "tags", "fluids", "powder_snow.json")
+    if (not os.path.isfile(powder_tag)
+            or set(json.load(open(powder_tag, encoding="utf-8")).get("values", [])) != {NS + ":powder_snow"}):
+        problems.append("cold: c:powder_snow must include only our source fluid")
+    bucket_cap = os.path.join(JAVA_DIR, "event", "PowderSnowBucketCapabilities.java")
+    bucket_handler = os.path.join(JAVA_DIR, "items", "PowderSnowBucketFluidHandler.java")
+    if (not os.path.isfile(bucket_cap) or not os.path.isfile(bucket_handler)
+            or "Items.POWDER_SNOW_BUCKET" not in open(bucket_cap, encoding="utf-8").read()
+            or "ForgeCapabilities.FLUID_HANDLER_ITEM" not in open(bucket_cap, encoding="utf-8").read()
+            or "Items.BUCKET" not in open(bucket_handler, encoding="utf-8").read()):
+        problems.append("cold: vanilla powder snow bucket capability/read-drain conversion is missing")
+    bucket = json.load(open(os.path.join(MODEL_DIR, "item", "dissolution_bucket.json"), encoding="utf-8"))
+    if bucket != {"parent": "forge:item/bucket_drip", "fluid": NS + ":dissolution_solution",
+                  "loader": "forge:fluid_container"}:
+        problems.append("cold: dissolution bucket must use Forge 47's fluid_container model")
+    for name in ("cryotheum_ice_cream", "cryotheum_ice_cream_bucket"):
+        model = json.load(open(os.path.join(MODEL_DIR, "item", name + ".json"), encoding="utf-8"))
+        if model != {"parent": "minecraft:item/generated", "textures": {"layer0": NS + ":item/" + name}}:
+            problems.append(f"cold: {name} must keep the delivered flat icon")
+    # Exact source artwork, no local source-repository dependency needed by the gate.
+    import hashlib
+    delivered = {
+        "block/cryotheum_ice_cream_block": "d9ca8e3983d4adb51ea69a92d362c5e5f011c798980d2a8ddd99604086da4615",
+        "item/cryotheum_ice_cream": "e691bd623b47673890cc12ed555da0b377e11d89c40acf934786da6e2f71899a",
+        "item/cryotheum_ice_cream_bucket": "3bf29a2b5a68ba1b9c12a6e378d3a1d51eb6c03bec96789ba9b1795b85213275",
+    }
+    for sprite, digest in delivered.items():
+        path = os.path.join(TEXTURE_DIR, sprite + ".png")
+        if not os.path.isfile(path) or hashlib.sha256(open(path, "rb").read()).hexdigest() != digest:
+            problems.append(f"cold: {sprite} differs from the integrated source artwork")
+    expected_recipes = {
+        "cryotheum_ice_cream": {"type": "minecraft:crafting_shapeless", "category": "misc",
+            "ingredients": [{"item": item} for item in ("minecraft:glass_bottle", "minecraft:sugar",
+                                                        "neoecoae:cryotheum", "minecraft:snowball")],
+            "result": {"count": 1, "item": NS + ":cryotheum_ice_cream"}},
+        "cryotheum_ice_cream_bucket": {"type": "minecraft:crafting_shapeless", "category": "misc",
+            "ingredients": [{"item": NS + ":cryotheum_ice_cream"}] * 4 + [{"item": "minecraft:bucket"}],
+            "result": {"count": 1, "item": NS + ":cryotheum_ice_cream_bucket"}},
+        "cryotheum_ice_cream_from_bucket": {"type": "minecraft:crafting_shapeless", "category": "misc",
+            "ingredients": [{"item": NS + ":cryotheum_ice_cream_bucket"}] + [{"item": "minecraft:glass_bottle"}] * 4,
+            "result": {"count": 4, "item": NS + ":cryotheum_ice_cream"}},
+        "integrated_working_station/cryotheum_ice_cream": {"type": "neoecoae:integrated_working_station",
+            "energy": 1000, "inputFluid": {"amount": 1000, "tag": "minecraft:water"},
+            "inputItems": [{"count": 4, "item": "neoecoae:cryotheum"},
+                           {"count": 2, "item": "minecraft:sugar"}, {"count": 2, "item": "minecraft:snowball"}],
+            "fluidOutput": {"amount": 1000, "fluid": NS + ":cryotheum_ice_cream"}},
+        "cooling/cryotheum_ice_cream": {"type": "neoecoae:cooling", "coolant": 10000,
+            "input": {"amount": 100, "fluid": NS + ":cryotheum_ice_cream"}, "max_overclock": 8, "output": {}},
+        "cooling/powder_snow": {"type": "neoecoae:cooling", "coolant": 6000,
+            "input": {"amount": 100, "tag": "c:powder_snow"}, "max_overclock": 4,
+            "output": {"amount": 100, "fluid": "minecraft:water"}},
+    }
+    for rel, expected_recipe in expected_recipes.items():
+        path = os.path.join(RECIPE_DIR, rel + ".json")
+        if not os.path.isfile(path) or json.load(open(path, encoding="utf-8")) != expected_recipe:
+            problems.append(f"cold: {rel} must preserve quantities and the eco 20.5.10/1.20.1 schema")
+    print("cold: 6 blocks, 7 items, 6 fluids, 3 fluid types; source art, loot, tags, bucket handler and 6 recipes checked")
+
+
 def main():
     if not os.path.isdir(ADV_DIR):
         print(f"no advancements at {ADV_DIR}")
@@ -833,6 +1083,8 @@ def main():
     check_texture_frames()
     check_block_tags()
     check_blockstates()
+    check_grette()
+    check_cold_content()
     check_jade_keys()
     check_slot_count()
     nodes = sorted(f for f in os.listdir(ADV_DIR) if f.endswith(".json"))

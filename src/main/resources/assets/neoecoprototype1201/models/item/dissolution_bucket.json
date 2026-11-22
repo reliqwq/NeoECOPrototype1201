@@ -1,0 +1,5 @@
+{
+  "parent": "forge:item/bucket_drip",
+  "fluid": "neoecoprototype1201:dissolution_solution",
+  "loader": "forge:fluid_container"
+}

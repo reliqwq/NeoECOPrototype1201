@@ -71,12 +71,6 @@ The other eight:
 
 Silicon, gold and diamond are taken by tag, so any mod's version counts.
 
-Processor recipes beyond those three are derived live from the inscriber's recipes, so a recipe another mod adds to the inscriber works with no data file. Two server config keys govern that:
-
-| Config key | What it does |
-|------------|--------------|
-| `derive_processor_recipes_from_inscriber` | switches the inscriber derivation off |
-| `disabled_processor_recipes` | excludes processors by output |
 
 ## Speed and batching
 
@@ -86,11 +80,7 @@ However many complete sets a push carries, they finish in a **single** cycle - o
 
 ## The EC9: the family's volume half
 
-The <ItemLink id="neoecoprototype1201:ec9_processor_assembler" /> is the same machine on a bigger
-behalf: it also takes the **inscriber-derived** recipes - the fallback that lets other packs' press
-recipes work without a data file - while the basic assembler keeps to the curated declared list above.
-Both machines refuse ordinary molecular-assembly patterns the same way; the difference is only which
-half of the processor recipe family each answers.
+Additionally supports recipes derived from the inscriber.
 
 It is built from a basic assembler, six green crystal matrices and a CE1R flash crystal array.
 

@@ -20,7 +20,7 @@ Use a card on the matching AE2 block to replace it with the corresponding addon 
 | <ItemImage id="neoecoprototype1201:ae2_interface_to_l1_powered_card" scale="3" /> | L1 Powered Interface |
 | <ItemImage id="neoecoprototype1201:ae2_interface_to_l1_superconductive_card" scale="3" /> | Energized Superconductive Interface |
 
-On this line all three cards also upgrade the **cable form**: right-click the cable part the same way. The two interface cards carry their own cable faces now - see [L1 Interfaces](interfaces.md) - so a powered or superconductive interface swaps to its cable face in place, and the cable forms open AE2's own interface screen like the blocks do.
+On this line the pattern provider card also upgrades the **cable form**: right-click the cable part the same way. The two interface cards are block-only for now - their cable parts are not ported here yet, so a cable interface is swapped by breaking it and placing the L1 block.
 
 ## Recipes
 

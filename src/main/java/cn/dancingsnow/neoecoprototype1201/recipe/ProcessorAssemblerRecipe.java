@@ -19,6 +19,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,11 +50,34 @@ public final class ProcessorAssemblerRecipe implements Recipe<Container> {
     private final ResourceLocation id;
     private final List<Ingredient> ingredients;
     private final ItemStack result;
+    @Nullable
+    private final FluidStack fluidResult;
 
     public ProcessorAssemblerRecipe(ResourceLocation id, List<Ingredient> ingredients, ItemStack result) {
+        this(id, ingredients, result, FluidStack.EMPTY);
+    }
+
+    public ProcessorAssemblerRecipe(ResourceLocation id, List<Ingredient> ingredients, ItemStack result,
+                                    FluidStack fluidResult) {
+        if ((result == null || result.isEmpty()) && (fluidResult == null || fluidResult.isEmpty())) {
+            throw new IllegalArgumentException("processor assembly recipe needs an item or fluid result: " + id);
+        }
         this.id = id;
         this.ingredients = List.copyOf(ingredients);
-        this.result = result.copy();
+        this.result = result == null ? ItemStack.EMPTY : result.copy();
+        this.fluidResult = fluidResult == null || fluidResult.isEmpty() ? FluidStack.EMPTY : fluidResult.copy();
+    }
+
+    public boolean hasItemOutput() {
+        return !result.isEmpty();
+    }
+
+    public boolean hasFluidOutput() {
+        return fluidResult != null && !fluidResult.isEmpty();
+    }
+
+    public FluidStack fluidResult() {
+        return hasFluidOutput() ? fluidResult.copy() : FluidStack.EMPTY;
     }
 
     public List<Ingredient> ingredients() {
@@ -168,8 +194,24 @@ public final class ProcessorAssemblerRecipe implements Recipe<Container> {
                 }
                 parsed.add(ingredient);
             }
-            ItemStack output = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
-            return new ProcessorAssemblerRecipe(recipeId, parsed, output);
+            ItemStack output = json.has("result")
+                    ? ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"))
+                    : ItemStack.EMPTY;
+            FluidStack fluidOutput = FluidStack.EMPTY;
+            if (json.has("fluid_result")) {
+                JsonObject fluid = GsonHelper.getAsJsonObject(json, "fluid_result");
+                ResourceLocation fluidId = new ResourceLocation(GsonHelper.getAsString(fluid, "id"));
+                net.minecraft.world.level.material.Fluid registered = ForgeRegistries.FLUIDS.getValue(fluidId);
+                if (registered == null) {
+                    throw new JsonParseException("unknown fluid " + fluidId + " in " + recipeId);
+                }
+                int amount = GsonHelper.getAsInt(fluid, "amount");
+                if (amount <= 0) {
+                    throw new JsonParseException("non-positive fluid amount in " + recipeId);
+                }
+                fluidOutput = new FluidStack(registered, amount);
+            }
+            return new ProcessorAssemblerRecipe(recipeId, parsed, output, fluidOutput);
         }
 
         @Override
@@ -179,7 +221,18 @@ public final class ProcessorAssemblerRecipe implements Recipe<Container> {
             for (int index = 0; index < count; index++) {
                 parsed.add(Ingredient.fromNetwork(buffer));
             }
-            return new ProcessorAssemblerRecipe(recipeId, parsed, buffer.readItem());
+            ItemStack itemOutput = buffer.readBoolean() ? buffer.readItem() : ItemStack.EMPTY;
+            FluidStack fluidOutput = FluidStack.EMPTY;
+            if (buffer.readBoolean()) {
+                ResourceLocation fluidId = buffer.readResourceLocation();
+                int amount = buffer.readVarInt();
+                net.minecraft.world.level.material.Fluid fluid = ForgeRegistries.FLUIDS.getValue(fluidId);
+                if (fluid == null || amount <= 0) {
+                    throw new IllegalArgumentException("invalid fluid output in " + recipeId);
+                }
+                fluidOutput = new FluidStack(fluid, amount);
+            }
+            return new ProcessorAssemblerRecipe(recipeId, parsed, itemOutput, fluidOutput);
         }
 
         @Override
@@ -188,7 +241,15 @@ public final class ProcessorAssemblerRecipe implements Recipe<Container> {
             for (Ingredient ingredient : recipe.ingredients) {
                 ingredient.toNetwork(buffer);
             }
-            buffer.writeItem(recipe.result);
+            buffer.writeBoolean(recipe.hasItemOutput());
+            if (recipe.hasItemOutput()) {
+                buffer.writeItem(recipe.result);
+            }
+            buffer.writeBoolean(recipe.hasFluidOutput());
+            if (recipe.hasFluidOutput()) {
+                buffer.writeResourceLocation(ForgeRegistries.FLUIDS.getKey(recipe.fluidResult.getFluid()));
+                buffer.writeVarInt(recipe.fluidResult.getAmount());
+            }
         }
     }
 }

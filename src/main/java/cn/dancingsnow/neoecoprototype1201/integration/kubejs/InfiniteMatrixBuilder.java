@@ -128,8 +128,10 @@ public class InfiniteMatrixBuilder extends ItemBuilder {
      */
     @Override
     public void generateAssetJsons(AssetJsonGenerator generator) {
-        boolean userCustomized = this.texture != null || this.parentModel != null
-                || this.textureJson != null || this.modelJson != null;
+        boolean userCustomized = this.texture != null
+                || (this.parentModel != null && !this.parentModel.isEmpty())
+                || (this.textureJson != null && this.textureJson.size() > 0)
+                || this.modelJson != null;
         if (userCustomized) {
             super.generateAssetJsons(generator);
             return;

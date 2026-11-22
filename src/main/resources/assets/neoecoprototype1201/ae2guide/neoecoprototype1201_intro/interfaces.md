@@ -7,8 +7,6 @@ navigation:
 item_ids:
   - neoecoprototype1201:simplify_powered_me_interface
   - neoecoprototype1201:superconductive_interface
-  - neoecoprototype1201:cable_powered_me_interface
-  - neoecoprototype1201:cable_superconductive_interface
 ---
 
 # L1 Interfaces

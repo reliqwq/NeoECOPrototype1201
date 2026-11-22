@@ -26,6 +26,10 @@ public final class Prototype1201 {
     /** Forge 47 only ever calls a no-argument constructor; the injected bus is NeoForge-only. */
     public Prototype1201() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        cn.dancingsnow.neoecoprototype1201.registration.ColdContent.register(modBus);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(
+                net.minecraftforge.fml.config.ModConfig.Type.SERVER,
+                cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig.SPEC);
         ModRegistration.BLOCKS.register(modBus);
         ModRegistration.BLOCK_ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
