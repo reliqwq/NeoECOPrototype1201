@@ -9,6 +9,30 @@ item_ids:
   - neoecoprototype1201:simplify_storage_network_interface
   - neoecoprototype1201:simplify_green_crystal_matrix
   - neoecoprototype1201:simplify_green_aluminum_casing
+  - neoecoprototype1201:chipped_budding_grette
+  - neoecoprototype1201:cryotheum_ice_cream_bucket
+  - neoecoprototype1201:damaged_budding_grette
+  - neoecoprototype1201:dissolution_bucket
+  - neoecoprototype1201:flawed_budding_grette
+  - neoecoprototype1201:flawless_budding_grette
+  - neoecoprototype1201:fumo_doll_kouooki
+  - neoecoprototype1201:fumo_doll_reliqwq
+  - neoecoprototype1201:fumo_doll_tedxenon
+  - neoecoprototype1201:fumo_doll_yang120
+  - neoecoprototype1201:fumo_doll_yang120_cpu
+  - neoecoprototype1201:fumo_doll_yang120_giant
+  - neoecoprototype1201:grette_cluster
+  - neoecoprototype1201:grette_crystal
+  - neoecoprototype1201:grette_crystal_block
+  - neoecoprototype1201:grette_crystal_dust
+  - neoecoprototype1201:large_grette_bud
+  - neoecoprototype1201:medium_grette_bud
+  - neoecoprototype1201:small_grette_bud
+  - neoecoprototype1201:cryotheum_ice_cream
+  - neoecoprototype1201:cryotheum_ice_cream_block
+  - neoecoprototype1201:cryotheum_ore
+  - neoecoprototype1201:end_cryotheum_ore
+  - neoecoprototype1201:nether_cryotheum_ore
 ---
 
 # Neo ECO Prototype
