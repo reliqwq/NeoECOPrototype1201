@@ -1,22 +1,29 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": [
+  "type": "forge:conditional",
+  "recipes": [
     {
-      "item": "neoecoprototype1201:simplify_source_storage_matrix_housing"
-    },
-    {
-      "item": "ae2:cell_component_1k"
-    }
-  ],
-  "result": {
-    "item": "neoecoprototype1201:simplify_source_storage_cell_1k",
-    "count": 1
-  },
-  "forge:conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "arseng"
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "arseng"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [
+          {
+            "item": "neoecoprototype1201:simplify_source_storage_matrix_housing"
+          },
+          {
+            "item": "ae2:cell_component_1k"
+          }
+        ],
+        "result": {
+          "item": "neoecoprototype1201:simplify_source_storage_cell_1k",
+          "count": 1
+        }
+      }
     }
   ]
 }

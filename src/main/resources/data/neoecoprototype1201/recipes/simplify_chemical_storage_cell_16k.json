@@ -1,22 +1,29 @@
 {
-  "forge:conditions": [
+  "type": "forge:conditional",
+  "recipes": [
     {
-      "type": "forge:mod_loaded",
-      "modid": "appmek"
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "appmek"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shapeless",
+        "category": "misc",
+        "ingredients": [
+          {
+            "item": "neoecoprototype1201:simplify_chemical_storage_matrix_housing"
+          },
+          {
+            "item": "ae2:cell_component_16k"
+          }
+        ],
+        "result": {
+          "count": 1,
+          "item": "neoecoprototype1201:simplify_chemical_storage_cell_16k"
+        }
+      }
     }
-  ],
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": [
-    {
-      "item": "neoecoprototype1201:simplify_chemical_storage_matrix_housing"
-    },
-    {
-      "item": "ae2:cell_component_16k"
-    }
-  ],
-  "result": {
-    "count": 1,
-    "item": "neoecoprototype1201:simplify_chemical_storage_cell_16k"
-  }
+  ]
 }

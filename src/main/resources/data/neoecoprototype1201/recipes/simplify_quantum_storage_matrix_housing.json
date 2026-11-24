@@ -1,33 +1,40 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "category": "misc",
-  "key": {
-    "A": {
-      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
-    },
-    "B": {
-      "item": "ae2:ender_dust"
-    },
-    "C": {
-      "item": "ae2omnicells:ender_ingot"
-    },
-    "D": {
-      "item": "ae2omnicells:multidimensional_expansion_processor"
-    }
-  },
-  "pattern": [
-    "ABA",
-    "B B",
-    "CDC"
-  ],
-  "result": {
-    "item": "neoecoprototype1201:simplify_quantum_storage_matrix_housing",
-    "count": 1
-  },
-  "forge:conditions": [
+  "type": "forge:conditional",
+  "recipes": [
     {
-      "type": "forge:mod_loaded",
-      "modid": "ae2omnicells"
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "ae2omnicells"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "A": {
+            "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+          },
+          "B": {
+            "item": "ae2:ender_dust"
+          },
+          "C": {
+            "item": "ae2omnicells:ender_ingot"
+          },
+          "D": {
+            "item": "ae2omnicells:multidimensional_expansion_processor"
+          }
+        },
+        "pattern": [
+          "ABA",
+          "B B",
+          "CDC"
+        ],
+        "result": {
+          "item": "neoecoprototype1201:simplify_quantum_storage_matrix_housing",
+          "count": 1
+        }
+      }
     }
   ]
 }

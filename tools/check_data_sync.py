@@ -390,12 +390,11 @@ def all_ids(node):
 
 
 def check_recipes():
-    """Two rules the game never complains about out loud: 联动配方 and 矩阵要能拆.
+    """Check recipe ids, Forge conditional wrappers and storage-cell disassembly coverage.
 
-    A recipe that names an item this line only registers with an optional mod must carry the matching
-    forge:mod_loaded condition, because Forge 1.20.1 throws on the unknown id instead of skipping the file.
-    And every storage cell has to have a disassembly file, because a matrix the player cannot take apart
-    is a trap, not a feature.
+    Forge 1.20.1 only evaluates optional-mod conditions through the forge:conditional serializer. A
+    namespaced condition field attached to an ordinary recipe is ignored, and the recipe then fails on
+    any item registered only while an optional mod is present.
     """
     for folder, label in ((root, "recipes/" + os.path.relpath(root, RECIPE_DIR).replace(os.sep, "/"))
                           for root, _, _ in os.walk(RECIPE_DIR)):
@@ -419,13 +418,23 @@ def check_recipes():
                                     " - the game drops the recipe")
             mods = {gated_by(member) for member in all_ids(data)}
             mods.discard(None)
-            declared = {c.get("modid") for c in data.get("forge:conditions", [])
-                        if c.get("type") == "forge:mod_loaded"}
-            # "conditions" (without the forge: prefix) is a dead key on Forge 1.20.1 - the loader
-            # only reads forge:conditions, so a file carrying the bare key ships unconditionally.
-            if data.get("conditions"):
-                problems.append(f"{label}/{name}: uses the dead \"conditions\" key - rename it to"
-                                " \"forge:conditions\" or the conditions never apply")
+            entries = data.get("recipes", []) if data.get("type") == "forge:conditional" else []
+            declared = {condition.get("modid")
+                        for entry in entries
+                        for condition in entry.get("conditions", [])
+                        if condition.get("type") == "forge:mod_loaded"}
+            if "forge:conditions" in data:
+                problems.append(f"{label}/{name}: has ignored top-level \"forge:conditions\"; wrap it"
+                                " with type \"forge:conditional\"")
+            if data.get("type") == "forge:conditional":
+                if not entries or any(not isinstance(entry, dict)
+                                      or not isinstance(entry.get("conditions"), list)
+                                      or not isinstance(entry.get("recipe"), dict)
+                                      for entry in entries):
+                    problems.append(f"{label}/{name}: malformed forge:conditional wrapper")
+            elif mods:
+                problems.append(f"{label}/{name}: names gated ids {sorted(mods)} outside a"
+                                " forge:conditional wrapper - Forge 1.20.1 will parse them unconditionally")
             if mods - declared:
                 problems.append(f"{label}/{name}: names gated ids {sorted(mods - declared)} without"
                                 f" a mod_loaded condition - Forge 1.20.1 throws on the unknown item")
@@ -451,11 +460,13 @@ def check_recipes():
                             " undisassemblable")
     for name in sorted(shipped):
         data = json.load(open(os.path.join(DISASSEMBLY_DIR, name + ".json"), encoding="utf-8"))
-        if data.get("type") != DISASSEMBLY_TYPE:
-            problems.append(f"recipes/disassembly/{name}.json: type {data.get('type')} is not this"
+        recipe = (data["recipes"][0]["recipe"] if data.get("type") == "forge:conditional"
+                  else data)
+        if recipe.get("type") != DISASSEMBLY_TYPE:
+            problems.append(f"recipes/disassembly/{name}.json: type {recipe.get('type')} is not this"
                             f" line's disassembly recipe ({DISASSEMBLY_TYPE} - AE2's own id arrived with"
                             " the 1.21 generation)")
-        for entry in data.get("cell_disassembly_items", []):
+        for entry in recipe.get("cell_disassembly_items", []):
             if "id" in entry:
                 problems.append(f"recipes/disassembly/{name}.json: output uses 1.21's 'id';"
                                 " eco 20.5.3 reads 'item'")
