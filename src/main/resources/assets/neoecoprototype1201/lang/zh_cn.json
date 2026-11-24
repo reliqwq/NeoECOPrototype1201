@@ -145,6 +145,7 @@
   "card.neoecoprototype1201.expansion.upgraded": "已就地升到 %1$s：%2$s 格换了档，换下的方块先回到了背包",
   "card.neoecoprototype1201.migration.at_top": "主机等级已满，没有更高等级了",
   "card.neoecoprototype1201.migration.upgraded": "已升格到 %1$s：%2$s 格换了档，换下的方块与空驱动盘都在你手上，通讯接口信息清空",
+  "card.neoecoprototype1201.migration.upgraded_without_refund": "已升格到 %1$s：%2$s 格换了档，换下的方块未返还，空驱动盘在你手上；存储矩阵与样板已保留，通讯接口信息清空",
   "card.neoecoprototype1201.migration.wrong_machine": "这只盘管的不是这台机器现在这一档，盘没有消耗",
   "card.neoecoprototype1201.upgrade.not_full": "还没满配：这台升格迁移驱动要 %s 格长的机器，驱动未生效",
   "item.neoecoprototype1201.migration_drive_1_4": "ECOP 1-4 闪速升格迁移驱动",

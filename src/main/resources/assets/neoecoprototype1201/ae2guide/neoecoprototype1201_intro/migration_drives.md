@@ -34,9 +34,12 @@ length first, and nothing about its shape changes.
 
 ## What the swap does with your stuff
 
-Every block the swap replaces goes **back into your inventory** - the old casings, drives, vents, cells and
-interfaces are handed to you, not consumed inside the new walls. Whatever is mounted stays where it was: a
-storage matrix returns to the same drive slot, a pattern to the same bus and the same slot.
+Mounted storage matrices and stored patterns are preserved either way: a matrix returns to the same drive
+slot, and a pattern to the same bus and slot. This never changes when block refunds are disabled.
+
+Replaced blocks are **not returned by default**. Enable `migration_drive.refund_replaced_blocks` in the
+server config to collect the old casings, drives, vents, cells and interfaces in your inventory, or on the
+floor if it is full. The success message states which behavior is active.
 
 The one thing that does not survive is **the interface's own configuration**: eco only exposes its interface
 slots for reading, so after a swap that cell has to be set up again. The success message says so on the spot.

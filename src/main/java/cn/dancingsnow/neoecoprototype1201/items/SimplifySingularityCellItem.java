@@ -12,6 +12,7 @@ import cn.dancingsnow.neoecoae.api.IECOTier;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoae.api.storage.IBasicECOCellItem;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
+import cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -36,9 +37,8 @@ import java.util.Optional;
  * bank numbers rode a data component - 1.20.1 has no data components, so the same two numbers ride the
  * stack's own NBT tag instead, and the codec below is kept for the netty path only.
  *
- * <p>This line carries no server config spec, so the three members run on the 1.21.1 shipped defaults
- * (one batch per 600 ticks, 120 per batch) as constants. A pack that wants different figures gets the
- * scripted constructor, which is what the matrix builder exists for anyway.
+ * <p>The three registered members read their batch size and interval from the server config. Scripted
+ * members keep the fixed figures supplied by their builder.
  */
 public final class SimplifySingularityCellItem extends Item implements IBasicECOCellItem {
 
@@ -74,10 +74,6 @@ public final class SimplifySingularityCellItem extends Item implements IBasicECO
 
     public static final double IDLE_DRAIN = 1.0D;
 
-    /** The 1.21.1 shipped defaults, as constants: one batch per 600 ticks, 120 per batch. */
-    public static final long TICKS_PER_BATCH = 600L;
-    public static final long AMOUNT_PER_BATCH = 120L;
-
     /**
      * Its own cell type rather than the shared item row: eco's storage host would otherwise read this as one
      * more ordinary matrix, and "1 / 1 types against an unbounded budget" says nothing a player can act on.
@@ -100,9 +96,8 @@ public final class SimplifySingularityCellItem extends Item implements IBasicECO
             Component.translatable("eco_cell_type.neoecoprototype1201.source"), TYPES, false);
 
     /**
-     * What a registered member of the family grows and which two batch figures it runs on. Suppliers rather
-     * than values keeps the shape identical to the 1.21.1 record, where the figures were config reads that
-     * had to be fresh; here they answer the constants, and a scripted member still carries its own.
+     * What a registered member of the family grows and which two batch figures it runs on. Suppliers keep
+     * every read live; a scripted member still carries its own fixed figures.
      */
     public record SelfGrow(java.util.function.Supplier<AEKey> content,
                            java.util.function.LongSupplier ticksPerBatch,
@@ -113,12 +108,14 @@ public final class SimplifySingularityCellItem extends Item implements IBasicECO
     /** The cell that shipped first: AE2's singularity. */
     public static final SelfGrow SINGULARITY = new SelfGrow(
             SimplifySingularityCellItem::singularity,
-            () -> TICKS_PER_BATCH, () -> AMOUNT_PER_BATCH, CELL_TYPE);
+            NeoECOPrototypeServerConfig::singularityCellTicksPerBatch,
+            NeoECOPrototypeServerConfig::singularityCellAmountPerBatch, CELL_TYPE);
 
-    /** 陨石粉, same defaults as the singularity member. */
+    /** 陨石粉, with its own independent config section. */
     public static final SelfGrow SKY_STONE_DUST = new SelfGrow(
             SimplifySingularityCellItem::skyStoneDust,
-            () -> TICKS_PER_BATCH, () -> AMOUNT_PER_BATCH, SKY_STONE_DUST_CELL_TYPE);
+            NeoECOPrototypeServerConfig::skyStoneDustCellTicksPerBatch,
+            NeoECOPrototypeServerConfig::skyStoneDustCellAmountPerBatch, SKY_STONE_DUST_CELL_TYPE);
 
     /** Whether a panel row lookup is looking at any member of this family. */
     public static boolean isSelfGrowType(ECOCellType cellType) {
@@ -239,7 +236,7 @@ public final class SimplifySingularityCellItem extends Item implements IBasicECO
         this.profile = SINGULARITY;
     }
 
-    /** Its own figures if a pack wrote them, otherwise its member's - the constants here. */
+    /** Its own figures if a pack wrote them, otherwise its member's live config values. */
     public Growth growth() {
         return growth != null
                 ? growth
@@ -277,7 +274,8 @@ public final class SimplifySingularityCellItem extends Item implements IBasicECO
      * cumulative total saturates instead of wrapping. A batch is what the bank jumps by; it does not drip.
      */
     public static long bankOf(Bank bank, long nowGameTime) {
-        return bankOf(bank, nowGameTime, AMOUNT_PER_BATCH, TICKS_PER_BATCH);
+        return bankOf(bank, nowGameTime, NeoECOPrototypeServerConfig.singularityCellAmountPerBatch(),
+                NeoECOPrototypeServerConfig.singularityCellTicksPerBatch());
     }
 
     /** The same arithmetic with a cell's own figures, which is what a scripted sibling runs on. */

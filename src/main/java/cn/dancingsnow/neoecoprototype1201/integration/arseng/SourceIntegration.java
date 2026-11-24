@@ -6,6 +6,7 @@ import cn.dancingsnow.neoecoae.api.integration.Integration;
 import cn.dancingsnow.neoecoae.api.storage.ECOCellType;
 import cn.dancingsnow.neoecoae.all.NERegistries;
 import cn.dancingsnow.neoecoprototype1201.Registration;
+import cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig;
 import cn.dancingsnow.neoecoprototype1201.items.SimplifySingularityCellItem;
 import gripe._90.arseng.me.key.SourceKey;
 import gripe._90.arseng.me.key.SourceKeyType;
@@ -63,12 +64,12 @@ public final class SourceIntegration {
         return NERegistries.CELL_TYPE.get(new ResourceLocation("neoecoae", "source"));
     }
 
-    /** The self-growing member's profile, on the same batch figures as the singularity cell. */
+    /** The self-growing member's independent batch profile. */
     public static final SimplifySingularityCellItem.SelfGrow SOURCE =
             new SimplifySingularityCellItem.SelfGrow(
                     SourceIntegration::sourceKey,
-                    () -> SimplifySingularityCellItem.TICKS_PER_BATCH,
-                    () -> SimplifySingularityCellItem.AMOUNT_PER_BATCH,
+                    NeoECOPrototypeServerConfig::sourceCellTicksPerBatch,
+                    NeoECOPrototypeServerConfig::sourceCellAmountPerBatch,
                     SimplifySingularityCellItem.SOURCE_CELL_TYPE);
 
     public void apply() {

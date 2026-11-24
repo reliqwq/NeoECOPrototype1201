@@ -145,6 +145,7 @@
   "card.neoecoprototype1201.expansion.upgraded": "Swapped up to %1$s in place: %2$s cell(s) changed tier, the old blocks went back to your inventory",
   "card.neoecoprototype1201.migration.at_top": "This host is already on the highest tier - there is nothing above it",
   "card.neoecoprototype1201.migration.upgraded": "Migrated to %1$s: %2$s block(s) changed tier, the old blocks and the empty disk are in your hands, and the interface's contents are cleared",
+  "card.neoecoprototype1201.migration.upgraded_without_refund": "Migrated to %1$s: %2$s block(s) changed tier, the old blocks were not returned, and the empty disk is in your hands; mounted cells and stored patterns are preserved, and the interface's contents are cleared",
   "card.neoecoprototype1201.migration.wrong_machine": "This drive does not cover the tier this machine is on, and it was not consumed",
   "card.neoecoprototype1201.upgrade.not_full": "Not at full length yet: this drive wants a %s-long machine, so it did nothing",
   "item.neoecoprototype1201.migration_drive_1_4": "ECOP 1-4 Flash Ascension Drive",

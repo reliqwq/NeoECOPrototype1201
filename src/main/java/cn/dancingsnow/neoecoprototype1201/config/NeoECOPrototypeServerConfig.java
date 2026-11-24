@@ -5,7 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
-/** Server settings for the cold-content family. World generation is a later migration batch. */
+/** Server settings for production, machine tiers and self-growing cells. */
 public final class NeoECOPrototypeServerConfig {
     public static final ForgeConfigSpec SPEC;
     public static final ForgeConfigSpec.IntValue CRYOTHEUM_ORE_FREEZE_TICKS;
@@ -16,6 +16,17 @@ public final class NeoECOPrototypeServerConfig {
     public static final ForgeConfigSpec.IntValue PROCESSOR_ASSEMBLER_MAX_RUNS_PER_CYCLE;
     public static final int PROCESSOR_ASSEMBLER_MAX_RUNS_PER_CYCLE_DEFAULT = 64;
     public static final int PROCESSOR_ASSEMBLER_MAX_RUNS_PER_CYCLE_LIMIT = 192;
+    public static final boolean MIGRATION_DRIVE_REFUND_BLOCKS_DEFAULT = false;
+    public static final ForgeConfigSpec.BooleanValue MIGRATION_DRIVE_REFUND_BLOCKS;
+    public static final ForgeConfigSpec.LongValue SINGULARITY_CELL_TICKS_PER_BATCH;
+    public static final ForgeConfigSpec.LongValue SINGULARITY_CELL_AMOUNT_PER_BATCH;
+    public static final ForgeConfigSpec.LongValue SKY_STONE_DUST_CELL_TICKS_PER_BATCH;
+    public static final ForgeConfigSpec.LongValue SKY_STONE_DUST_CELL_AMOUNT_PER_BATCH;
+    public static final ForgeConfigSpec.LongValue SOURCE_CELL_TICKS_PER_BATCH;
+    public static final ForgeConfigSpec.LongValue SOURCE_CELL_AMOUNT_PER_BATCH;
+    public static final long CELL_TICKS_PER_BATCH_MIN = 60L;
+    public static final long CELL_TICKS_PER_BATCH_MAX = 1L << 24;
+    public static final long CELL_AMOUNT_PER_BATCH_MAX = Long.MAX_VALUE;
 
     static {
         var builder = new ForgeConfigSpec.Builder();
@@ -60,10 +71,80 @@ public final class NeoECOPrototypeServerConfig {
                         PROCESSOR_ASSEMBLER_MAX_RUNS_PER_CYCLE_DEFAULT, 1,
                         PROCESSOR_ASSEMBLER_MAX_RUNS_PER_CYCLE_LIMIT);
         builder.pop();
+        builder.push("singularity_cell");
+        SINGULARITY_CELL_TICKS_PER_BATCH = builder
+                .comment("Ticks per batch. Default: 600 | Range: 60~16777216.",
+                        "奇点单元产出间隔（刻）。默认 600 | 范围 60~16777216。")
+                .defineInRange("ticks_per_batch", 600L, CELL_TICKS_PER_BATCH_MIN, CELL_TICKS_PER_BATCH_MAX);
+        SINGULARITY_CELL_AMOUNT_PER_BATCH = builder
+                .comment("Singularities per batch. Default: 120 | Range: 1~Long.MAX.",
+                        "每批产出的奇点数量。默认 120 | 范围 1~Long.MAX。")
+                .defineInRange("amount_per_batch", 120L, 1L, CELL_AMOUNT_PER_BATCH_MAX);
+        builder.pop();
+        builder.push("sky_stone_dust_cell");
+        SKY_STONE_DUST_CELL_TICKS_PER_BATCH = builder
+                .comment("Ticks per batch for the meteorite-dust cell. Default: 600 | Range: 60~16777216.",
+                        "Note: independent from the singularity cell.",
+                        "陨石粉单元产出间隔（刻）。默认 600 | 范围 60~16777216。",
+                        "注：与奇点单元配置相互独立。")
+                .defineInRange("ticks_per_batch", 600L, CELL_TICKS_PER_BATCH_MIN, CELL_TICKS_PER_BATCH_MAX);
+        SKY_STONE_DUST_CELL_AMOUNT_PER_BATCH = builder
+                .comment("Dust per batch. Default: 120 | Range: 1~Long.MAX.",
+                        "每批产出的陨石粉数量。默认 120 | 范围 1~Long.MAX。")
+                .defineInRange("amount_per_batch", 120L, 1L, CELL_AMOUNT_PER_BATCH_MAX);
+        builder.pop();
+        builder.push("source_cell");
+        SOURCE_CELL_TICKS_PER_BATCH = builder
+                .comment("Ticks per batch for the source cell. Default: 600 | Range: 60~16777216.",
+                        "Note: independent from the singularity and meteorite-dust cells.",
+                        "魔源单元产出间隔（刻）。默认 600 | 范围 60~16777216。",
+                        "注：与奇点单元、陨石粉单元的配置相互独立。")
+                .defineInRange("ticks_per_batch", 600L, CELL_TICKS_PER_BATCH_MIN, CELL_TICKS_PER_BATCH_MAX);
+        SOURCE_CELL_AMOUNT_PER_BATCH = builder
+                .comment("Source per batch. Default: 120 | Range: 1~Long.MAX.",
+                        "每批产出的魔源数量。默认 120 | 范围 1~Long.MAX。")
+                .defineInRange("amount_per_batch", 120L, 1L, CELL_AMOUNT_PER_BATCH_MAX);
+        builder.pop();
+        builder.push("migration_drive");
+        MIGRATION_DRIVE_REFUND_BLOCKS = builder
+                .comment("Whether a drive returns the blocks it replaces. Default: false.",
+                        "Note: a mounted cell and stored patterns are preserved regardless of this switch.",
+                        "升格迁移驱动是否返还换下的旧方块。默认 false。",
+                        "注：机器内部的存储矩阵与样板无论开关均会保留。")
+                .define("refund_replaced_blocks", MIGRATION_DRIVE_REFUND_BLOCKS_DEFAULT);
+        builder.pop();
         SPEC = builder.build();
     }
 
     private NeoECOPrototypeServerConfig() {
+    }
+
+    public static <T> T current(ForgeConfigSpec.ConfigValue<T> value) {
+        return SPEC.isLoaded() ? value.get() : value.getDefault();
+    }
+
+    public static long singularityCellTicksPerBatch() {
+        return Math.max(CELL_TICKS_PER_BATCH_MIN, current(SINGULARITY_CELL_TICKS_PER_BATCH));
+    }
+
+    public static long singularityCellAmountPerBatch() {
+        return Math.max(1L, Math.min(CELL_AMOUNT_PER_BATCH_MAX, current(SINGULARITY_CELL_AMOUNT_PER_BATCH)));
+    }
+
+    public static long skyStoneDustCellTicksPerBatch() {
+        return Math.max(CELL_TICKS_PER_BATCH_MIN, current(SKY_STONE_DUST_CELL_TICKS_PER_BATCH));
+    }
+
+    public static long skyStoneDustCellAmountPerBatch() {
+        return Math.max(1L, Math.min(CELL_AMOUNT_PER_BATCH_MAX, current(SKY_STONE_DUST_CELL_AMOUNT_PER_BATCH)));
+    }
+
+    public static long sourceCellTicksPerBatch() {
+        return Math.max(CELL_TICKS_PER_BATCH_MIN, current(SOURCE_CELL_TICKS_PER_BATCH));
+    }
+
+    public static long sourceCellAmountPerBatch() {
+        return Math.max(1L, Math.min(CELL_AMOUNT_PER_BATCH_MAX, current(SOURCE_CELL_AMOUNT_PER_BATCH)));
     }
 
     public static int processorAssemblerMaxRunsPerCycle() {

@@ -8,6 +8,7 @@ import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyComputat
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyCraftingDefinition;
 import cn.dancingsnow.neoecoprototype1201.multiblock.definition.SimplifyStorageDefinition;
 import cn.dancingsnow.neoecoprototype1201.Registration;
+import cn.dancingsnow.neoecoprototype1201.config.NeoECOPrototypeServerConfig;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -20,10 +21,8 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A disk that moves one finished machine up the tier ladder in place.
  *
- * <p>Two choices make these different from the card that grows a machine along its edge, and both were
- * called by the person who asked for the feature: the disk asks nothing of the inventory, and it hands back
- * every block it replaces. So the disk's own recipe is the whole price, and the player's old parts end up
- * in their pocket rather than inside the new machine's walls where they would silently vanish.</p>
+ * <p>The disk asks nothing of the inventory. By default the parts it converts are the price of the higher
+ * tier; a server setting may return the replaced blocks as well.</p>
  *
  * <p>What does move with the machine is what is mounted in it - the storage matrix in a drive, the patterns
  * in a bus - see {@link #carriedContent}. The one thing that does not is the interface, whose slots eco only
@@ -160,12 +159,15 @@ public final class SimplifyMigrationDriveItem extends SimplifyStructureExpansion
 
     @Override
     protected boolean refundsReplacedBlocks() {
-        return true;
+        return NeoECOPrototypeServerConfig.current(
+                NeoECOPrototypeServerConfig.MIGRATION_DRIVE_REFUND_BLOCKS);
     }
 
     @Override
     protected String upgradedKey() {
-        return "card.neoecoprototype1201.migration.upgraded";
+        return refundsReplacedBlocks()
+                ? "card.neoecoprototype1201.migration.upgraded"
+                : "card.neoecoprototype1201.migration.upgraded_without_refund";
     }
 
     @Override

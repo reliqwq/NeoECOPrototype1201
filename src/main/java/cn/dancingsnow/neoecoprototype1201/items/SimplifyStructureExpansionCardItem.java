@@ -150,10 +150,8 @@ public class SimplifyStructureExpansionCardItem extends Item {
     }
 
     /**
-     * Whether the blocks a free tier swap takes out come back to the player as items. The rung cards let
-     * them go: their price is the card, and the parts they convert are what that card stands for. The
-     * migration drive prices its voucher at the whole kit instead, so it asks nothing of the inventory and
-     * hands every replaced block back - the player's L1 parts have to end up somewhere they can use.
+     * Whether the blocks a free tier swap takes out come back to the player as items. This does not control
+     * mounted cells or stored patterns: those are rescued and returned either way.
      */
     protected boolean refundsReplacedBlocks() {
         return false;
@@ -169,9 +167,8 @@ public class SimplifyStructureExpansionCardItem extends Item {
     }
 
     /**
-     * The line a finished swap prints. The billing card returns every block it takes out, so its line
-     * says so; the free one returns nothing, and a message that promises a refund the player will never
-     * see is worse than no message.
+     * The line a finished swap prints. Each subclass chooses text that matches whether it returns the
+     * replaced blocks, so the message never promises a refund the player will not see.
      */
     protected String upgradedKey() {
         return "card.neoecoprototype1201.expansion.upgraded";
@@ -401,34 +398,30 @@ public class SimplifyStructureExpansionCardItem extends Item {
      * simpler and the only option - eco's builder refuses to build for a survival player it cannot
      * charge, which is exactly the gate the expansion card needs and this one does not.
      *
-     * <p>What this does spend is the block that stood in each moved position, and whatever it held -
-     * unless {@link #refundsReplacedBlocks()} says otherwise, in which case those blocks are handed back
-     * as items before the new ones go in. Today the rung cards let them go: that set is tier-bearing parts
-     * only - energy cells, the cores, the cooling controller and the host - and none of those carry items,
-     * so the loss is stored charge, not inventory. Cells and interfaces never appear in it, because
-     * neither changes with the tier.</p>
+     * <p>Mounted cells and stored patterns are rescued and returned whichever way
+     * {@link #refundsReplacedBlocks()} answers. A switched-off refund must not turn a tier change into a
+     * way to delete what the machine holds.</p>
      */
     private void swapInPlace(ServerLevel level, BlockPos pos, BlockState anchor, Classified swap,
                              ServerPlayer player, net.minecraft.world.InteractionHand hand,
                              MultiBlockDefinition current, MultiBlockDefinition target) {
         BlockEntity previous = level.getBlockEntity(pos);
         Map<BlockPos, List<ItemStack>> contents = new LinkedHashMap<>();
-        if (refundsReplacedBlocks()) {
-            // Whatever a position holds goes with it: the cell mounted in a drive, the patterns in a bus.
-            // Taken out before the block is destroyed, because giveBack's destroyBlock asks for no drops -
-            // so anything still inside a block when it goes is simply gone, and the mounted contents were
-            // the one thing an in-place swap exists to protect.
-            for (WorldPlannedBlock moved : swap.moved()) {
-                List<ItemStack> taken = carriedContent(level, moved.worldPos());
-                if (!taken.isEmpty()) {
-                    contents.put(moved.worldPos(), taken);
-                }
+        for (WorldPlannedBlock moved : swap.moved()) {
+            // Taken before either refund or replacement destroys the old block.
+            List<ItemStack> taken = carriedContent(level, moved.worldPos());
+            if (!taken.isEmpty()) {
+                contents.put(moved.worldPos(), taken);
+            }
+            if (refundsReplacedBlocks()) {
                 giveBack(level, moved.worldPos(), player);
             }
-            List<ItemStack> atAnchor = carriedContent(level, pos);
-            if (!atAnchor.isEmpty()) {
-                contents.put(pos, atAnchor);
-            }
+        }
+        List<ItemStack> atAnchor = carriedContent(level, pos);
+        if (!atAnchor.isEmpty()) {
+            contents.put(pos, atAnchor);
+        }
+        if (refundsReplacedBlocks()) {
             giveBack(level, pos, player);
         }
         for (WorldPlannedBlock moved : swap.moved()) {
