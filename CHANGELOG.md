@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.1.1 (2026-11-25)
+
+本版重点：修复未安装 AE2 OmniCells 时客户端在初始化阶段崩溃的问题。
+
+### 修复
+
+1. 客户端模型与染色接线、创造栏不再直接引用 OMNI / 魔源可选集成类，改由公共列表接收 eco 在对应模组存在时登记的物品。
+2. 未安装 OmniCells 或 Ars Energistique 时，可选集成类保持未实例化，不再提前解析其物品父类链。
+3. 数据守卫新增可选集成隔离检查；公共代码重新直接引用集成入口类时会立即失败。
+4. 构建任务显式记录 `mod_version` 输入，避免升版后 `processResources` 误判最新、发布 jar 内仍留下旧版本号。
+
+### 验证
+
+1. 生产构建与完整数据守卫通过，隔离检查扫描 135 个 Java 文件。
+2. 控制组分别插入 OMNI / 魔源直接 import，两条规则均按预期报红，随后按原始字节还原。
+3. 开发客户端在 runtime classpath 完全移除 OmniCells 后冷启成功，进入世界并正常退出；`AEUniversalCellItem`、`NoClassDefFoundError`、`ModLoadingException` 均未出现。
+
+---
+
+发布包 `neoecoprototype1201-1.1.1.jar`（1069405 B）的 SHA-256：
+`db53d2dffb87f80077e8793647daa3c7e5a4d9c3d3077b4adfad1cb6881d6939`
+
 ## 1.1.0 (2026-11-24)
 
 本版重点：在 1.0.0 的三套 L1 子系统之上补齐 EC9 批量装配、结构扩容与升格工具、OMNI / 小宗 / 自产矩阵、盈能接口身份层、KubeJS 自定义矩阵和服务端配置。编译与运行基线同时抬到 eco 20.5.10。

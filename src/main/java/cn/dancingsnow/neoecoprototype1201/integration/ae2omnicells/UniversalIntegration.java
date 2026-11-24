@@ -6,7 +6,6 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,9 +29,9 @@ import java.util.List;
 public final class UniversalIntegration {
 
     /** Everything the tab should show, in family order; empty without the mod. */
-    public static final List<RegistryObject<Item>> TAB_ITEMS = new ArrayList<>();
-    /** The eight cells only, in {@code MODELS} order, for the client's model ladder and tint list. */
-    public static final List<RegistryObject<Item>> CELLS = new ArrayList<>();
+    public static final List<RegistryObject<Item>> TAB_ITEMS = Registration.OMNI_TAB_ITEMS;
+    /** The six cells only, in {@code MODELS} order, for the client's model ladder and tint list. */
+    public static final List<RegistryObject<Item>> CELLS = Registration.OMNI_CELLS;
 
     public void apply() {
         register(Registration.ITEMS);

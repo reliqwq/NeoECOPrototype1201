@@ -157,6 +157,15 @@ public final class Registration {
         }
     }
 
+    /**
+     * Gated families publish into these common lists. Client and creative-tab code must not reference the
+     * integration classes themselves: Forge may load an event subscriber before the optional mod's classes
+     * exist, and resolving an integration class can in turn resolve its cell item's superclass chain.
+     */
+    public static final List<RegistryObject<Item>> OMNI_TAB_ITEMS = new ArrayList<>();
+    public static final List<RegistryObject<Item>> OMNI_CELLS = new ArrayList<>();
+    public static final List<RegistryObject<Item>> SOURCE_CELLS = new ArrayList<>();
+
     /** The pigmee easter-egg housing; see its own class for what 1.20.1 cannot carry across. */
     public static final RegistryObject<Item> PIGMEE_STORAGE_MATRIX_HOUSING =
             ITEMS.register("pigmee_storage_matrix_housing",
@@ -405,11 +414,9 @@ public final class Registration {
                         // housings, or nothing at all.
                         cn.dancingsnow.neoecoprototype1201.integration.megacells.SmallBulkIntegration.TAB_ITEMS
                                 .forEach(item -> output.accept(item.get()));
-                        // The four omni families: empty without OmniCells, because eco's
-                        // IntegrationManager only constructs the integration behind its gate.
-                        cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
-                                .UniversalIntegration.TAB_ITEMS
-                                .forEach(item -> output.accept(item.get()));
+                        // Empty without OmniCells: eco's IntegrationManager only constructs the
+                        // integration behind its gate, and that integration fills this common list.
+                        OMNI_TAB_ITEMS.forEach(item -> output.accept(item.get()));
                         output.accept(SIMPLIFY_STRUCTURE_EXPANSION_CARD.get());
                         output.accept(BACKUP_DRIVE.get());
                         output.accept(PIGMEE_STORAGE_MATRIX_HOUSING.get());

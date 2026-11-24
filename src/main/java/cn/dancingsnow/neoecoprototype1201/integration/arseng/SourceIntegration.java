@@ -40,7 +40,7 @@ public final class SourceIntegration {
 
     public static final List<RegistryObject<Item>> TAB_ITEMS = new ArrayList<>();
     /** The five cells only, in {@code SOURCE_RUNGS} order, for the client's model ladder and tint list. */
-    public static final List<RegistryObject<Item>> CELLS = new ArrayList<>();
+    public static final List<RegistryObject<Item>> CELLS = Registration.SOURCE_CELLS;
 
     // The item ladder's own byte figures, copied from the 1.21.1 line: the five rungs mirror the item
     // and fluid ladders byte for byte, 256 types at 1/256 of the capacity each.

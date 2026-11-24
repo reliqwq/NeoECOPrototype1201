@@ -10,7 +10,6 @@ import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.GiantPlush
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyComputationDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.client.renderer.blockentity.SimplifyDriveRenderer;
 import cn.dancingsnow.neoecoprototype1201.integration.appmek.AppMekIntegration;
-import cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells.UniversalIntegration;
 import cn.dancingsnow.neoecoprototype1201.integration.appflux.FeStorageIntegration;
 import cn.dancingsnow.neoecoprototype1201.registration.ModBlockEntities;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
@@ -223,9 +222,8 @@ public final class Prototype1201Client {
             registerLadder(AppMekIntegration.CELLS, rungs("chemical"));
             registerLadder(FeStorageIntegration.CELLS, FE_RUNGS);
             // Empty without OmniCells: eco's IntegrationManager never constructs the integration,
-            // so the list stays empty and the ladder registers nothing.
-            registerLadder(cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
-                    .UniversalIntegration.CELLS, OMNI_RUNGS);
+            // so the common list stays empty and the ladder registers nothing.
+            registerLadder(Registration.OMNI_CELLS, OMNI_RUNGS);
             ECOCellModels.register(Registration.SIMPLIFY_SINGULARITY_CELL.get(), cellModel(SINGULARITY_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get(), cellModel(SINGULARITY_RUNG));
             // The creative everything-cell is an infinite-family member: it rides the concrete chip
@@ -234,8 +232,7 @@ public final class Prototype1201Client {
             // first attempt here was reverted.
             ECOCellModels.register(Registration.ALL_ITEMS_CREATIVE_CELL.get(), cellModel(CONCRETE_RUNG));
             // Empty without arseng, same shape as the omni list above.
-            registerLadder(cn.dancingsnow.neoecoprototype1201.integration.arseng
-                    .SourceIntegration.CELLS, SOURCE_RUNGS);
+            registerLadder(Registration.SOURCE_CELLS, SOURCE_RUNGS);
             ECOCellModels.register(Registration.PIGMEE_STORAGE_CELL.get(), cellModel(PIGMEE_RUNG));
             ECOCellModels.register(Registration.SIMPLIFY_CONCRETE_STORAGE_CELL.get(),
                     cellModel(CONCRETE_RUNG));
@@ -328,12 +325,10 @@ public final class Prototype1201Client {
         tinted.add(Registration.PIGMEE_STORAGE_CELL.get());
         AppMekIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         FeStorageIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
-        cn.dancingsnow.neoecoprototype1201.integration.ae2omnicells
-                .UniversalIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        Registration.OMNI_CELLS.forEach(cell -> tinted.add(cell.get()));
         tinted.add(Registration.SIMPLIFY_SINGULARITY_CELL.get());
         tinted.add(Registration.SIMPLIFY_SKY_STONE_DUST_CELL.get());
-        cn.dancingsnow.neoecoprototype1201.integration.arseng
-                .SourceIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
+        Registration.SOURCE_CELLS.forEach(cell -> tinted.add(cell.get()));
         cn.dancingsnow.neoecoprototype1201.integration.megacells
                 .SmallBulkIntegration.CELLS.forEach(cell -> tinted.add(cell.get()));
         // The infinite matrix is not tinted: it reports the same full status forever, so a band that

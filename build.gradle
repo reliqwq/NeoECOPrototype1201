@@ -272,6 +272,7 @@ jar {
 }
 
 processResources {
+    inputs.property('modVersion', project.mod_version)
     // One place for the version number. mods.toml reads ${mod_version} and this fills it from
     // gradle.properties, so a bump cannot leave the jar named 0.2.0 while its own metadata still says
     // 0.1.0 - which is what FML shows in the "mod requires..." screen and in the Mods list. Checked

@@ -1083,6 +1083,86 @@ def check_cold_content():
     print("cold: 6 blocks, 7 items, 6 fluids, 3 fluid types; source art, loot, tags, bucket handler and 6 recipes checked")
 
 
+def java_without_comments(text):
+    """Remove comments while preserving string and character literal contents."""
+    out = []
+    i = 0
+    state = "code"
+    while i < len(text):
+        pair = text[i:i + 2]
+        if state == "code" and pair == "//":
+            state = "line"
+            i += 2
+        elif state == "code" and pair == "/*":
+            state = "block"
+            out.extend("  ")
+            i += 2
+        elif state == "line" and text[i] in "\r\n":
+            state = "code"
+            out.append(text[i])
+            i += 1
+        elif state == "block" and pair == "*/":
+            state = "code"
+            out.extend("  ")
+            i += 2
+        elif state == "code" and text[i] == '"':
+            state = "string"
+            out.append(text[i])
+            i += 1
+        elif state == "code" and text[i] == "'":
+            state = "char"
+            out.append(text[i])
+            i += 1
+        elif state in ("string", "char") and text[i] == "\\":
+            out.extend(text[i:i + 2])
+            i += 2
+        elif (state == "string" and text[i] == '"') or (state == "char" and text[i] == "'"):
+            state = "code"
+            out.append(text[i])
+            i += 1
+        else:
+            out.append(" " if state in ("line", "block") else text[i])
+            i += 1
+    return "".join(out)
+
+
+def check_optional_integration_isolation():
+    """eco's @Integration gate only works if ordinary code never resolves its entry class.
+
+    Forge transforms event subscribers before eco decides which integrations to instantiate. A direct
+    UniversalIntegration field read therefore loads that class without OmniCells present, and class
+    verification reaches AEUniversalCellItem through our cell items' superclass chain. SourceIntegration
+    has the same optional-dependency boundary even though arseng's dev runtime is intentionally absent.
+    """
+    root = os.path.dirname(os.path.dirname(os.path.dirname(RES)))
+    gated = {
+        "UniversalIntegration": "integration/ae2omnicells/UniversalIntegration.java",
+        "SourceIntegration": "integration/arseng/SourceIntegration.java",
+    }
+    gated_files = set()
+    for name, rel in gated.items():
+        path = os.path.join(root, "src", "main", "java", "cn", "dancingsnow", NS, *rel.split("/"))
+        gated_files.add(os.path.normpath(path))
+        if not os.path.isfile(path) or not re.search(r"\bclass\s+" + name + r"\b", open(path, encoding="utf-8").read()):
+            problems.append(f"optional integration anchor missing: {rel}")
+    scanned = 0
+    for folder, _, files in os.walk(os.path.join(root, "src", "main", "java")):
+        for filename in sorted(files):
+            if not filename.endswith(".java"):
+                continue
+            path = os.path.join(folder, filename)
+            rel = os.path.relpath(path, os.path.join(root, "src", "main", "java")).replace(os.sep, "/")
+            if os.path.normpath(path) in gated_files:
+                continue
+            scanned += 1
+            code = java_without_comments(open(path, encoding="utf-8").read())
+            for name, owner in gated.items():
+                if re.search(r"\b" + name + r"\b", code):
+                    problems.append(f"{rel}: directly references gated integration {name}; "
+                                    f"publish through Registration's common list instead ({owner})")
+    print(f"optional integrations: {scanned} Java files scanned outside the two gated entry classes")
+
+
 def main():
     if not os.path.isdir(ADV_DIR):
         print(f"no advancements at {ADV_DIR}")
@@ -1098,6 +1178,7 @@ def main():
     check_cold_content()
     check_jade_keys()
     check_slot_count()
+    check_optional_integration_isolation()
     nodes = sorted(f for f in os.listdir(ADV_DIR) if f.endswith(".json"))
     for name in nodes:
         check_node(name[:-5], json.load(open(os.path.join(ADV_DIR, name), encoding="utf-8")))
