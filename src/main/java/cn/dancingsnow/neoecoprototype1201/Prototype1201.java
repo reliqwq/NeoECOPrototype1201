@@ -83,6 +83,10 @@ public final class Prototype1201 {
         // First, because everything below reads types that must already exist: AE2's representative-item
         // table is filled here rather than at registry time (see ModBlockEntities#registerRepresentativeItems).
         ModBlockEntities.registerRepresentativeItems();
+        appeng.api.upgrades.Upgrades.add(
+                appeng.core.definitions.AEItems.SPEED_CARD.asItem(),
+                ModRegistration.EC9_PROCESSOR_ASSEMBLER_BLOCK.get().asItem(), 6,
+                appeng.core.localization.GuiText.MolecularAssembler.getTranslationKey());
         // AE2's upgrade table is keyed by the machine *item*, and both of our interfaces are our own
         // BlockItem instances rather than AE2's, so nothing upstream registers an allowance for them and
         // each would open an empty upgrade panel. Two cards, one each, in AE2's own interface group - the
@@ -143,6 +147,7 @@ public final class Prototype1201 {
         event.enqueueWork(cn.dancingsnow.neoecoprototype1201.items.CustomInfiniteCellHandler::register);
         registerAssemblerMenu();
         registerProviderMenu();
+        registerPoweredInterfacePartMenu();
         reportInterfaceMixinApplied();
     }
 
@@ -227,6 +232,41 @@ public final class Prototype1201 {
             return true;
         });
         LOGGER.info("registered the L1 pattern provider menu as {}",
+                net.minecraftforge.registries.ForgeRegistries.MENU_TYPES.getKey(menuType));
+    }
+
+    private static void registerPoweredInterfacePartMenu() {
+        var menuType = Registration.POWERED_INTERFACE_PART_MENU.get();
+        appeng.menu.MenuOpener.addOpener(menuType, (player, locator, linked) -> {
+            if (!(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) {
+                LOGGER.warn("L1 interface menu requested for non-server player {}", player.getGameProfile().getName());
+                return false;
+            }
+            var host = locator.locate(player, appeng.helpers.InterfaceLogicHost.class);
+            if (host == null) {
+                LOGGER.warn("L1 interface menu locator {} did not resolve an InterfaceLogicHost for {}",
+                        locator, player.getGameProfile().getName());
+                return false;
+            }
+            LOGGER.info("Opening 18-slot L1 interface menu for {} from {} ({})",
+                    player.getGameProfile().getName(), locator, host.getClass().getName());
+            var finalHost = host;
+            net.minecraftforge.network.NetworkHooks.openScreen(serverPlayer,
+                    new net.minecraft.world.SimpleMenuProvider((windowId, inventory, p) -> {
+                        var menu = new cn.dancingsnow.neoecoprototype1201.menu.PoweredInterfacePartMenu(
+                                menuType, windowId, inventory, finalHost);
+                        menu.setLocator(locator);
+                        menu.setReturnedFromSubScreen(linked);
+                        return menu;
+                    }, net.minecraft.network.chat.Component.translatable(
+                            "item." + Prototype1201.MOD_ID + ".cable_powered_me_interface")),
+                    buffer -> {
+                        appeng.menu.locator.MenuLocators.writeToPacket(buffer, locator);
+                        buffer.writeBoolean(linked);
+                    });
+            return true;
+        });
+        LOGGER.info("registered the shared 18-slot interface menu as {}",
                 net.minecraftforge.registries.ForgeRegistries.MENU_TYPES.getKey(menuType));
     }
 

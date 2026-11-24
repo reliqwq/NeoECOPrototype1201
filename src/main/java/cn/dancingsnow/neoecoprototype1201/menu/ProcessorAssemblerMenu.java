@@ -7,7 +7,6 @@ import appeng.menu.implementations.UpgradeableMenu;
 import appeng.menu.interfaces.IProgressProvider;
 import appeng.menu.locator.MenuLocators;
 import appeng.menu.locator.MenuLocator;
-import appeng.menu.slot.FakeSlot;
 import appeng.menu.slot.OutputSlot;
 import cn.dancingsnow.neoecoprototype1201.Registration;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyStonecuttingAssemblerBlockEntity;
@@ -47,7 +46,7 @@ public class ProcessorAssemblerMenu extends UpgradeableMenu<SimplifyStonecutting
         InternalInventory inventory = ((SimplifyStonecuttingAssemblerBlockEntity) getHost())
                 .getSubInventory(MolecularAssemblerBlockEntity.INV_MAIN);
         for (int slot = 0; slot < GRID_SLOTS; slot++) {
-            addSlot(new FakeSlot(inventory, slot), SlotSemantics.MACHINE_CRAFTING_GRID);
+            addSlot(new DisplayOnlyGridSlot(inventory, slot), SlotSemantics.MACHINE_CRAFTING_GRID);
         }
         addSlot(new OutputSlot(inventory, OUTPUT_SLOT, null), SlotSemantics.MACHINE_OUTPUT);
     }

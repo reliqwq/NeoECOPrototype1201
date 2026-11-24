@@ -67,17 +67,13 @@ public record ProcessorAssemblyPattern(IPatternDetails delegate, ProcessorAssemb
     @Override
     public void fillCraftingGrid(KeyCounter[] inputs, CraftingGridAccessor accessor) {
         Map<AEItemKey, Long> required = new HashMap<>();
-        if (!requiredFor(inputs, required)) {
-            throw new IllegalStateException("No available item input for processor assembler");
-        }
-        long batchCount = fittingRuns(required, inputs);
-        if (batchCount <= 0) {
+        if (!requiredFor(inputs, required) || !fits(required, inputs)) {
             throw new IllegalStateException("No processor assembler run fits the grid right now");
         }
 
         int gridSlot = 0;
         for (var entry : required.entrySet()) {
-            long total = entry.getValue() * batchCount;
+            long total = entry.getValue();
             if (!take(inputs, entry.getKey(), total)) {
                 throw new IllegalStateException("Could not consume processor assembler input " + entry.getKey());
             }
@@ -103,41 +99,30 @@ public record ProcessorAssemblyPattern(IPatternDetails delegate, ProcessorAssemb
         return true;
     }
 
-    /**
-     * How many runs the machine could take from these contents right now, or zero when it could take none.
-     *
-     * <p>Ask before filling: anything {@link #fillCraftingGrid} throws escapes through AE2's grid tick and
-     * takes the server down with it, so a batch that does not fit has to be refused by the caller instead.</p>
-     */
-    public long fittingRuns(KeyCounter[] inputs) {
+    /** Whether this exact encoded pattern batch can be taken and fit into the nine-slot grid. */
+    public boolean fits(KeyCounter[] inputs) {
         Map<AEItemKey, Long> required = new HashMap<>();
-        return requiredFor(inputs, required) ? fittingRuns(required, inputs) : 0;
+        return requiredFor(inputs, required) && fits(required, inputs);
     }
 
-    private long fittingRuns(Map<AEItemKey, Long> required, KeyCounter[] inputs) {
-        long batchCount = runsPerCycle();
-        for (var entry : required.entrySet()) {
-            batchCount = Math.min(batchCount, available(inputs, entry.getKey()) / entry.getValue());
+    private static boolean fits(Map<AEItemKey, Long> required, KeyCounter[] inputs) {
+        if (gridSlots(required) > GRID_SLOTS) {
+            return false;
         }
-        long low = 0;
-        long high = batchCount;
-        while (low < high) {
-            long middle = low + (high - low + 1) / 2;
-            if (gridSlots(required, middle) <= GRID_SLOTS) {
-                low = middle;
-            } else {
-                high = middle - 1;
+        for (var entry : required.entrySet()) {
+            if (available(inputs, entry.getKey()) < entry.getValue()) {
+                return false;
             }
         }
-        return low;
+        return true;
     }
 
-    /** Grid slots a batch needs: every item is carried in stacks of its own size, so partial stacks cost. */
-    private static long gridSlots(Map<AEItemKey, Long> required, long runs) {
+    /** Grid slots one encoded pattern batch needs: every item is carried in stacks of its own size. */
+    private static long gridSlots(Map<AEItemKey, Long> required) {
         long slots = 0;
         for (var entry : required.entrySet()) {
             int limit = stackLimit(entry.getKey());
-            slots += (entry.getValue() * runs + limit - 1) / limit;
+            slots += (entry.getValue() + limit - 1) / limit;
         }
         return slots;
     }
@@ -178,12 +163,6 @@ public record ProcessorAssemblyPattern(IPatternDetails delegate, ProcessorAssemb
     private long outputPerRun() {
         GenericStack[] outputs = getOutputs();
         return outputs.length == 0 ? recipe.output().getCount() : outputs[0].amount();
-    }
-
-    /** How many runs one cycle can hand over: as many as fit into a single stack of the output. */
-    private long runsPerCycle() {
-        long perRun = outputPerRun();
-        return perRun <= 0 ? 1 : Math.max(1, recipe.output().getMaxStackSize() / perRun);
     }
 
     /**

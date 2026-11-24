@@ -2,12 +2,19 @@ package cn.dancingsnow.neoecoprototype1201.blockentity.crafting;
 
 import appeng.api.networking.energy.IPassiveEnergyGenerator;
 import appeng.blockentity.misc.InterfaceBlockEntity;
+import appeng.helpers.InterfaceLogic;
+import appeng.menu.ISubMenu;
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocator;
+import cn.dancingsnow.neoecoprototype1201.Registration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * L1 powered ME interface: AE2's own interface, its nine markers and its own GUI, plus a passive
+ * L1 powered ME interface: an 18-slot AE2 interface with a dedicated two-row screen, plus a passive
  * 200 AE/t feed into the grid.
  *
  * <p>Same two node calls the 1.21.1 line makes: register the generator as a grid service and declare no
@@ -27,6 +34,32 @@ public class SimplifyPoweredMEInterfaceBlockEntity extends InterfaceBlockEntity
         getMainNode()
                 .setIdlePowerUsage(0)
                 .addService(IPassiveEnergyGenerator.class, this);
+    }
+
+    @Override
+    protected InterfaceLogic createLogic() {
+        return new InterfaceLogic(getMainNode(), this, getBlockState().getBlock().asItem(), 18);
+    }
+
+    /**
+     * AE2's version answers with {@code AEBlocks.INTERFACE} itself, so every sub-screen opened from this
+     * machine - the priority panel's back button is where players actually see it - carries AE2's icon and
+     * AE2's name. The cable part does not have this problem: {@code InterfacePart} answers with
+     * {@code getPartItem()}, which is already ours. This puts the block side on the same footing.
+     */
+    @Override
+    public ItemStack getMainMenuIcon() {
+        return new ItemStack(getBlockState().getBlock());
+    }
+
+    @Override
+    public void openMenu(Player player, MenuLocator locator) {
+        MenuOpener.open(Registration.POWERED_INTERFACE_PART_MENU.get(), player, locator);
+    }
+
+    @Override
+    public void returnToMainMenu(Player player, ISubMenu subMenu) {
+        MenuOpener.returnTo(Registration.POWERED_INTERFACE_PART_MENU.get(), player, subMenu.getLocator());
     }
 
     @Override

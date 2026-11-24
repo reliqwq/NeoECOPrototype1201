@@ -3,17 +3,20 @@ package cn.dancingsnow.neoecoprototype1201.part;
 import appeng.api.networking.energy.IPassiveEnergyGenerator;
 import appeng.api.parts.IPartItem;
 import appeng.helpers.InterfaceLogic;
+import appeng.menu.ISubMenu;
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocator;
 import appeng.parts.PartModel;
 import appeng.parts.misc.InterfacePart;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.Registration;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifySuperconductiveInterfaceBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.integration.ae2.OversizeInterfaceLogic;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * Cable-mounted superconductive interface: 4,000 AE/t and the oversize amount rows, on a cable face.
- * Ported from the 1.21.1 line with the same drop as the powered part - the menus stay AE2's own,
- * because this line's interfaces keep AE2's screen on the block side too.
+ * Blocks and cable parts share the L1 18-slot menu and its two-row screen.
  */
 public class SuperconductiveInterfacePart extends InterfacePart implements IPassiveEnergyGenerator {
     private static final ResourceLocation BASE_MODEL = ResourceLocation.fromNamespaceAndPath(Prototype1201.MOD_ID, "part/superconductive_interface");
@@ -45,6 +48,16 @@ public class SuperconductiveInterfacePart extends InterfacePart implements IPass
         var logic = new InterfaceLogic(getMainNode(), this, getPartItem().asItem(), 18);
         OversizeInterfaceLogic.install(logic);
         return logic;
+    }
+
+    @Override
+    public void openMenu(net.minecraft.world.entity.player.Player player, MenuLocator locator) {
+        MenuOpener.open(Registration.POWERED_INTERFACE_PART_MENU.get(), player, locator);
+    }
+
+    @Override
+    public void returnToMainMenu(net.minecraft.world.entity.player.Player player, ISubMenu subMenu) {
+        MenuOpener.returnTo(Registration.POWERED_INTERFACE_PART_MENU.get(), player, subMenu.getLocator());
     }
 
     /** Suppressed or not, this is what the part would produce: AE2 compares these rates to re-pick

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "neoecoprototype1201:simplify_green_crystal_matrix"
+    },
+    "B": {
+      "item": "ae2:calculation_processor"
+    },
+    "C": {
+      "item": "neoecoprototype1201:simplify_storage_component_1m"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "item": "neoecoprototype1201:simplify_computation_cell_1m",
+    "count": 1
+  }
+}

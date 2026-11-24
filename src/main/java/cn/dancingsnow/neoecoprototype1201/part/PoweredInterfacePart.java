@@ -3,18 +3,19 @@ package cn.dancingsnow.neoecoprototype1201.part;
 import appeng.api.networking.energy.IPassiveEnergyGenerator;
 import appeng.api.parts.IPartItem;
 import appeng.helpers.InterfaceLogic;
+import appeng.menu.ISubMenu;
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocator;
 import appeng.parts.PartModel;
 import appeng.parts.misc.InterfacePart;
 import cn.dancingsnow.neoecoprototype1201.Prototype1201;
+import cn.dancingsnow.neoecoprototype1201.Registration;
 import cn.dancingsnow.neoecoprototype1201.blockentity.crafting.SimplifyPoweredMEInterfaceBlockEntity;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Cable-mounted AE2 interface that also provides 200 AE/t. Ported from the 1.21.1 line with one
- * deliberate drop: that version overrides openMenu to open this addon's own interface screen, but
- * this line's interfaces keep AE2's own screen on both the block and the part (the block side is
- * AE2's InterfaceBlock with no subclass), so the part inherits AE2's opener and the two forms
- * behave identically.
+ * Cable-mounted AE2 interface that also provides 200 AE/t. Its dedicated menu type serves both interface
+ * blocks and cable parts, using AE2's slot logic with an 18-slot screen.
  */
 public class PoweredInterfacePart extends InterfacePart implements IPassiveEnergyGenerator {
     private static final ResourceLocation BASE_MODEL = ResourceLocation.fromNamespaceAndPath(Prototype1201.MOD_ID, "part/powered_me_interface");
@@ -42,6 +43,16 @@ public class PoweredInterfacePart extends InterfacePart implements IPassiveEnerg
     @Override
     protected InterfaceLogic createLogic() {
         return new InterfaceLogic(getMainNode(), this, getPartItem().asItem(), 18);
+    }
+
+    @Override
+    public void openMenu(net.minecraft.world.entity.player.Player player, MenuLocator locator) {
+        MenuOpener.open(Registration.POWERED_INTERFACE_PART_MENU.get(), player, locator);
+    }
+
+    @Override
+    public void returnToMainMenu(net.minecraft.world.entity.player.Player player, ISubMenu subMenu) {
+        MenuOpener.returnTo(Registration.POWERED_INTERFACE_PART_MENU.get(), player, subMenu.getLocator());
     }
 
     /** Suppressed or not, this is what the part would produce: AE2 compares these rates to re-pick

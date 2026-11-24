@@ -81,6 +81,11 @@ public final class Registration {
             cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu>> L1_PATTERN_PROVIDER_MENU =
             MENUS.register("l1_pattern_provider", () -> net.minecraftforge.common.extensions.IForgeMenuType
                     .create(cn.dancingsnow.neoecoprototype1201.menu.L1PatternProviderMenu::fromNetwork));
+    /** Shared two-row menu type for powered/superconductive interface blocks and cable parts. */
+    public static final RegistryObject<net.minecraft.world.inventory.MenuType<
+            cn.dancingsnow.neoecoprototype1201.menu.PoweredInterfacePartMenu>> POWERED_INTERFACE_PART_MENU =
+            MENUS.register("powered_interface_part", () -> net.minecraftforge.common.extensions.IForgeMenuType
+                    .create(cn.dancingsnow.neoecoprototype1201.menu.PoweredInterfacePartMenu::fromNetwork));
 
     /**
      * Same ladder as the 1.21.1 L1 cells. Public because the chemical family builds the same five steps
@@ -428,8 +433,6 @@ public final class Registration {
                         output.accept(AE2_INTERFACE_TO_L1_POWERED_CARD.get());
                         output.accept(AE2_INTERFACE_TO_L1_SUPERCONDUCTIVE_CARD.get());
                         output.accept(GREEN_CRYSTAL_MATRIX.get());
-                        output.accept(GRETTE_CRYSTAL.get());
-                        output.accept(GRETTE_CRYSTAL_DUST.get());
                         // Match the source policy: only the dessert forms are visible; ores and the
                         // dissolution bath stay registered for commands/datapacks, outside this tab.
                         output.accept(cn.dancingsnow.neoecoprototype1201.registration.ColdContent.CRYOTHEUM_ICE_CREAM.get());

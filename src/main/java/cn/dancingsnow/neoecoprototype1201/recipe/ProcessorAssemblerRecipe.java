@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A processor assembly recipe: three or four ingredients, one unit each, one output. It exists because AE2's
+ * A processor assembly recipe: three to four ingredients, one unit each, one output. It exists because AE2's
  * molecular assembler only accepts patterns that implement
  * {@link net.minecraft.world.item.crafting.Recipe} through its own pattern classes, and a plain shaped
  * recipe cannot say "these four slots are interchangeable" the way an inscriber press can.
@@ -41,7 +41,6 @@ import java.util.List;
  * {@code Codec.list(codec, min, max)}, which that overload is not in the 1.20.1 datafixerupper.</p>
  */
 public final class ProcessorAssemblerRecipe implements Recipe<Container> {
-    /** Below three the recipe is an inscriber press with one leg missing; above four the grid has no room. */
     public static final int MIN_INPUTS = 3;
     public static final int MAX_INPUTS = 4;
     /** The assembler's crafting grid, which is what a pattern is filled into. */

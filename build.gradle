@@ -55,11 +55,15 @@ repositories {
         metadataSources { artifact() }
         content { includeGroup 'u6dRKJwZ'; includeGroup 'UhW5uCKw'; includeGroup 'jjuIRIVr'; includeGroup '9s6osm5g'; includeGroup 'RYE1pYyr'; includeGroup 'IJI3QuK8' }
     }
+    flatDir { dirs "$buildDir/reference-mods" }
 }
 
 minecraft {
     mappings channel: 'official', version: minecraft_version
     copyIdeResources = true
+    // PoweredInterfaceScreen writes Slot.y to line the second row of each section up with the grooves the
+    // interface panel draws. FG applies this file to the dev artifact, so javac sees the field as non-final.
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
         configureEach {
@@ -161,6 +165,16 @@ dependencies {
     compileOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
     runtimeOnly fg.deobf("RYE1pYyr:ae2omnicells-1.20.1-forge-1.1.6:c2s3iMw8")
 
+    // Development-only reference mods for reproducing AE2 cable-part interactions; none enter our jar.
+    // AdvancedAE is resolved from its checked Modrinth 1.20.1 build; GeckoLib uses the checked local Forge jar.
+    runtimeOnly fg.deobf("maven.modrinth:advancedae:d83Wdhdn")
+    // ForgeGradle only remaps module artifacts, not raw file dependencies. Copy the local reference jar
+    // into a flatDir module so fg.deobf can remap it for the official-mappings dev runtime.
+    runtimeOnly fg.deobf("local:geckolib-forge-1.20.1:4.8.4")
+    // ExtendedAE is a separate required parent mod (modid expatternprovider); ExtendedAE-Plus is omitted
+    // because its 1.5.5 jar embeds an unmapped Configuration 2.2.1 that crashes on player login.
+    runtimeOnly fg.deobf("curse.maven:extendedae-892005:9304849")
+
     // Ars Energistique is the mod that carries the source medium, and the source family is the one
     // integration that compiles against it: SourceKey/SourceKeyType are read inside gated method
     // bodies (safe per AGENTS §4.2), but the item classes' constructor arguments name arseng's key
@@ -229,6 +243,16 @@ dependencies {
     runtimeOnly fg.deobf("maven.modrinth:rhino:2001.2.3-build.10+forge")
     runtimeOnly fg.deobf("maven.modrinth:architectury-api:9.2.14+forge")
 
+}
+
+tasks.register('prepareGeckoLibReference', Copy) {
+    from('参考模组/geckolib-forge-1.20.1-4.8.4.jar')
+    into layout.buildDirectory.dir('reference-mods')
+    rename { 'geckolib-forge-1.20.1-4.8.4.jar' }
+}
+
+tasks.matching { it.name == 'runClient' }.configureEach {
+    dependsOn tasks.named('prepareGeckoLibReference')
 }
 
 jar {

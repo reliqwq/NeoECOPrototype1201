@@ -1,0 +1,12 @@
+{
+  "type": "neoecoprototype1201:processor_assembler",
+  "ingredients": [
+    { "item": "neoecoae:crystal_matrix" },
+    { "item": "neoecoae:energized_superconductive_ingot" },
+    { "tag": "forge:silicon" }
+  ],
+  "result": {
+    "item": "neoecoae:superconducting_processor",
+    "count": 1
+  }
+}

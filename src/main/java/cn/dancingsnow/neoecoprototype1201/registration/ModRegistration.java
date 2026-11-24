@@ -79,10 +79,16 @@ public final class ModRegistration {
     }
 
     private static RegistryObject<Block> registerBlock(String name, Supplier<Block> block) {
+        return registerBlock(name, block, true);
+    }
+
+    private static RegistryObject<Block> registerBlock(String name, Supplier<Block> block, boolean inCreativeTab) {
         RegistryObject<Block> registered = BLOCKS.register(name, block);
         RegistryObject<Item> item = BLOCK_ITEMS.register(name,
                 () -> new BlockItem(registered.get(), new Item.Properties()));
-        TAB_BLOCK_ITEMS.add(item);
+        if (inCreativeTab) {
+            TAB_BLOCK_ITEMS.add(item);
+        }
         return registered;
     }
 
@@ -202,38 +208,39 @@ public final class ModRegistration {
                         .getAxis() == net.minecraft.core.Direction.Axis.Y ? 4 : 2);
     }
 
+    // Registered for world generation and commands, but kept out of the unfinished family's creative tab.
     // 1.20.1 takes integer dimensions: the source's 3.5 small-bud inset uses vanilla's 3 here.
     public static final RegistryObject<Block> SMALL_GRETTE_BUD =
             registerBlock("small_grette_bud",
-                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(3, 3, gretteBudProperties()));
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(3, 3, gretteBudProperties()), false);
     public static final RegistryObject<Block> MEDIUM_GRETTE_BUD =
             registerBlock("medium_grette_bud",
-                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(4, 3, gretteBudProperties()));
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(4, 3, gretteBudProperties()), false);
     public static final RegistryObject<Block> LARGE_GRETTE_BUD =
             registerBlock("large_grette_bud",
-                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(5, 2, gretteBudProperties()));
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(5, 2, gretteBudProperties()), false);
     public static final RegistryObject<Block> GRETTE_CLUSTER =
             registerBlock("grette_cluster",
-                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(7, 1, gretteBudProperties()));
+                    () -> new net.minecraft.world.level.block.AmethystClusterBlock(7, 1, gretteBudProperties()), false);
     public static final RegistryObject<Block> GRETTE_CRYSTAL_BLOCK =
             registerBlock("grette_crystal_block", () -> new Block(BlockBehaviour.Properties.copy(Blocks.AMETHYST_BLOCK)
                     .mapColor(net.minecraft.world.level.material.MapColor.DIAMOND).strength(1.5F).noOcclusion()
                     .sound(net.minecraft.world.level.block.SoundType.AMETHYST)
-                    .requiresCorrectToolForDrops().lightLevel(state -> 4)));
+                    .requiresCorrectToolForDrops().lightLevel(state -> 4)), false);
 
     // Worst first so each lazy decay supplier names an already declared registration.
     public static final RegistryObject<Block> DAMAGED_BUDDING_GRETTE =
             registerBlock("damaged_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
-                    .GretteBuddingBlock(() -> GRETTE_CRYSTAL_BLOCK.get(), gretteGrowth()));
+                    .GretteBuddingBlock(() -> GRETTE_CRYSTAL_BLOCK.get(), gretteGrowth()), false);
     public static final RegistryObject<Block> CHIPPED_BUDDING_GRETTE =
             registerBlock("chipped_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
-                    .GretteBuddingBlock(() -> DAMAGED_BUDDING_GRETTE.get(), gretteGrowth()));
+                    .GretteBuddingBlock(() -> DAMAGED_BUDDING_GRETTE.get(), gretteGrowth()), false);
     public static final RegistryObject<Block> FLAWED_BUDDING_GRETTE =
             registerBlock("flawed_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
-                    .GretteBuddingBlock(() -> CHIPPED_BUDDING_GRETTE.get(), gretteGrowth()));
+                    .GretteBuddingBlock(() -> CHIPPED_BUDDING_GRETTE.get(), gretteGrowth()), false);
     public static final RegistryObject<Block> FLAWLESS_BUDDING_GRETTE =
             registerBlock("flawless_budding_grette", () -> new cn.dancingsnow.neoecoprototype1201.block.grette
-                    .GretteBuddingBlock(gretteGrowth()));
+                    .GretteBuddingBlock(gretteGrowth()), false);
 
     private static cn.dancingsnow.neoecoprototype1201.block.grette.GretteBuddingBlock.GretteGrowth gretteGrowth() {
         return new cn.dancingsnow.neoecoprototype1201.block.grette.GretteBuddingBlock.GretteGrowth(

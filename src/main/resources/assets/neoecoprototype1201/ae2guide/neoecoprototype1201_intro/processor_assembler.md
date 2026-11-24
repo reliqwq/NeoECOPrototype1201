@@ -7,6 +7,10 @@ navigation:
 item_ids:
   - neoecoprototype1201:backup_drive
   - neoecoprototype1201:cable_pattern_provider
+  - ae2:silicon
+  - neoecoae:crystal_matrix
+  - neoecoae:superconducting_processor
+  - neoecoae:energized_superconductive_ingot
   - neoecoprototype1201:ec9_processor_assembler
   - neoecoprototype1201:simplify_pattern_provider
   - neoecoprototype1201:simplify_stonecutting_assembler
@@ -31,6 +35,8 @@ item_ids:
 
 The **L1 Processor Assembler** is a green-shell version of the <ItemLink id="ae2:molecular_assembler" /> built for saves that do not have an inscriber yet: it crafts the three processors straight from patterns. It runs only this mod's processor assembly recipes; ordinary molecular assembly patterns are refused, and that work belongs to a Molecular Assembler. It is used with the L1 Pattern Provider below.
 
+Its recipe gate and batching rules live in this mod's own block entity; no AE2 mixin is used.
+
 <ItemGrid>
   <ItemIcon id="neoecoprototype1201:simplify_stonecutting_assembler" />
   <ItemIcon id="neoecoprototype1201:simplify_pattern_provider" />
@@ -48,13 +54,19 @@ Both are made in a **crafting table**: the assembler is 1 Molecular Assembler + 
 
 ## Built-in recipes
 
-The three processors (the rest are derived from the inscriber, see below):
+The three processors (EC9 can derive further recipes from the inscriber, see below):
 
 | Output | Ingredients |
 |--------|-------------|
 | Logic Processor | silicon + redstone dust + gold ingot |
 | Calculation Processor | silicon + redstone dust + certus quartz crystal |
 | Engineering Processor | silicon + redstone dust + diamond |
+
+Both machines also make the Superconducting Processor:
+
+| Output | Ingredients |
+|--------|-------------|
+| <ItemLink id="neoecoae:superconducting_processor" /> | crystal matrix + energized superconductive ingot + silicon |
 
 The other eight:
 
@@ -71,17 +83,10 @@ The other eight:
 
 Silicon, gold and diamond are taken by tag, so any mod's version counts.
 
+Only EC9 derives further processor recipes from the inscriber in place - recipes other mods add there need no data file here.
 
 ## Speed and batching
 
-5 card slots take nothing but the <ItemLink id="ae2:speed_card" />: one craft costs 100 ticks empty and 20 ticks with five cards in.
+L1 has five <ItemLink id="ae2:speed_card" /> slots: one craft takes 100 ticks empty and 20 ticks with five cards. It accepts only 1× patterns and always executes one recipe unit.
 
-However many complete sets a push carries, they finish in a **single** cycle - output scales with the multiplier, time does not - so more cards are the only way to go faster. The assembler has a nine-slot grid, and one batch has to fit into those nine slots at its own stack sizes; a pattern that needs **more than nine slots** is refused - the materials go back to the network and the log names the offending line. For a processor the ceiling is 3 ingredients x 64 per stack = **192×**. One stack of the output reaches the machine per round; the rest is inserted into the network rather than lost.
-
-## The EC9: the family's volume half
-
-Additionally supports recipes derived from the inscriber.
-
-It is built from a basic assembler, six green crystal matrices and a CE1R flash crystal array.
-
-<RecipeFor id="neoecoprototype1201:ec9_processor_assembler" />
+EC9 has six speed-card slots and takes **1 tick** with six cards in an adequately powered network. It accepts encoded batches up to `processor_assembler_max_runs_per_cycle` (default **64**, range **1–192**), but never expands a 1× pattern automatically. An oversized batch, or one whose ingredients do not fit the nine-slot grid, is refused whole and its materials stay in the network.

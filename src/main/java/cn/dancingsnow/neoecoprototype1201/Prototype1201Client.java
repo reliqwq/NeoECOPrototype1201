@@ -30,6 +30,9 @@ import net.minecraftforge.registries.RegistryObject;
 /** Client wiring for the cell family: drive model and renderer, model baking, and the status light tint. */
 @Mod.EventBusSubscriber(modid = Prototype1201.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class Prototype1201Client {
+    /** Same convention as the other named loggers on this line, so a client reading is greppable by name. */
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("neoeco1201-client");
+
     /**
      * AE2's part-model list is write-once, and the deadline is not a lifecycle event we can outrank: the
      * freeze runs wherever {@code PartModels.freeze()} is called, which is
@@ -164,6 +167,23 @@ public final class Prototype1201Client {
     }
 
     /**
+     * The assembler's style is parsed once and kept, the way AE2 caches its own documents, so a reload has to
+     * discard the copy or a resource pack could never override our assembler layout. AE2 registers this same
+     * kind of listener for {@code StyleManager}; this one covers the style file AE2 cannot see because it is
+     * ours - the assembler is the only screen we load outside AE2's table.
+     */
+    @SubscribeEvent
+    public static void onRegisterClientReloadListeners(
+            net.minecraftforge.client.event.RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(
+                (net.minecraft.server.packs.resources.ResourceManagerReloadListener)
+                        manager -> cn.dancingsnow.neoecoprototype1201.client.ProcessorAssemblerScreen.forgetStyle());
+        // The listener is the only reading this path has: a style that never drops is invisible until someone
+        // ships a pack that overrides the layout, so the registration itself is what gets logged.
+        LOGGER.info("registered the assembler style cache for client reloads");
+    }
+
+    /**
      * Declare, on purpose, that the assembler's recipes have no place in the vanilla recipe book.
      * {@code ClientRecipeBook.getCategory} asks {@code RecipeBookManager} for every recipe it is handed and
      * logs one {@code Unknown recipe category: <type>/<id>} warning per recipe when the answer is null -
@@ -260,6 +280,13 @@ public final class Prototype1201Client {
             net.minecraft.client.gui.screens.MenuScreens.register(
                     Registration.PROCESSOR_ASSEMBLER_MENU.get(),
                     cn.dancingsnow.neoecoprototype1201.client.ProcessorAssemblerScreen::new);
+            // Our own subclass of AE2's interface screen, not AE2's class: the panel draws its two groups
+            // apart, and only code can put a section's second row into the lower pair of grooves.
+            appeng.init.client.InitScreens.<cn.dancingsnow.neoecoprototype1201.menu.PoweredInterfacePartMenu,
+                    cn.dancingsnow.neoecoprototype1201.client.PoweredInterfaceScreen>register(
+                    Registration.POWERED_INTERFACE_PART_MENU.get(),
+                    cn.dancingsnow.neoecoprototype1201.client.PoweredInterfaceScreen::new,
+                    "/screens/neoecoprototype/powered_interface.json");
             // The provider's screen is AE2's own class, pointed at our style doc. Here the ae2-namespace
             // resolution the assembler had to work around is exactly what we want: the style has to
             // "include" AE2's ../pattern_provider.json, so it can only live in AE2's screens folder.

@@ -1,0 +1,80 @@
+{
+  "$schema": "../schema.json",
+  "includes": [
+    "../interface.json"
+  ],
+  "background": {
+    "$comment": "textureHeight must equal the real height of the PNG: AE2 divides the v coordinates by it, and its default is 256. A sheet that is not 256 tall gets stretched by the ratio and wraps past its own bottom edge.",
+    "texture": "guis/neoecoprototype/powered_interface.png",
+    "textureHeight": 261,
+    "srcRect": [
+      0,
+      0,
+      176,
+      261
+    ]
+  },
+  "slots": {
+    "CONFIG": {
+      "left": 8,
+      "top": 54,
+      "grid": "BREAK_AFTER_9COLS",
+      "$comment": "The texture draws four groove rows, at 54, 72, 108 and 126: a config row, a storage row, a gap, then the same pair again. The grid alone would stack our rows at 18px, so PoweredInterfaceScreen.moveSecondRow adds 36 to slots 10-18 of both sections. Each config row then has a blank band of its own for its nine amount buttons, which is the only reason the panel is 261 tall instead of 225."
+    },
+    "STORAGE": {
+      "left": 8,
+      "top": 72,
+      "grid": "BREAK_AFTER_9COLS"
+    },
+    "PLAYER_INVENTORY": {
+      "left": 8,
+      "bottom": 83,
+      "grid": "BREAK_AFTER_9COLS"
+    },
+    "PLAYER_HOTBAR": {
+      "left": 8,
+      "bottom": 25,
+      "grid": "HORIZONTAL"
+    }
+  },
+  "text": {
+    "interface_stored_items": {
+      "text": {
+        "translate": "gui.ae2.StoredItems"
+      },
+      "position": {
+        "left": 8,
+        "top": 149
+      }
+    },
+    "player_inventory_title": {
+      "text": {
+        "translate": "container.inventory"
+      },
+      "position": {
+        "left": 8,
+        "top": 167
+      }
+    }
+  },
+  "widgets": {
+    "amtButton1": { "left": 8, "top": 35, "width": 16, "height": 16 },
+    "amtButton2": { "left": 26, "top": 35, "width": 16, "height": 16 },
+    "amtButton3": { "left": 44, "top": 35, "width": 16, "height": 16 },
+    "amtButton4": { "left": 62, "top": 35, "width": 16, "height": 16 },
+    "amtButton5": { "left": 80, "top": 35, "width": 16, "height": 16 },
+    "amtButton6": { "left": 98, "top": 35, "width": 16, "height": 16 },
+    "amtButton7": { "left": 116, "top": 35, "width": 16, "height": 16 },
+    "amtButton8": { "left": 134, "top": 35, "width": 16, "height": 16 },
+    "amtButton9": { "left": 152, "top": 35, "width": 16, "height": 16 },
+    "amtButton10": { "left": 8, "top": 89, "width": 16, "height": 16 },
+    "amtButton11": { "left": 26, "top": 89, "width": 16, "height": 16 },
+    "amtButton12": { "left": 44, "top": 89, "width": 16, "height": 16 },
+    "amtButton13": { "left": 62, "top": 89, "width": 16, "height": 16 },
+    "amtButton14": { "left": 80, "top": 89, "width": 16, "height": 16 },
+    "amtButton15": { "left": 98, "top": 89, "width": 16, "height": 16 },
+    "amtButton16": { "left": 116, "top": 89, "width": 16, "height": 16 },
+    "amtButton17": { "left": 134, "top": 89, "width": 16, "height": 16 },
+    "amtButton18": { "left": 152, "top": 89, "width": 16, "height": 16 }
+  }
+}

@@ -9,6 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The assembler's screen: AE2's molecular-assembler layout, drawn from a style file of our own.
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class ProcessorAssemblerScreen extends UpgradeableScreen<ProcessorAssemblerMenu> {
     private static final ResourceLocation STYLE =
             ResourceLocation.fromNamespaceAndPath(Prototype1201.MOD_ID, "screens/processor_assembler.json");
+    private static final Logger LOGGER = LoggerFactory.getLogger("neoeco1201-assembler-screen");
 
     /**
      * Parsed once, the way AE2 caches its own styles: a style is immutable data. A missing or malformed file
@@ -35,6 +38,14 @@ public class ProcessorAssemblerScreen extends UpgradeableScreen<ProcessorAssembl
     public ProcessorAssemblerScreen(ProcessorAssemblerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, sharedStyle());
         assemblerMenu = menu;
+        // The style is synced art from the 1.21.1 line and can only name one of our two machines, so the
+        // EC9 tile would open a panel carrying its sibling's name. AE2 15.4.10 leaves this hook protected
+        // (1.21.1 has to ship the title in the file because there it is private), so the title comes from
+        // the host itself here.
+        Component machineTitle = menu.getHost().getMachineTitle();
+        setTextContent(TEXT_ID_DIALOG_TITLE, machineTitle);
+        LOGGER.info("opened {} as '{}' at {}", menu.getHost().getClass().getSimpleName(),
+                machineTitle.getString(), menu.getHost().getBlockPos());
         progressBar = new ProgressBar(menu, style.getImage("progressBar"), ProgressBar.Direction.VERTICAL);
         widgets.add("progressBar", progressBar);
     }
@@ -45,11 +56,23 @@ public class ProcessorAssemblerScreen extends UpgradeableScreen<ProcessorAssembl
                 ScreenStyle loaded = ScreenStyle.GSON.fromJson(reader, ScreenStyle.class);
                 loaded.validate();
                 cachedStyle = loaded;
+                LOGGER.info("loaded assembler style {}", STYLE);
             } catch (Exception e) {
                 throw new IllegalStateException("Could not load assembler screen style " + STYLE, e);
             }
         }
         return cachedStyle;
+    }
+
+    /**
+     * Drops the parsed copy. A style is immutable data, so without this the first read outlives every reload
+     * and a resource pack could never override our assembler layout - the same reason AE2 keeps a listener of
+     * its own for {@code StyleManager}'s cache.
+     */
+    public static void forgetStyle() {
+        boolean hadCachedStyle = cachedStyle != null;
+        cachedStyle = null;
+        LOGGER.info("discarded assembler style cache (hadCachedStyle={})", hadCachedStyle);
     }
 
     @Override
