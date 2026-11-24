@@ -11,7 +11,7 @@ modId = "neoecoprototype1201"
 version = "${mod_version}"
 displayName = "Neo ECO Prototype (1.20.1)"
 authors = "reliqwq"
-description = "L1 early-game tier for Neo ECO AE Extension, on Minecraft 1.20.1: the storage, computation and crafting subsystems, the processor assembler, and six storage-matrix families."
+description = "L1 early-game tier for Neo ECO AE Extension, on Minecraft 1.20.1: the storage, computation and crafting subsystems, the processor assembler, and a broad catalogue of storage matrices."
 
 [[dependencies.neoecoprototype1201]]
     modId = "forge"

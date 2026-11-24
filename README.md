@@ -44,39 +44,34 @@ cluster, calculator and `MultiBlockDefinition`; the calculators go in through
 eco's constructors install eco's own calculator otherwise and a scan starting from a drive would
 validate our shell against eco's L4 geometry.
 
-Six storage-matrix families ship: item, fluid, chemical (only with Applied Mekanistics), FE (only
-with Applied Flux), the infinite concrete matrix (vanilla-only, through a stateless cell handler)
-and the Pigmee matrix. Alongside the three subsystems: the L1 pattern provider in two forms (a block
-and a cable part, 27 pattern slots, the two converting one for one), five dolls on one block entity,
-and four migration drives plus the shell they return as - registered, and deliberately with no recipe.
-Measured from `lang` and the data guard: 42 blocks and 40 items named, 96 recipe JSONs (77 crafting
-and machine recipes plus 19 disassembly tables), 18 advancement nodes, nine guide pages in each of
-English and Chinese, and four scene NBTs - every one of the 77 registered ids is claimed by exactly one page,
-so the book's item index opens a page for all of them.
+Storage-matrix coverage now includes item, fluid, chemical (only with Applied Mekanistics), FE
+(only with Applied Flux), infinite concrete and Pigmee matrices, small-bulk item/fluid cells (with
+MEGA Cells), the Universal / Quantum / Complex Universal OMNI families (with AE2 OmniCells), and the
+singularity, sky-stone dust and Ars Energistique source families. KubeJS can additionally register
+finite, infinite and self-growing matrices, plus eco's infinite-supply cell. Alongside the three
+subsystems: the L1 pattern provider in two forms (a block and a cable part, 27 pattern slots), the
+EC9 processor assembler, the structure expansion card with its backup drive and twelve work orders,
+five dolls plus the plushie crafting CPU, and two creative helpers. Measured by `lang` and the data
+guard: 145 registered ids are claimed by exactly one GuideME page, with 35 storage cells, 32
+disassembly tables, 19 advancement nodes and four scene NBTs.
 
-Still not ported - zero references in our own bytecode, checked class by class: the host panel's
+The structure expansion card is registered: it can grow a formed machine along its edge or swap it
+up a tier in place, using a backup drive and work orders; migration drives remain the quick tier-swap
+path. Still not ported - zero references in our own bytecode, checked class by class: the host panel's
 action layer (`StorageHostActionUI`, `ClientUIBridge`, `ServerTaskUtil`), bulk marking
-(`IECOBulkMarkableCellItem`) and eco's fast path (`ECOFastPathFacade`). eco's one-click builder
-(`MultiBlockBuildController`) is no longer on that list - `SimplifyStructureExpansionCardItem` calls
-its planner to grow a formed machine along its edge and to swap it up a tier in place - but the card
-that does that is not registered on this line, so the only player-reachable half is the four drives'
-tier swap, and those come from the creative tab or `/give`.
+(`IECOBulkMarkableCellItem`) and eco's fast path (`ECOFastPathFacade`). The workstation card is also
+not ported: eco 20.5.10 still hard-codes its workstation-module and recipe-adapter gates. The
+unfinished Grette crystal items are registered but hidden from the creative tab, and the cryotheum
+ores are registered as reserved content but currently generate nowhere.
 
-That is a scoping decision, not an API wall. The 2026-09 survey that scoped this line was taken
-against the 20.5.0 branch; the published 20.5.3 build has since grown most of those surfaces -
-`MultiBlockBuildController`, `StorageHostActionUI`, `ClientUIBridge`, `ServerTaskUtil`,
-`MultiBlockInfoWrapper`, `IECOBulkMarkableCellItem`, `ECOFastPathFacade` and 44
-`crafting/execution/fastpath` classes are all in the jar, and the interface screens now use the
-`gui/computation/ComputationInterfaceUI` / `gui/crafting/CraftingInterfaceUI` shape instead of the
-old `gui/ldlib/state/NE*InterfaceUiState` objects. What is still absent is `CraftingUIHelper`.
-`MultiBlockInfoWrapper` is the one of those we already use: our three definitions are handed to
-eco's multiblock JEI page through it.
+That is a scoping decision, not an API wall. The line compiles against eco's published 20.5.10
+build. `MultiBlockBuildController`, `StorageHostActionUI`, `ClientUIBridge`, `ServerTaskUtil`,
+`MultiBlockInfoWrapper`, `IECOBulkMarkableCellItem`, `ECOFastPathFacade` and the interface-screen
+surfaces are present in that jar; `CraftingUIHelper` is still absent. `MultiBlockInfoWrapper` is the
+one of those we already use: our three definitions are handed to eco's multiblock JEI page through
+it. A green `compileJava` is the API evidence.
 
-The line references **78 eco classes** today - every constant-pool `Class` entry across our 115
-compiled classes that lives under `cn/dancingsnow/neoecoae/` - and all of them resolve in 20.5.3;
-a green `compileJava` is the evidence.
-
-## Confirmed API differences (measured on the 20.5.3 jar)
+## Confirmed API differences (measured on the 20.5.10 baseline)
 
 The ported source is the evidence: it only compiles against this shape.
 
@@ -121,7 +116,7 @@ and is fine, so a straight copy from 1.21 will reintroduce the black top.
 ./gradlew build
 ```
 
-`./gradlew build` produces `build/libs/neoecoprototype1201-1.0.0.jar` - the number is
+`./gradlew build` produces `build/libs/neoecoprototype1201-1.1.0.jar` - the number is
 `gradle.properties`' `mod_version`, so this sentence has to move with every bump. The entry point
 `Prototype1201.java` is registration plus the four hand-overs AE2 and eco offer no slot for: the
 calculator factory per member type, our block entity types in eco's pipe-capability table, our menu
