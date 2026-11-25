@@ -41,8 +41,12 @@ item_ids:
 
 ## 怎么拿到
 
-这条线的四种驱动都**没有配方**，只能从创造栏或管理员命令获得。升格各档的售价尚未设计，暂时不用猜测的价格做成配方。
+四种驱动都能在 eco 的整合工作站里合成：先用扩容卡和 AE2 1K 元件做空盘，再逐档升级；创造档驱动合并前三张。也可以从创造栏或管理员命令直接获得。
 
-`/give @p neoecoprototype1201:migration_drive_1_4`，其余三只同理：`migration_drive_4_6`、`migration_drive_6_9`、`migration_drive_creative`。
+<RecipeFor id="neoecoprototype1201:migration_drive_empty" />
+<RecipeFor id="neoecoprototype1201:migration_drive_1_4" />
+<RecipeFor id="neoecoprototype1201:migration_drive_4_6" />
+<RecipeFor id="neoecoprototype1201:migration_drive_6_9" />
+<RecipeFor id="neoecoprototype1201:migration_drive_creative" />
 
 机器必须已成型且达到满配边长。其他情况——包括只差一格没到上限的主机——都会被拒收，并打一行说清是哪一条。

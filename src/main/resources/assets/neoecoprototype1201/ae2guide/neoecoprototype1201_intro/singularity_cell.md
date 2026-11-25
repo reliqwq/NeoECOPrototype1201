@@ -32,19 +32,17 @@ One **batch** is one payout of 120: the stock - what this page calls the bank - 
 | one eco MEGA 4G matrix, or one infinite storage component | 128 | two batches, 60 s |
 | eco's infinite storage unlock (64 components) | 8,192 | 69 batches, about 35 min |
 
-## How far it can be tuned
+## Production speed
 
-On this line the pace is a constant, not a config entry: one batch per 600 ticks (30 s), 120 per batch, on all three members. A pack that wants a different pace builds its own member with the KubeJS storage-matrix builder's `grows(perBatch, ticksPerBatch)` - both numbers are required, and a scripted cell runs on its own figures instead of the shipped ones.
+Production advances in batches from world time, not as a continuous trickle. The server config sets the amount and interval independently for each family member; the default is 120 every 600 ticks (30 s). Stock tops out at **9,223,372,036,854,775,807**, then saturates instead of wrapping during normal production.
 
-The stock figure itself is a `long`, and **9,223,372,036,854,775,807 is where it stops**: past that it saturates instead of wrapping. The world clock running out saturates the same way rather than turning the stock negative.
+## Stock is computed
 
-## The contents are computed, not saved
-
-Nothing accumulates inside the cell: the stack stores two values - the world tick it started at and how much has been taken - and every query is computed as (current tick - start tick) / ticks_per_batch x amount_per_batch - taken. Four consequences follow. While the game is paused or the server is down world time does not advance, so the stock does not grow. The start tick is written the first time a drive or host queries the cell, so a cell in an inventory, a chest or as a dropped item has not started counting, while one that has started keeps growing when you take it out. Terminals read the server value; a client tooltip syncs once a second and can be up to a second behind.
+Counting starts the first time a drive or host queries the cell. Sitting in an inventory, chest or item drop does not start it. Paused game time or a stopped server does not grow the stock, and a cell that has started keeps growing after you take it out.
 
 ## Limits
 
-It holds one content type, so it cannot be partitioned in a cell workbench and cannot be stored inside another cell. It belongs to the L1 tier, so [the L1 storage system](storage_system.md) mounts it without a whitelist entry, and eco's higher tiers do too.
+It refuses all inserted content, including singularities, and only holds and yields the one thing it produces itself. It cannot be partitioned in a cell workbench or stored inside another cell. It belongs to the L1 tier, so [the L1 storage system](storage_system.md) mounts it directly and is also compatible with eco hosts.
 
 ## Recipe
 
@@ -52,14 +50,16 @@ It holds one content type, so it cannot be partitioned in a cell workbench and c
 
 ## The other member: sky stone dust cell
 
-The same engine, the same tile and the same default pace (120 per 600 ticks) - it grows **sky stone dust** (`ae2:sky_dust`, AE2's own) instead of singularities.
+<ItemLink id="neoecoprototype1201:simplify_sky_stone_dust_cell" /> produces sky stone dust (`ae2:sky_dust`): by default it produces **120 every 30 seconds**, and its stock grows according to world time.
 
 <RecipeFor id="neoecoprototype1201:simplify_sky_stone_dust_cell" />
 
-Its bill differs from the singularity cell's only in the last ingredient: infinite matrix housing + 64M ECO storage component + green crystal lattice + one sky stone dust. ## The third member: source cell
+Recipe: infinite matrix housing + 64M ECO storage component + green crystal lattice + one sky stone dust.
 
-It needs Ars Énergistique (that mod supplies the source medium; Ars Nouveau is its own hard dependency). Same engine, same tile, same default pace - it grows **source** instead.
+## Ars Nouveau tie-in: source matrix
 
-> This member is **only registered when Ars Énergistique is installed**, so this page carries no icon or recipe box for it: a tag that cannot resolve an item writes a line of red text onto the page. With Ars Énergistique installed it is in JEI.
+It produces source: **120 every 30 seconds** by default.
 
-Its bill is not the component one: infinite matrix housing + Alakarkinos token + source gem block + magebloom and three essences, via Ars Nouveau's enchanting apparatus. 
+It is **only registered when Ars Énergistique is installed**, along with its required dependency Ars Nouveau.
+
+Recipe: infinite matrix housing + Alakarkinos token + source gem block + magebloom and three essences, via Ars Nouveau's enchanting apparatus.

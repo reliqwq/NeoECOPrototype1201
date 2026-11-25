@@ -50,11 +50,15 @@ which has no colour on purpose, so an empty disk cannot be read as a usable one.
 
 ## How you get one
 
-There is **no recipe on this line, in any of the four**, and the creative tab plus an admin command is the
-only route. That is deliberate rather than unfinished: the price of a rung has not been designed, and a
-priced disk whose price is a guess is worse in a pack than one that is simply not craftable yet.
+All four drives are crafted in eco's integrated working station: make the empty shell from a structure
+expansion card and an AE2 1K component, upgrade it one rung at a time, and combine the first three drives
+into the creative drive. The creative tab and admin commands also provide them directly.
 
-`/give @p neoecoprototype1201:migration_drive_1_4` - and the same for `migration_drive_4_6`, `migration_drive_6_9` and `migration_drive_creative`.
+<RecipeFor id="neoecoprototype1201:migration_drive_empty" />
+<RecipeFor id="neoecoprototype1201:migration_drive_1_4" />
+<RecipeFor id="neoecoprototype1201:migration_drive_4_6" />
+<RecipeFor id="neoecoprototype1201:migration_drive_6_9" />
+<RecipeFor id="neoecoprototype1201:migration_drive_creative" />
 
 The machine must be a host of one of the three families, formed, and at its full length. Anything else -
 including a host that is one cell short of the ceiling - is refused with a line saying why.

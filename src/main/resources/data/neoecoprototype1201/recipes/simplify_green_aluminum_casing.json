@@ -3,7 +3,7 @@
   "category": "misc",
   "key": {
     "A": {
-      "item": "neoecoae:aluminum_ingot"
+      "tag": "c:ingots/aluminum"
     },
     "B": {
       "item": "minecraft:iron_ingot"

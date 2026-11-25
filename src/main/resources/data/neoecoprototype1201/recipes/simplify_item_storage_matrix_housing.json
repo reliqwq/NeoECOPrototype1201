@@ -9,7 +9,7 @@
       "item": "minecraft:redstone"
     },
     "C": {
-      "item": "neoecoae:aluminum_ingot"
+      "tag": "c:ingots/aluminum"
     }
   },
   "pattern": [

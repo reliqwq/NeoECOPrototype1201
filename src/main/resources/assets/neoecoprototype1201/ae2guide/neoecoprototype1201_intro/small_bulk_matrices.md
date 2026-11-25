@@ -30,7 +30,7 @@ Partitioning is a cell whitelist: only the types you allow enter the cell, every
 
 ## Going to 10 kinds
 
-Put the cell and the **expansion card** together in a crafting table and the expanded cell comes out. Nothing is returned alongside it: the card is spent, and the 1M component stays inside the cell. The card itself is also a crafting-table recipe: 4 Green Crystal Matrices + 4 MEGA Cells 1M components + 1 Energized Superconductive Ingot.
+Combine the cell with the **expansion card** in a crafting table. The card is consumed, and the 1M component already inside the cell stays there. Expansion card recipe: 4 Green Crystal Matrices + 4 MEGA Cells 1M components + 1 Energized Superconductive Ingot.
 
 ## Taking it apart
 

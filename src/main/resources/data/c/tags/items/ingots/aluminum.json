@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#forge:ingots/aluminum",
+    {
+      "id": "gtceu:aluminium_ingot",
+      "required": false
+    }
+  ]
+}

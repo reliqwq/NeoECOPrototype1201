@@ -116,7 +116,7 @@ and is fine, so a straight copy from 1.21 will reintroduce the black top.
 ./gradlew build
 ```
 
-`./gradlew build` produces `build/libs/neoecoprototype1201-1.1.1.jar` - the number is
+`./gradlew build` produces `build/libs/neoecoprototype1201-1.1.2.jar` - the number is
 `gradle.properties`' `mod_version`, so this sentence has to move with every bump. The entry point
 `Prototype1201.java` is registration plus the four hand-overs AE2 and eco offer no slot for: the
 calculator factory per member type, our block entity types in eco's pipe-capability table, our menu
