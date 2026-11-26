@@ -15,6 +15,7 @@ import cn.dancingsnow.neoecoae.multiblock.calculator.NEStorageClusterCalculator;
 import cn.dancingsnow.neoecoae.multiblock.calculator.NEStorageClusterCalculator;
 import cn.dancingsnow.neoecoae.multiblock.cluster.NEStorageCluster;
 import cn.dancingsnow.neoecoprototype1201.api.SimplifyMultiblockConfig;
+import cn.dancingsnow.neoecoprototype1201.api.SimplifyTier;
 import cn.dancingsnow.neoecoprototype1201.blockentity.storage.SimplifyStorageHostBlockEntity;
 import cn.dancingsnow.neoecoprototype1201.registration.ModRegistration;
 import net.minecraft.core.BlockPos;
@@ -253,23 +254,25 @@ public class SimplifyStorageClusterCalculator extends NEStorageClusterCalculator
      * or {@code null} when the start position is invalid.
      */
     private BlockPos energyCellLineEnd(ServerLevel level, Direction expandSide, BlockPos start, Direction back) {
-        if (!validateBlock(level, start, state -> isSupportedEnergyCell(state, back))) {
+        if (!validateBlock(level, start,
+                (state, pos) -> isSupportedEnergyCell(level, state, pos, back), start)) {
             return null;
         }
-        BlockPos end = expandTowards(level, expandSide, start, state -> isSupportedEnergyCell(state, back));
+        BlockPos end = expandTowards(level, expandSide, start,
+                (state, pos) -> isSupportedEnergyCell(level, state, pos, back));
         return end;
     }
 
-    private boolean isSupportedEnergyCell(BlockState state, Direction back) {
-        if (!(state.getBlock() instanceof ECOEnergyCellBlock cell)) {
+    private static boolean isSupportedEnergyCell(ServerLevel level, BlockState state, BlockPos pos,
+                                                  Direction back) {
+        if (!(state.getBlock() instanceof ECOEnergyCellBlock)) {
             return false;
         }
         if (state.getValue(ECOEnergyCellBlock.FACING) != back) {
             return false;
         }
-        // structure is only validated for the L1 host, whose tier is index 0;
-        // only L1 energy cells (also index 0) are supported.
-        return true;
+        return level.getBlockEntity(pos) instanceof ECOEnergyCellBlockEntity energyCell
+                && SimplifyTier.L1.supportsComponentTier(energyCell.getTier());
     }
 
     private boolean validateCasingColumn(ServerLevel level, BlockPos centerPos, Direction top, Direction down) {
@@ -407,19 +410,26 @@ public class SimplifyStorageClusterCalculator extends NEStorageClusterCalculator
                 }
                 BlockPos energyTop = ventPos.relative(top);
                 BlockPos energyDown = ventPos.relative(down);
-                if (!(level.getBlockState(energyTop).getBlock() instanceof ECOEnergyCellBlock)) {
-                    ok[0] = false;
-                    addIssue(issues, controllerPos, energyTop, ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get(), level);
-                } else if (level.getBlockState(energyTop).getValue(ECOEnergyCellBlock.FACING) != back) {
-                    ok[0] = false;
-                    issues.add(rel(controllerPos, energyTop) + " 储能元件 facing 应为 " + back.getName());
-                }
-                if (!(level.getBlockState(energyDown).getBlock() instanceof ECOEnergyCellBlock)) {
-                    ok[0] = false;
-                    addIssue(issues, controllerPos, energyDown, ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get(), level);
-                } else if (level.getBlockState(energyDown).getValue(ECOEnergyCellBlock.FACING) != back) {
-                    ok[0] = false;
-                    issues.add(rel(controllerPos, energyDown) + " 储能元件 facing 应为 " + back.getName());
+                for (BlockPos energyPos : List.of(energyTop, energyDown)) {
+                    BlockState energyState = level.getBlockState(energyPos);
+                    if (!(energyState.getBlock() instanceof ECOEnergyCellBlock)) {
+                        ok[0] = false;
+                        addIssue(issues, controllerPos, energyPos,
+                                ModRegistration.SIMPLIFY_ENERGY_CELL_BLOCK.get(), level);
+                    } else if (!isSupportedEnergyCell(level, energyState, energyPos, back)) {
+                        ok[0] = false;
+                        if (energyState.getValue(ECOEnergyCellBlock.FACING) != back) {
+                            issues.add(rel(controllerPos, energyPos)
+                                    + " 储能元件 facing 应为 " + back.getName());
+                        } else {
+                            String tier = level.getBlockEntity(energyPos)
+                                    instanceof ECOEnergyCellBlockEntity energyCell
+                                    ? energyCell.getTier().getPanelTierName().getString()
+                                    : "缺少方块实体";
+                            issues.add(rel(controllerPos, energyPos)
+                                    + " L1 主机只接受 L1 储能元件，当前为 " + tier);
+                        }
+                    }
                 }
             }
         }
