@@ -9,7 +9,8 @@
         }
       ],
       "recipe": {
-        "type": "minecraft:crafting_shapeless",
+        "type": "neoecoprototype1201:nbt_copy_shapeless",
+        "copy_nbt_from": 0,
         "category": "misc",
         "ingredients": [
           {

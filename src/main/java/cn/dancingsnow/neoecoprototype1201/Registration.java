@@ -59,6 +59,10 @@ public final class Registration {
     public static final RegistryObject<net.minecraft.world.item.crafting.RecipeSerializer<?>>
             PROCESSOR_ASSEMBLER_SERIALIZER = RECIPE_SERIALIZERS.register("processor_assembler",
                     cn.dancingsnow.neoecoprototype1201.recipe.ProcessorAssemblerRecipe.Serializer::new);
+    public static final RegistryObject<net.minecraft.world.item.crafting.RecipeSerializer<
+            cn.dancingsnow.neoecoprototype1201.recipe.NbtCopyShapelessRecipe>>
+            NBT_COPY_SHAPELESS_SERIALIZER = RECIPE_SERIALIZERS.register("nbt_copy_shapeless",
+                    cn.dancingsnow.neoecoprototype1201.recipe.NbtCopyShapelessRecipe.Serializer::new);
 
     /**
      * The assembler's menu type. AE2's {@code MenuTypeBuilder} can only name entries {@code ae2:} on this

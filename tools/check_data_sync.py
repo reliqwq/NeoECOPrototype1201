@@ -342,6 +342,15 @@ UNDISASSEMBLABLY = {NS + ":simplify_concrete_storage_cell",
                     NS + ":simplify_small_bulk_storage_cell_expanded",
                     NS + ":simplify_small_bulk_fluid_storage_cell_expanded"}
 CELL_ID = re.compile(r"(prototype_item_cell_[a-z0-9]+|.*_storage_cell(_[a-z0-9]+)?)$")
+NBT_COPY_TYPE = NS + ":nbt_copy_shapeless"
+NBT_COPY_UPGRADES = {
+    "simplify_small_bulk_storage_cell_expanded.json":
+        (NS + ":simplify_small_bulk_storage_cell",
+         NS + ":simplify_small_bulk_storage_cell_expanded"),
+    "simplify_small_bulk_fluid_storage_cell_expanded.json":
+        (NS + ":simplify_small_bulk_fluid_storage_cell",
+         NS + ":simplify_small_bulk_fluid_storage_cell_expanded"),
+}
 
 
 def member_ids(node):
@@ -444,6 +453,27 @@ def check_recipes():
             if folder != DISASSEMBLY_DIR and DISASSEMBLY_TYPE in text:
                 problems.append(f"{label}/{name}: disassembly belongs under recipes/disassembly")
 
+    registration = open(os.path.join(JAVA_DIR, "Registration.java"), encoding="utf-8").read()
+    if 'register("nbt_copy_shapeless"' not in registration:
+        problems.append("recipes: nbt_copy_shapeless serializer is not registered")
+    for name, (source, result) in NBT_COPY_UPGRADES.items():
+        path = os.path.join(RECIPE_DIR, name)
+        data = json.load(open(path, encoding="utf-8"))
+        recipe = (data["recipes"][0]["recipe"] if data.get("type") == "forge:conditional"
+                  else data)
+        where = "recipes/" + name
+        if recipe.get("type") != NBT_COPY_TYPE:
+            problems.append(f"{where}: upgrade must use {NBT_COPY_TYPE} so the cell NBT survives")
+        ingredients = recipe.get("ingredients", [])
+        if (len(ingredients) != 2
+                or ingredients[0].get("item") != source
+                or ingredients[1].get("item") != NS + ":simplify_small_bulk_expansion_card"
+                or recipe.get("result", {}).get("item") != result
+                or type(recipe.get("copy_nbt_from")) is not int
+                or recipe["copy_nbt_from"] != 0):
+            problems.append(f"{where}: expected base cell + expansion card -> expanded cell,"
+                            " copying NBT from ingredient 0")
+
     cells = {member for member in OURS if CELL_ID.search(member)}
     shipped = {name[:-5] for name in os.listdir(DISASSEMBLY_DIR)
                if name.endswith(".json")} if os.path.isdir(DISASSEMBLY_DIR) else set()
@@ -472,7 +502,8 @@ def check_recipes():
                                 " eco 20.5.3 reads 'item'")
                 continue
             check_id(f"recipes/disassembly/{name}", entry["item"])
-    print(f"recipes: {len(cells)} storage cells, {len(shipped)} disassembly tables")
+    print(f"recipes: {len(cells)} storage cells, {len(shipped)} disassembly tables,"
+          f" {len(NBT_COPY_UPGRADES)} NBT-preserving upgrades")
 
 
 MODEL_DIR = os.path.join(ASSET_DIR, "models")
