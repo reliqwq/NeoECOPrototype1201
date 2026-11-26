@@ -100,8 +100,19 @@ public final class SingularityCellHandler implements IECOCellHandler {
             if (now < 0L) {
                 return 0L;
             }
+            SimplifySingularityCellItem.Bank previous =
+                    SimplifySingularityCellItem.bankOf(stack);
             var bank = SimplifySingularityCellItem.stampIfNeeded(stack, now, mayStamp());
+            if (previous == null && bank != null) {
+                saveChanges();
+            }
             return bank == null ? 0L : cellItem().readyAt(bank, now);
+        }
+
+        private void saveChanges() {
+            if (saveProvider != null) {
+                saveProvider.saveChanges();
+            }
         }
 
         @Override
@@ -125,6 +136,7 @@ public final class SingularityCellHandler implements IECOCellHandler {
                 if (bank != null) {
                     SimplifySingularityCellItem.writeBank(stack,
                             new SimplifySingularityCellItem.Bank(bank.startGameTime(), bank.drawn() + taken));
+                    saveChanges();
                 }
             }
             return taken;
